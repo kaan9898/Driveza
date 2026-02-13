@@ -1,4 +1,5 @@
 package com.team3.driveza.model;
 
-public class VehicleType {
+public enum VehicleType {
+    CAR, PREMIUM_CAR, MOTORCYCLE
 }

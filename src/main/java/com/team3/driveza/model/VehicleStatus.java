@@ -1,4 +1,5 @@
 package com.team3.driveza.model;
 
-public class VehicleStatus {
+public enum VehicleStatus {
+    AVAILABLE, RENTED, OUT_OF_SERVICE
 }

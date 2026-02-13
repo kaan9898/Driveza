@@ -1,4 +1,5 @@
 package com.team3.driveza.model;
 
-public class RentalStatus {
+public enum RentalStatus {
+    ACTIVE, COMPLETED
 }
