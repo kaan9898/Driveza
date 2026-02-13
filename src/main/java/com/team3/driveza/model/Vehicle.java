@@ -8,7 +8,7 @@ import lombok.Data;
 public class Vehicle {
     @Id @GeneratedValue
     private long id;
-    @ManyToOne @JoinColumn(name = "model_id")
+    @ManyToOne @JoinColumn
     private VehicleModel model;
     private double longitude;
     private double latitude;

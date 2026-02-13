@@ -1,19 +1,20 @@
 package com.team3.driveza.model;
 
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
-import jakarta.persistence.OneToOne;
+import jakarta.persistence.*;
+import lombok.Data;
 
 import java.time.ZonedDateTime;
 
+@Entity
+@Data
 public class Rental {
     @Id @GeneratedValue
     private long id;
     private ZonedDateTime startTime;
     private ZonedDateTime endTime;
     private RentalStatus status;
-    @OneToOne
-    private User user;
-    @OneToOne
+    @OneToOne(cascade = CascadeType.DETACH)
+    private Users users;
+    @OneToOne(cascade = CascadeType.DETACH)
     private Vehicle vehicle;
 }
