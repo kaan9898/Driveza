@@ -1,20 +1,18 @@
 package com.team3.driveza.model;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.Data;
 
-import java.util.Date;
+import java.time.ZonedDateTime;
 
 @Entity
 @Data
-public class User {
+public class Users {
     @Id @GeneratedValue
     private long id;
     private String name;
     private String password;
     private String email;
-    private Date dob;
+    private ZonedDateTime dob;
     private Role role;
 }
