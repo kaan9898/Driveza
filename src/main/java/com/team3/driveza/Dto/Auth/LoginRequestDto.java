@@ -8,4 +8,5 @@ public class LoginRequestDto {
     private String username;
     @NotBlank(message = "This field cannot be empty.")
     private String password;
+
 }
