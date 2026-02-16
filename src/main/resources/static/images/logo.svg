@@ -1,0 +1,7 @@
+<svg width="180" height="50" viewBox="0 0 180 50" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="25" cy="25" r="22" fill="#1d4ed8"/>
+    <path d="M10 28 Q18 18 32 22 Q40 25 38 30 L12 30 Z" fill="white"/>
+    <text x="60" y="32" font-family="Arial, sans-serif" font-size="26" font-weight="700" fill="#1d4ed8">
+        Driveza
+    </text>
+</svg>

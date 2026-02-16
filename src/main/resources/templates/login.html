@@ -1,0 +1,75 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Driveza | Login</title>
+
+    <link rel="stylesheet" th:href="@{/css/driveza-login.css}" />
+</head>
+
+<body>
+<div class="wrap">
+    <div class="frame">
+
+        <!-- Top brand -->
+        <div class="brand">
+            <img class="brand__logo" th:src="@{/images/logo.svg}" alt="Driveza" />
+<!--            <div class="brand__name">Driveza</div>-->
+        </div>
+
+        <!-- Background art -->
+        <div class="art" th:style="'background-image:url(' + @{/images/bg.jpg} + ');'">
+            <!-- Login card -->
+            <div class="card">
+                <h2 class="card__title">Welcome Back!</h2>
+                <p class="card__sub">Sign in to your account</p>
+
+                <!-- Error/Logout messages -->
+                <div class="alert alert--error" th:if="${param.error}">
+                    Invalid username or password
+                </div>
+                <div class="alert alert--info" th:if="${param.logout}">
+                    Logged out successfully
+                </div>
+
+                <form class="form" th:action="@{/login}" method="post">
+                    <!-- CSRF (keep CSRF enabled for form login) -->
+                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+
+                    <label class="label">Email</label>
+                    <div class="inputWrap">
+                        <span class="icon">✉️</span>
+                        <input class="input" name="username" type="text" placeholder="Email" required />
+                    </div>
+
+                    <label class="label">Password</label>
+                    <div class="inputWrap">
+                        <span class="icon">🔒</span>
+                        <input class="input" name="password" type="password" placeholder="Password" required />
+                    </div>
+
+                    <div class="row">
+                        <label class="check">
+                            <input type="checkbox" name="remember-me" />
+                            <span>Remember me</span>
+                        </label>
+
+                        <!-- just a UI link for now -->
+                        <a class="link" href="#" onclick="return false;">Forgot password</a>
+                    </div>
+
+                    <button class="btn" type="submit">Sign In</button>
+                </form>
+
+                <div class="bottom">
+                    <span>Don't have an account?</span>
+                    <a class="link strong" href="#" onclick="return false;">Sign Up</a>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+</body>
+</html>
