@@ -1,0 +1,83 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <title>Driveza | Cars</title>
+    <link rel="stylesheet" th:href="@{/css/app.css}">
+</head>
+<body>
+
+<header class="topbar">
+    <div class="brand">
+        <img th:src="@{/images/logo.png}" alt="Driveza"/>
+        <span>Driveza</span>
+    </div>
+    <nav class="nav">
+        <a class="active" th:href="@{/cars}">Cars</a>
+        <a th:href="@{/account}">Account</a>
+        <a th:href="@{/logout}">Logout</a>
+    </nav>
+</header>
+
+<main class="page wide">
+    <div class="toolbar">
+        <h2>Available Cars</h2>
+
+        <form class="search" method="get" th:action="@{/cars}">
+            <input type="text" name="q" placeholder="Search by model / type...">
+            <select name="type">
+                <option value="">All Types</option>
+                <option value="SUV">SUV</option>
+                <option value="SEDAN">Sedan</option>
+                <option value="HATCHBACK">Hatchback</option>
+            </select>
+            <button class="btn small" type="submit">Search</button>
+        </form>
+    </div>
+
+    <div class="grid">
+        <!-- Static demo cards (replace later with th:each using DB list) -->
+        <div class="carCard">
+            <img th:src="@{/images/car-placeholder.jpg}" alt="Car">
+            <div class="carBody">
+                <div class="carTitle">Toyota Prius</div>
+                <div class="muted">Hybrid • Automatic</div>
+                <div class="priceRow">
+                    <span class="price">€35/day</span>
+                    <span class="tag ok">Available</span>
+                </div>
+                <button class="btn" type="button">Rent Now</button>
+            </div>
+        </div>
+
+        <div class="carCard">
+            <img th:src="@{/images/car-placeholder.jpg}" alt="Car">
+            <div class="carBody">
+                <div class="carTitle">BMW X3</div>
+                <div class="muted">SUV • Automatic</div>
+                <div class="priceRow">
+                    <span class="price">€70/day</span>
+                    <span class="tag warn">Booked</span>
+                </div>
+                <button class="btn" type="button" disabled>Not Available</button>
+            </div>
+        </div>
+
+        <div class="carCard">
+            <img th:src="@{/images/car-placeholder.jpg}" alt="Car">
+            <div class="carBody">
+                <div class="carTitle">Audi A4</div>
+                <div class="muted">Sedan • Manual</div>
+                <div class="priceRow">
+                    <span class="price">€55/day</span>
+                    <span class="tag ok">Available</span>
+                </div>
+                <button class="btn" type="button">Rent Now</button>
+            </div>
+        </div>
+    </div>
+</main>
+
+</body>
+</html>
