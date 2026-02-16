@@ -1,53 +1,159 @@
 <!doctype html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-  <meta charset="utf-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Driveza | Account</title>
-  <link rel="stylesheet" th:href="@{/css/app.css}">
+
+  <link rel="stylesheet" th:href="@{/css/driveza-app.css}" />
 </head>
+
 <body>
 
+<!-- Top Bar -->
 <header class="topbar">
-  <div class="brand">
-    <img th:src="@{/images/logo.png}" alt="Driveza"/>
-    <span>Driveza</span>
+  <div class="topbar__left">
+    <a class="brand" th:href="@{/cars}">
+      <img class="brand__logo" th:src="@{/images/logo.svg}" alt="Driveza" />
+      <span class="brand__name">Driveza</span>
+    </a>
   </div>
-  <nav class="nav">
-    <a th:href="@{/cars}">Cars</a>
-    <a class="active" th:href="@{/account}">Account</a>
-    <a th:href="@{/logout}">Logout</a>
+
+  <nav class="topbar__nav">
+    <a class="nav__link" th:href="@{/cars}">Cars</a>
+    <a class="nav__link" th:href="@{/map}">Map</a>
+    <a class="nav__link nav__link--active" th:href="@{/account}">Account</a>
   </nav>
+
+  <div class="topbar__right">
+    <a class="btn btn--ghost" th:href="@{/logout}">Logout</a>
+  </div>
 </header>
 
-<main class="page wide">
-  <div class="card">
-    <h2>Account Details</h2>
-    <p class="muted">Your profile information</p>
+<main class="container">
 
-    <!-- If you don’t have backend values yet, keep placeholders -->
-    <div class="infoGrid">
-      <div class="infoBox">
-        <div class="labelSmall">Username</div>
-        <div class="value" th:text="${username} ?: 'admin'">admin</div>
-      </div>
-
-      <div class="infoBox">
-        <div class="labelSmall">Email</div>
-        <div class="value" th:text="${email} ?: 'admin@driveza.com'">admin@driveza.com</div>
-      </div>
-
-      <div class="infoBox">
-        <div class="labelSmall">Role</div>
-        <div class="value" th:text="${role} ?: 'USER'">USER</div>
-      </div>
-
-      <div class="infoBox">
-        <div class="labelSmall">Bookings</div>
-        <div class="value" th:text="${bookings} ?: 0">0</div>
-      </div>
+  <section class="pageHead">
+    <div>
+      <h1 class="pageTitle">Account</h1>
+      <p class="pageSub">Manage your profile and settings</p>
     </div>
+  </section>
+
+  <!-- Alerts -->
+  <div class="alert alert--error" th:if="${param.error}">
+    Could not update your account. Please try again.
   </div>
+  <div class="alert alert--info" th:if="${param.success}">
+    Account updated successfully.
+  </div>
+
+  <section class="accountGrid">
+
+    <!-- Left: Profile summary -->
+    <article class="card pad">
+      <h2 class="sectionTitle">Profile</h2>
+      <p class="muted">Basic information</p>
+
+      <div class="profileBox">
+        <div class="avatar">👤</div>
+        <div>
+          <!-- later: th:text="${user.fullName}" -->
+          <div class="profileName">Gayantha Chamith</div>
+          <!-- later: th:text="${user.email}" -->
+          <div class="profileEmail">user@driveza.com</div>
+          <div class="profileRole">
+            <span class="badge badge--ok">USER</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="profileStats">
+        <div class="infoBox">
+          <div class="labelSmall">Active Rental</div>
+          <div class="valueBig small">No</div>
+        </div>
+        <div class="infoBox">
+          <div class="labelSmall">Total Rentals</div>
+          <div class="valueBig small">0</div>
+        </div>
+      </div>
+    </article>
+
+    <!-- Right: Active rental card -->
+    <aside class="card pad">
+      <h2 class="sectionTitle">My Active Rental</h2>
+      <p class="muted">If you have a rented car, it appears here</p>
+
+      <!-- UI placeholder -->
+      <div class="rentalCard">
+        <div class="rentalRow">
+          <span class="muted">Car</span>
+          <b>Toyota Prius</b>
+        </div>
+        <div class="rentalRow">
+          <span class="muted">Status</span>
+          <span class="badge badge--warn">RENTED</span>
+        </div>
+        <div class="rentalRow">
+          <span class="muted">Start</span>
+          <b>Today 10:20</b>
+        </div>
+        <div class="rentalRow">
+          <span class="muted">Pickup</span>
+          <b>Riga Center</b>
+        </div>
+
+        <div class="actions">
+          <button class="btn" type="button">Return Car</button>
+          <a class="btn btn--ghost" th:href="@{/cars}">Find Cars</a>
+        </div>
+
+        <p class="hint">
+          If you already have an active rental, you can’t rent another car until you return this one.
+        </p>
+      </div>
+    </aside>
+
+    <!-- Full width: Settings form -->
+    <article class="card pad accountFull">
+      <h2 class="sectionTitle">Account Settings</h2>
+      <p class="muted">Update your details. (Backend can be added later)</p>
+
+      <form class="settingsForm" method="post" th:action="@{/account/update}">
+        <!-- If CSRF enabled -->
+        <input type="hidden" th:if="${_csrf != null}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+
+        <div class="settingsGrid">
+          <div class="field">
+            <label class="label">Username</label>
+            <input class="input" name="username" type="text" placeholder="username" value="user" />
+          </div>
+
+          <div class="field">
+            <label class="label">Email</label>
+            <input class="input" name="email" type="email" placeholder="email" value="user@driveza.com" />
+          </div>
+
+          <div class="field">
+            <label class="label">New Password</label>
+            <input class="input" name="newPassword" type="password" placeholder="New password" />
+          </div>
+
+          <div class="field">
+            <label class="label">Confirm Password</label>
+            <input class="input" name="confirmPassword" type="password" placeholder="Confirm password" />
+          </div>
+        </div>
+
+        <div class="formActions">
+          <button class="btn" type="submit">Save Changes</button>
+          <button class="btn btn--ghost" type="reset">Reset</button>
+        </div>
+      </form>
+    </article>
+
+  </section>
+
 </main>
 
 </body>
