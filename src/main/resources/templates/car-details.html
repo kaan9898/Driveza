@@ -1,0 +1,146 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Driveza | Car Details</title>
+
+  <link rel="stylesheet" th:href="@{/css/driveza-app.css}" />
+</head>
+
+<body>
+
+<!-- Top Bar -->
+<header class="topbar">
+  <div class="topbar__left">
+    <a class="brand" th:href="@{/cars}">
+      <img class="brand__logo" th:src="@{/images/logo.svg}" alt="Driveza" />
+      <span class="brand__name">Driveza</span>
+    </a>
+  </div>
+
+  <nav class="topbar__nav">
+    <a class="nav__link" th:href="@{/cars}">Cars</a>
+    <a class="nav__link" th:href="@{/map}">Map</a>
+    <a class="nav__link" th:href="@{/account}">Account</a>
+  </nav>
+
+  <div class="topbar__right">
+    <a class="btn btn--ghost" th:href="@{/logout}">Logout</a>
+  </div>
+</header>
+
+<main class="container">
+
+  <!-- Breadcrumb / back -->
+  <div class="crumbs">
+    <a class="linkBack" th:href="@{/cars}">← Back to cars</a>
+  </div>
+
+  <!-- Alerts -->
+  <div class="alert alert--error" th:if="${param.error}">
+    Cannot rent this car right now. Please try another one.
+  </div>
+  <div class="alert alert--info" th:if="${param.success}">
+    Action completed successfully.
+  </div>
+
+  <section class="detailsGrid">
+
+    <!-- Left: image + key info -->
+    <article class="detailsCard">
+      <img class="detailsImg" th:src="@{/images/car-placeholder.jpg}" alt="Car image" />
+
+      <div class="detailsBody">
+        <!-- If backend exists later -->
+        <!-- <h1 class="detailsTitle" th:text="${car.brand + ' ' + car.model}">Toyota Prius</h1> -->
+        <h1 class="detailsTitle">Toyota Prius</h1>
+
+        <div class="detailsMeta">
+          <!-- <span th:text="${car.type}">Hybrid</span> • <span th:text="${car.transmission}">Automatic</span> -->
+          Hybrid • Automatic • 5 seats
+        </div>
+
+        <div class="detailsBadges">
+          <!-- <span class="badge badge--ok" th:text="${car.status}">AVAILABLE</span> -->
+          <span class="badge badge--ok">AVAILABLE</span>
+          <span class="badge badge--warn">Fuel: 70%</span>
+        </div>
+
+        <div class="split">
+          <div class="infoBox">
+            <div class="labelSmall">Distance</div>
+            <div class="valueBig">1.2 km</div>
+          </div>
+          <div class="infoBox">
+            <div class="labelSmall">Location</div>
+            <div class="valueBig small">Riga Center</div>
+          </div>
+        </div>
+
+        <div class="priceBlock">
+          <div class="priceRow2">
+            <span class="muted">Price per time</span>
+            <b>€10 / hour</b>
+          </div>
+          <div class="priceRow2">
+            <span class="muted">Price per km</span>
+            <b>€0.35 / km</b>
+          </div>
+        </div>
+
+        <div class="actions">
+          <!-- Rent button (enable/disable later based on status) -->
+          <button class="btn" type="button">Rent this car</button>
+
+          <!-- Return button (only show when user has active rental) -->
+          <button class="btn btn--ghost" type="button">Return car</button>
+        </div>
+
+        <p class="hint">
+          Note: If you already have an active rental, you can’t rent a new car until you return it.
+        </p>
+      </div>
+    </article>
+
+    <!-- Right: specs + map placeholder -->
+    <aside class="sideCard">
+
+      <div class="sideSection">
+        <h3 class="sideTitle">Car Specs</h3>
+
+        <div class="specs">
+          <div class="spec"><span class="muted">Brand</span><b>Toyota</b></div>
+          <div class="spec"><span class="muted">Model</span><b>Prius</b></div>
+          <div class="spec"><span class="muted">Transmission</span><b>Automatic</b></div>
+          <div class="spec"><span class="muted">Fuel Type</span><b>Hybrid</b></div>
+          <div class="spec"><span class="muted">Fuel</span><b>70%</b></div>
+          <div class="spec"><span class="muted">Status</span><b>AVAILABLE</b></div>
+        </div>
+      </div>
+
+      <div class="sideSection">
+        <h3 class="sideTitle">Map Preview</h3>
+        <div class="mapBox">
+          <div class="mapHint">Google Maps will be shown here</div>
+          <div class="mapHint small">Pin: car location • Click to navigate</div>
+        </div>
+      </div>
+
+      <div class="sideSection">
+        <h3 class="sideTitle">Rules</h3>
+        <ul class="rules">
+          <li>Only <b>AVAILABLE</b> cars can be rented.</li>
+          <li>If a car is already rented, the system shows an error.</li>
+          <li>One active rental per user at a time.</li>
+        </ul>
+      </div>
+
+    </aside>
+
+  </section>
+
+</main>
+
+</body>
+</html>
