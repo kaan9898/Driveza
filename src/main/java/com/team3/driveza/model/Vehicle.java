@@ -2,9 +2,11 @@ package com.team3.driveza.model;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Entity
 @Data
+@NoArgsConstructor
 public class Vehicle {
     @Id @GeneratedValue
     private long id;
