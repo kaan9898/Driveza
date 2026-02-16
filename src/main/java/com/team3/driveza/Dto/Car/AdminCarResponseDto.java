@@ -1,7 +1,7 @@
 package com.team3.driveza.Dto.Car;
 
 public class AdminCarResponseDto {
-    private int id;
+    private int carId;
     private String brand;
     private String model;
     private enum statusEnum {
