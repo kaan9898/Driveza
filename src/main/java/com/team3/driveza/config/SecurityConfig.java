@@ -25,16 +25,15 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/login", "/css/**", "/js/**", "/images/**").permitAll()
 
+                        //admin only
+                        .requestMatchers("/admin/**").hasRole("ADMIN")
+
+                        //user pages
+                        .requestMatchers("/cars","/account").hasAnyRole("USER","ADMIN")
+
                         .anyRequest().authenticated()
                 )
 
-////                normal form login
-//                .formLogin(form -> form
-//                        .loginPage("/login")
-//                        .defaultSuccessUrl("/cars", true)
-//                        .failureUrl("/login?error=true")
-//                        .permitAll()
-//                )
 
                 //google OAuth2 login
                 .oauth2Login(oauth -> oauth
@@ -45,7 +44,7 @@ public class SecurityConfig {
                 .formLogin(form -> form
                         .loginPage("/login")
                         .loginProcessingUrl("/login")
-                        .defaultSuccessUrl("/", true)
+                        .defaultSuccessUrl("/cars", true)
                         .failureUrl("/login?error=true")
                         .permitAll()
                 )
