@@ -159,3 +159,29 @@ body {
     .card { margin: 0 auto; }
     .brand__name { font-size: 28px; }
 }
+
+.divider {
+    text-align: center;
+    margin: 16px 0;
+    color: #777;
+    font-size: 14px;
+}
+
+.google-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    width: 100%;
+    padding: 12px;
+    border-radius: 12px;
+    border: 1px solid #ddd;
+    text-decoration: none;
+    color: #333;
+    font-weight: 600;
+    background: white;
+}
+
+.google-btn:hover {
+    background: #f7f7f7;
+}
