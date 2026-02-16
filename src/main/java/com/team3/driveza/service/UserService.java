@@ -17,7 +17,7 @@ public class UserService {
         return getUser(id);
     }
 
-    public Iterable<User> getAllUsers() throws RuntimeException {
+    public Iterable<User> getAllUsers() {
         return userRepository.findAll();
     }
 
@@ -26,7 +26,7 @@ public class UserService {
         userRepository.delete(user);
     }
 
-    public User createUser(User newUser) throws RuntimeException {
+    public User createUser(User newUser) {
         User user = new User();
         user.setName(newUser.getName());
         user.setPassword(newUser.getPassword());
