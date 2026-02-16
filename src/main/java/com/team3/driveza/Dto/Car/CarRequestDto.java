@@ -7,5 +7,8 @@ public class CarRequestDto {
     private int fuelLevel;
     private int latitude;
     private int longitude;
-    private String status;
+    private enum  carStatus {
+        ACTIVE, INACTIVE
+    }
+    private carStatus carStatus;
 }
