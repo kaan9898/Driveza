@@ -2,17 +2,19 @@ package com.team3.driveza.controller;
 
 import com.team3.driveza.model.User;
 import com.team3.driveza.service.UserService;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 
 /**
- * User account management endpoints.
- * Authenticated users only.
+ * User account management pages supported by Thymeleaf views.
  */
-@RestController
-@RequestMapping("/api/users")
+@Controller
+@RequestMapping("/users")
 public class UserController {
 
     private final UserService userService;
@@ -21,66 +23,52 @@ public class UserController {
         this.userService = userService;
     }
 
-    /**
-     * Get all users (admin only, optional)
-     * GET /api/users
-     *
-     * @return List of all users
-     */
+    // Display the list page with all users.
     @GetMapping
-    public ResponseEntity<List<User>> getAllUsers() {
-        return ResponseEntity.ok(userService.getAllUsers());
+    public String listUsers(Model model) {
+        model.addAttribute("users", userService.getAllUsers());
+        return "users/list";
     }
 
-    /**
-     * Get user by ID
-     * GET /api/users/{id}
-     *
-     * @param id User ID
-     * @return User object
-     */
-    @GetMapping("/{id}")
-    public ResponseEntity<User> getUserById(@PathVariable Long id) {
-        return ResponseEntity.ok(userService.getUserById(id));
+    // Render an empty form for creating a user.
+    @GetMapping("/new")
+    public String showCreateForm(Model model) {
+        model.addAttribute("user", new User());
+        return "users/form";
     }
 
-    /**
-     * Register a new user
-     * POST /api/users
-     *
-     * @param user User object (username, password, etc.)
-     * @return Created user
-     */
+    // Persist the form submission and redirect to the list.
     @PostMapping
-    public ResponseEntity<User> createUser(@RequestBody User user) {
-        return ResponseEntity.ok(userService.createUser(user));
+    public String createUser(@ModelAttribute User user) {
+        userService.createUser(user);
+        return "redirect:/users";
     }
 
-    /**
-     * Update user account info
-     * PUT /api/users/{id}
-     *
-     * @param id User ID
-     * @param user Updated user info
-     * @return Updated user
-     */
-    @PutMapping("/{id}")
-    public ResponseEntity<User> updateUser(
-            @PathVariable Long id,
-            @RequestBody User user) {
-
-        return ResponseEntity.ok(userService.updateUser(id, user));
+    // Show read-only details for one user.
+    @GetMapping("/{id}")
+    public String getUserById(@PathVariable Long id, Model model) {
+        model.addAttribute("user", userService.getUserById(id));
+        return "users/detail";
     }
 
-    /**
-     * Delete a user account
-     * DELETE /api/users/{id}
-     *
-     * @param id User ID
-     */
-    @DeleteMapping("/{id}")
-    public ResponseEntity<String> deleteUser(@PathVariable Long id) {
+    // Populate the shared form for editing an existing user.
+    @GetMapping("/{id}/edit")
+    public String showEditForm(@PathVariable Long id, Model model) {
+        model.addAttribute("user", userService.getUserById(id));
+        return "users/form";
+    }
+
+    // Accept the edit form submission and return to the list.
+    @PostMapping("/{id}/edit")
+    public String updateUser(@PathVariable Long id, @ModelAttribute User user) {
+        userService.updateUser(id, user);
+        return "redirect:/users";
+    }
+
+    // Delete action triggered by the detail/form views.
+    @PostMapping("/{id}/delete")
+    public String deleteUser(@PathVariable Long id) {
         userService.deleteUser(id);
-        return ResponseEntity.ok("User deleted successfully");
+        return "redirect:/users";
     }
 }

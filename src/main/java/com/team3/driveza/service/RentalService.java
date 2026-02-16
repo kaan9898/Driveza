@@ -17,6 +17,10 @@ public class RentalService {
         return new Rental();
     }
 
+    public Rental getRentalById(Long id) {
+        return new Rental();
+    }
+
     public List<Rental> getRentalsByUser(Long userId) {
         return new ArrayList<>();
     }

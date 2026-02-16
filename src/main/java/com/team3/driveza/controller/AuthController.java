@@ -2,27 +2,43 @@ package com.team3.driveza.controller;
 
 import com.team3.driveza.model.User;
 import com.team3.driveza.service.AuthService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 /**
- * Handles user authentication: registration and login.
+ * Serves the custom login page and keeps API endpoints for registration/login.
  * Public endpoints, no authentication required.
  */
-@RestController
-@RequestMapping("/api/auth")
+@Controller
 public class AuthController {
 
     private final AuthService authService;
 
-    @Autowired
     public AuthController(AuthService authService) {
         this.authService = authService;
+    }
+
+    // Renders the Thymeleaf login template expected by Spring Security.
+    @GetMapping("/login")
+    public String loginPage() {
+        return "login";
+    }
+
+    @GetMapping("/register")
+    public String registerPage() {
+        return "register";
+    }
+
+    @PostMapping("/register")
+    public String registerForm(@ModelAttribute User user) {
+        authService.register(user);
+        return "redirect:/login?registered=true";
     }
 
     /**
@@ -32,7 +48,8 @@ public class AuthController {
      * @param user Users object with username, password, etc.
      * @return Created user
      */
-    @PostMapping("/register")
+    @PostMapping("/api/auth/register")
+    @ResponseBody
     public ResponseEntity<User> register(@RequestBody User user) {
         return ResponseEntity
                 .status(HttpStatus.CREATED)
@@ -46,7 +63,8 @@ public class AuthController {
      * @param user Users object with username/password
      * @return Login response (for now string, later JWT token)
      */
-    @PostMapping("/login")
+    @PostMapping("/api/auth/login")
+    @ResponseBody
     public ResponseEntity<String> login(@RequestBody User user) {
         return ResponseEntity.ok(
                 authService.login(user)

@@ -23,7 +23,7 @@ public class SecurityConfig {
 
                 //authorization rule
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/login", "/css/**", "/js/**", "/images/**").permitAll()
+                        .requestMatchers("/login", "/register", "/css/**", "/js/**", "/images/**").permitAll()
 
                         .anyRequest().authenticated()
                 )
@@ -66,24 +66,19 @@ public class SecurityConfig {
 
 
     //temporary user (later we can replace this with DB based user )
-        @Bean
-                public UserDetailsService userDetailsService(){
-            UserDetails admin = User.withDefaultPasswordEncoder()
-                    .username("admin")
-                    .password("admin")
-                    .roles("ADMIN")
-                    .build();
+    @Bean
+    public UserDetailsService userDetailsService(){
+        UserDetails admin = User.withDefaultPasswordEncoder()
+                .username("admin")
+                .password("admin")
+                .roles("ADMIN")
+                .build();
 
-            UserDetails user = User.withDefaultPasswordEncoder()
-                    .username("user")
-                    .password("user")
-                    .roles("USER")
-                    .build();
-            return new InMemoryUserDetailsManager(admin, user);
-        }
-
-
-
-
+        UserDetails user = User.withDefaultPasswordEncoder()
+                .username("user")
+                .password("user")
+                .roles("USER")
+                .build();
+        return new InMemoryUserDetailsManager(admin, user);
     }
-
+}
