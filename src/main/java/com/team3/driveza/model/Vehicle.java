@@ -1,5 +1,7 @@
 package com.team3.driveza.model;
 
+import com.team3.driveza.model.enums.VehicleStatus;
+import com.team3.driveza.model.enums.VehicleType;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;

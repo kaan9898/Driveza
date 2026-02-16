@@ -1,5 +1,6 @@
 package com.team3.driveza.model;
 
+import com.team3.driveza.model.enums.RentalStatus;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
