@@ -7,7 +7,7 @@ import java.time.ZonedDateTime;
 
 @Entity
 @Data
-public class Users {
+public class User {
     @Id @GeneratedValue
     private long id;
     private String name;
