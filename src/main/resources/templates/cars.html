@@ -1,82 +1,209 @@
 <!doctype html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <meta charset="utf-8"/>
-    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Driveza | Cars</title>
-    <link rel="stylesheet" th:href="@{/css/app.css}">
+
+    <link rel="stylesheet" th:href="@{/css/driveza-app.css}" />
 </head>
+
 <body>
 
+<!-- Top Bar -->
 <header class="topbar">
-    <div class="brand">
-        <img th:src="@{/images/logo.png}" alt="Driveza"/>
-        <span>Driveza</span>
+    <div class="topbar__left">
+        <a class="brand" th:href="@{/cars}">
+            <img class="brand__logo" th:src="@{/images/logo.svg}" alt="Driveza" />
+            <span class="brand__name">Driveza</span>
+        </a>
     </div>
-    <nav class="nav">
-        <a class="active" th:href="@{/cars}">Cars</a>
-        <a th:href="@{/account}">Account</a>
-        <a th:href="@{/logout}">Logout</a>
+
+    <nav class="topbar__nav">
+        <a class="nav__link nav__link--active" th:href="@{/cars}">Cars</a>
+        <a class="nav__link" th:href="@{/map}">Map</a>
+        <a class="nav__link" th:href="@{/account}">Account</a>
     </nav>
+
+    <div class="topbar__right">
+        <a class="btn btn--ghost" th:href="@{/logout}">Logout</a>
+    </div>
 </header>
 
-<main class="page wide">
-    <div class="toolbar">
-        <h2>Available Cars</h2>
+<main class="container">
 
-        <form class="search" method="get" th:action="@{/cars}">
-            <input type="text" name="q" placeholder="Search by model / type...">
-            <select name="type">
-                <option value="">All Types</option>
-                <option value="SUV">SUV</option>
-                <option value="SEDAN">Sedan</option>
-                <option value="HATCHBACK">Hatchback</option>
-            </select>
-            <button class="btn small" type="submit">Search</button>
+    <!-- Page header -->
+    <section class="pageHead">
+        <div>
+            <h1 class="pageTitle">Available Cars</h1>
+            <p class="pageSub">Only <b>AVAILABLE</b> cars are shown for users.</p>
+        </div>
+
+        <!-- active rental quick action (optional UI) -->
+        <div class="activeRental">
+            <div class="activeRental__label">My Rental</div>
+            <div class="activeRental__value">No active rental</div>
+            <button class="btn btn--small btn--disabled" type="button" disabled>Return</button>
+        </div>
+    </section>
+
+    <!-- Alerts -->
+    <div class="alert alert--error" th:if="${param.error}">
+        Something went wrong. Please try again.
+    </div>
+    <div class="alert alert--info" th:if="${param.success}">
+        Action completed successfully.
+    </div>
+
+    <!-- Filters -->
+    <section class="filters card">
+        <form class="filters__grid" method="get" th:action="@{/cars}">
+            <div class="field">
+                <label class="label">Search model</label>
+                <input class="input" name="q" type="text" placeholder="e.g., Prius, BMW X3" />
+            </div>
+
+            <div class="field">
+                <label class="label">Sort</label>
+                <select class="select" name="sort">
+                    <option value="">Recommended</option>
+                    <option value="distanceAsc">Distance (nearest)</option>
+                    <option value="priceAsc">Price (lowest)</option>
+                </select>
+            </div>
+
+            <div class="field">
+                <label class="label">Radius</label>
+                <select class="select" name="radius">
+                    <option value="1">1 km</option>
+                    <option value="3" selected>3 km</option>
+                    <option value="5">5 km</option>
+                    <option value="10">10 km</option>
+                </select>
+            </div>
+
+            <div class="filters__actions">
+                <button class="btn" type="submit">Apply</button>
+                <a class="btn btn--ghost" th:href="@{/cars}">Reset</a>
+            </div>
         </form>
-    </div>
+    </section>
 
-    <div class="grid">
-        <!-- Static demo cards (replace later with th:each using DB list) -->
-        <div class="carCard">
-            <img th:src="@{/images/car-placeholder.jpg}" alt="Car">
-            <div class="carBody">
-                <div class="carTitle">Toyota Prius</div>
-                <div class="muted">Hybrid • Automatic</div>
-                <div class="priceRow">
-                    <span class="price">€35/day</span>
-                    <span class="tag ok">Available</span>
-                </div>
-                <button class="btn" type="button">Rent Now</button>
-            </div>
-        </div>
+    <!-- Cars Grid -->
+    <section class="grid">
 
-        <div class="carCard">
-            <img th:src="@{/images/car-placeholder.jpg}" alt="Car">
-            <div class="carBody">
-                <div class="carTitle">BMW X3</div>
-                <div class="muted">SUV • Automatic</div>
-                <div class="priceRow">
-                    <span class="price">€70/day</span>
-                    <span class="tag warn">Booked</span>
-                </div>
-                <button class="btn" type="button" disabled>Not Available</button>
-            </div>
-        </div>
+        <!-- ✅ Option A: when backend provides cars list -->
+        <!--
+        <article class="carCard" th:each="car : ${cars}">
+          <img class="carCard__img" th:src="${car.imageUrl} ?: @{/images/car-placeholder.jpg}" alt="car" />
 
-        <div class="carCard">
-            <img th:src="@{/images/car-placeholder.jpg}" alt="Car">
-            <div class="carBody">
-                <div class="carTitle">Audi A4</div>
-                <div class="muted">Sedan • Manual</div>
-                <div class="priceRow">
-                    <span class="price">€55/day</span>
-                    <span class="tag ok">Available</span>
-                </div>
-                <button class="btn" type="button">Rent Now</button>
+          <div class="carCard__body">
+            <div class="carCard__top">
+              <div>
+                <div class="carCard__title" th:text="${car.brand + ' ' + car.model}">Toyota Prius</div>
+                <div class="carCard__meta" th:text="${car.type} + ' • ' + ${car.fuel}">Hybrid • Automatic</div>
+              </div>
+              <span class="badge badge--ok" th:text="${car.status}">AVAILABLE</span>
             </div>
-        </div>
-    </div>
+
+            <div class="carCard__info">
+              <div class="infoRow">
+                <span class="muted">Distance</span>
+                <b th:text="${car.distanceKm} + ' km'">1.2 km</b>
+              </div>
+              <div class="infoRow">
+                <span class="muted">Price</span>
+                <b th:text="'€' + ${car.pricePerTime} + '/h'">€10/h</b>
+              </div>
+            </div>
+
+            <button class="btn" type="button">Rent</button>
+          </div>
+        </article>
+        -->
+
+        <!-- ✅ Option B: static demo cards (works now even without backend) -->
+        <article class="carCard">
+            <img class="carCard__img" th:src="@{/images/car-placeholder.jpg}" alt="car" />
+            <div class="carCard__body">
+                <div class="carCard__top">
+                    <div>
+                        <div class="carCard__title">Toyota Prius</div>
+                        <div class="carCard__meta">Hybrid • Automatic</div>
+                    </div>
+                    <span class="badge badge--ok">AVAILABLE</span>
+                </div>
+
+                <div class="carCard__info">
+                    <div class="infoRow">
+                        <span class="muted">Distance</span><b>1.2 km</b>
+                    </div>
+                    <div class="infoRow">
+                        <span class="muted">Price</span><b>€10/h</b>
+                    </div>
+                </div>
+
+                <button class="btn" type="button">Rent</button>
+            </div>
+        </article>
+
+        <article class="carCard">
+            <img class="carCard__img" th:src="@{/images/car-placeholder.jpg}" alt="car" />
+            <div class="carCard__body">
+                <div class="carCard__top">
+                    <div>
+                        <div class="carCard__title">BMW X3</div>
+                        <div class="carCard__meta">SUV • Petrol</div>
+                    </div>
+                    <span class="badge badge--ok">AVAILABLE</span>
+                </div>
+
+                <div class="carCard__info">
+                    <div class="infoRow">
+                        <span class="muted">Distance</span><b>2.8 km</b>
+                    </div>
+                    <div class="infoRow">
+                        <span class="muted">Price</span><b>€18/h</b>
+                    </div>
+                </div>
+
+                <button class="btn" type="button">Rent</button>
+            </div>
+        </article>
+
+        <article class="carCard">
+            <img class="carCard__img" th:src="@{/images/car-placeholder.jpg}" alt="car" />
+            <div class="carCard__body">
+                <div class="carCard__top">
+                    <div>
+                        <div class="carCard__title">Audi A4</div>
+                        <div class="carCard__meta">Sedan • Diesel</div>
+                    </div>
+                    <span class="badge badge--ok">AVAILABLE</span>
+                </div>
+
+                <div class="carCard__info">
+                    <div class="infoRow">
+                        <span class="muted">Distance</span><b>4.0 km</b>
+                    </div>
+                    <div class="infoRow">
+                        <span class="muted">Price</span><b>€15/h</b>
+                    </div>
+                </div>
+
+                <button class="btn" type="button">Rent</button>
+            </div>
+        </article>
+
+    </section>
+
+    <!-- Pagination (UI only for now) -->
+    <section class="pagination">
+        <button class="btn btn--ghost btn--small" type="button" disabled>Prev</button>
+        <div class="pagination__text">Page 1 of 5</div>
+        <button class="btn btn--ghost btn--small" type="button">Next</button>
+    </section>
+
 </main>
 
 </body>
