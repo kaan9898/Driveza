@@ -1,0 +1,55 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Driveza | Register</title>
+  <link rel="stylesheet" th:href="@{/css/app.css}">
+</head>
+<body>
+
+<header class="topbar">
+  <div class="brand">
+    <img th:src="@{/images/logo.png}" alt="Driveza"/>
+    <span>Driveza</span>
+  </div>
+  <nav class="nav">
+    <a th:href="@{/login}">Login</a>
+  </nav>
+</header>
+
+<main class="page">
+  <div class="card">
+    <h2>Create Account</h2>
+    <p class="muted">Sign up to start renting cars</p>
+
+    <form method="post" th:action="@{/register}">
+      <div class="grid2">
+        <div>
+          <label>First name</label>
+          <input type="text" name="firstName" placeholder="Gayantha" required>
+        </div>
+        <div>
+          <label>Last name</label>
+          <input type="text" name="lastName" placeholder="Chamith" required>
+        </div>
+      </div>
+
+      <label>Email</label>
+      <input type="email" name="email" placeholder="you@email.com" required>
+
+      <label>Password</label>
+      <input type="password" name="password" placeholder="Create a strong password" required>
+
+      <button class="btn" type="submit">Create account</button>
+    </form>
+
+    <p class="muted center">
+      Already have an account?
+      <a th:href="@{/login}">Sign in</a>
+    </p>
+  </div>
+</main>
+
+</body>
+</html>
