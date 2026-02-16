@@ -14,7 +14,7 @@ public class Rental {
     private ZonedDateTime endTime;
     private RentalStatus status;
     @OneToOne(cascade = CascadeType.DETACH)
-    private Users users;
+    private User user;
     @OneToOne(cascade = CascadeType.DETACH)
     private Vehicle vehicle;
 }
