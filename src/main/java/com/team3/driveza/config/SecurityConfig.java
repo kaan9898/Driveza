@@ -28,6 +28,19 @@ public class SecurityConfig {
                         .anyRequest().authenticated()
                 )
 
+////                normal form login
+//                .formLogin(form -> form
+//                        .loginPage("/login")
+//                        .defaultSuccessUrl("/cars", true)
+//                        .failureUrl("/login?error=true")
+//                        .permitAll()
+//                )
+
+                //google OAuth2 login
+                .oauth2Login(oauth -> oauth
+                        .loginPage("/login")
+                        .defaultSuccessUrl("/cars", true))
+
                 //custom login page
                 .formLogin(form -> form
                         .loginPage("/login")
@@ -48,6 +61,8 @@ public class SecurityConfig {
 
         return http.build();
     }
+
+
 
 
     //temporary user (later we can replace this with DB based user )
