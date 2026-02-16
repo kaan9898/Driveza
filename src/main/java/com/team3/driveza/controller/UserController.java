@@ -1,6 +1,6 @@
 package com.team3.driveza.controller;
 
-import com.team3.driveza.model.Users;
+import com.team3.driveza.model.User;
 import com.team3.driveza.service.UserService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -28,7 +28,7 @@ public class UserController {
      * @return List of all users
      */
     @GetMapping
-    public ResponseEntity<List<Users>> getAllUsers() {
+    public ResponseEntity<List<User>> getAllUsers() {
         return ResponseEntity.ok(userService.getAllUsers());
     }
 
@@ -37,10 +37,10 @@ public class UserController {
      * GET /api/users/{id}
      *
      * @param id User ID
-     * @return Users object
+     * @return User object
      */
     @GetMapping("/{id}")
-    public ResponseEntity<Users> getUserById(@PathVariable Long id) {
+    public ResponseEntity<User> getUserById(@PathVariable Long id) {
         return ResponseEntity.ok(userService.getUserById(id));
     }
 
@@ -48,11 +48,11 @@ public class UserController {
      * Register a new user
      * POST /api/users
      *
-     * @param user Users object (username, password, etc.)
+     * @param user User object (username, password, etc.)
      * @return Created user
      */
     @PostMapping
-    public ResponseEntity<Users> createUser(@RequestBody Users user) {
+    public ResponseEntity<User> createUser(@RequestBody User user) {
         return ResponseEntity.ok(userService.createUser(user));
     }
 
@@ -65,9 +65,9 @@ public class UserController {
      * @return Updated user
      */
     @PutMapping("/{id}")
-    public ResponseEntity<Users> updateUser(
+    public ResponseEntity<User> updateUser(
             @PathVariable Long id,
-            @RequestBody Users user) {
+            @RequestBody User user) {
 
         return ResponseEntity.ok(userService.updateUser(id, user));
     }

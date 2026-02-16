@@ -1,6 +1,6 @@
 package com.team3.driveza.controller;
 
-import com.team3.driveza.model.Users;
+import com.team3.driveza.model.User;
 import com.team3.driveza.service.AuthService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -33,7 +33,7 @@ public class AuthController {
      * @return Created user
      */
     @PostMapping("/register")
-    public ResponseEntity<Users> register(@RequestBody Users user) {
+    public ResponseEntity<User> register(@RequestBody User user) {
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body(authService.register(user));
@@ -47,7 +47,7 @@ public class AuthController {
      * @return Login response (for now string, later JWT token)
      */
     @PostMapping("/login")
-    public ResponseEntity<String> login(@RequestBody Users user) {
+    public ResponseEntity<String> login(@RequestBody User user) {
         return ResponseEntity.ok(
                 authService.login(user)
         );

@@ -1,6 +1,6 @@
-package main.java.com.team3.driveza.service;
+package com.team3.driveza.service;
 
-import com.team3.driveza.model.Users;
+import com.team3.driveza.model.User;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -9,22 +9,23 @@ import java.util.List;
 @Service
 public class UserService {
 
-    public List<Users> getAllUsers() {
+    public List<User> getAllUsers() {
         return new ArrayList<>();
     }
 
-    public Users getUserById(Long id) {
-        return new Users();
+    public User getUserById(Long id) {
+        return new User();
     }
 
-    public Users createUser(Users user) {
+    public User createUser(User user) {
         return user;
     }
 
-    public Users updateUser(Long id, Users user) {
+    public User updateUser(Long id, User user) {
         return user;
     }
 
     public void deleteUser(Long id) {
+        // no-op for now
     }
 }

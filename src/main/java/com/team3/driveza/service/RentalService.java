@@ -1,4 +1,4 @@
-package main.java.com.team3.driveza.service;
+package com.team3.driveza.service;
 
 import com.team3.driveza.model.Rental;
 import org.springframework.stereotype.Service;
