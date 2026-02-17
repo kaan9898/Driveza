@@ -1,6 +1,9 @@
 package com.team3.driveza.service;
 
+
 import com.team3.driveza.model.VehicleModel;
+import com.team3.driveza.repository.VehicleRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -8,6 +11,8 @@ import java.util.List;
 
 @Service
 public class VehicleModelService {
+    @Autowired
+    private VehicleRepository vehicleRepository;
 
     public List<VehicleModel> getAllModels() {
         return new ArrayList<>();

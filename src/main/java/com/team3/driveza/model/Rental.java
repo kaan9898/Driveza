@@ -1,12 +1,15 @@
 package com.team3.driveza.model;
 
+import com.team3.driveza.model.enums.RentalStatus;
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.time.ZonedDateTime;
 
 @Entity
 @Data
+@NoArgsConstructor
 public class Rental {
     @Id @GeneratedValue
     private long id;
