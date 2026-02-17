@@ -1,10 +1,69 @@
-<!DOCTYPE html>
-<html lang="en">
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title>Vehicles</title>
+    <link rel="stylesheet" th:href="@{/css/driveza-app.css}">
 </head>
 <body>
+
+<div class="container">
+
+    <h1>Vehicles</h1>
+
+    <table class="table">
+
+        <thead>
+        <tr>
+            <th>ID</th>
+            <th>Brand</th>
+            <th>Model</th>
+            <th>Status</th>
+            <th>Fuel</th>
+            <th>Price/Time</th>
+            <th>Price/KM</th>
+            <th>Action</th>
+        </tr>
+        </thead>
+
+        <tbody>
+
+        <tr th:if="${#lists.isEmpty(vehicles)}">
+            <td colspan="8">No vehicles available</td>
+        </tr>
+
+        <tr th:each="v : ${vehicles}">
+            <td th:text="${v.id}"></td>
+            <td th:text="${v.brand}"></td>
+            <td th:text="${v.model}"></td>
+
+            <td th:text="${v.status}"></td>
+
+            <td th:text="${v.fuel + '%'}"></td>
+            <td th:text="${v.pricePerTime + ' €/h'}"></td>
+            <td th:text="${v.pricePerKm + ' €/km'}"></td>
+
+            <td>
+                <a th:href="@{'/vehicles/' + ${v.id}}">View</a>
+            </td>
+        </tr>
+
+        </tbody>
+    </table>
+
+    <!-- Pagination -->
+    <div th:if="${totalPages > 1}">
+        <a th:if="${currentPage > 0}"
+           th:href="@{'/vehicles?page=' + ${currentPage - 1}}">Prev</a>
+
+        Page <span th:text="${currentPage + 1}"></span>
+        of <span th:text="${totalPages}"></span>
+
+        <a th:if="${currentPage < totalPages - 1}"
+           th:href="@{'/vehicles?page=' + ${currentPage + 1}}">Next</a>
+    </div>
+
+</div>
 
 </body>
 </html>

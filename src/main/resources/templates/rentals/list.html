@@ -1,10 +1,66 @@
-<!DOCTYPE html>
-<html lang="en">
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title>Rentals</title>
+    <link rel="stylesheet" th:href="@{/css/driveza-app.css}">
 </head>
 <body>
+
+<div class="container">
+
+    <h1>Rental List</h1>
+
+    <table class="table">
+
+        <thead>
+        <tr>
+            <th>ID</th>
+            <th>User</th>
+            <th>Vehicle</th>
+            <th>Start Time</th>
+            <th>End Time</th>
+            <th>Status</th>
+            <th>Actions</th>
+        </tr>
+        </thead>
+
+        <tbody>
+
+        <tr th:if="${#lists.isEmpty(rentals)}">
+            <td colspan="7">No rentals found</td>
+        </tr>
+
+        <tr th:each="r : ${rentals}">
+            <td th:text="${r.id}"></td>
+            <td th:text="${r.user.username}"></td>
+            <td th:text="${r.vehicle.brand + ' ' + r.vehicle.model}"></td>
+            <td th:text="${#temporals.format(r.startTime, 'yyyy-MM-dd HH:mm')}"></td>
+            <td th:text="${r.endTime != null ? #temporals.format(r.endTime, 'yyyy-MM-dd HH:mm') : 'Active'}"></td>
+            <td th:text="${r.status}"></td>
+
+            <td>
+                <a th:href="@{'/rentals/' + ${r.id}}">View</a>
+            </td>
+        </tr>
+
+        </tbody>
+
+    </table>
+
+    <!-- Pagination -->
+    <div th:if="${totalPages > 1}">
+        <a th:if="${currentPage > 0}"
+           th:href="@{'/rentals?page=' + ${currentPage - 1}}">Prev</a>
+
+        Page <span th:text="${currentPage + 1}"></span>
+        of <span th:text="${totalPages}"></span>
+
+        <a th:if="${currentPage < totalPages - 1}"
+           th:href="@{'/rentals?page=' + ${currentPage + 1}}">Next</a>
+    </div>
+
+</div>
 
 </body>
 </html>

@@ -1,10 +1,45 @@
-<!DOCTYPE html>
-<html lang="en">
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title>Rental Detail</title>
+    <link rel="stylesheet" th:href="@{/css/driveza-app.css}">
 </head>
 <body>
+
+<div class="container">
+
+    <h1>Rental #<span th:text="${rental.id}"></span></h1>
+
+    <p><strong>User:</strong>
+        <span th:text="${rental.user.username}"></span>
+    </p>
+
+    <p><strong>Vehicle:</strong>
+        <span th:text="${rental.vehicle.brand + ' ' + rental.vehicle.model}"></span>
+    </p>
+
+    <p><strong>Start Time:</strong>
+        <span th:text="${#temporals.format(rental.startTime, 'yyyy-MM-dd HH:mm')}"></span>
+    </p>
+
+    <p><strong>End Time:</strong>
+        <span th:text="${rental.endTime != null ? #temporals.format(rental.endTime, 'yyyy-MM-dd HH:mm') : 'Still Active'}"></span>
+    </p>
+
+    <p><strong>Pickup Location:</strong>
+        <span th:text="${rental.pickupLocation}"></span>
+    </p>
+
+    <p><strong>Drop Location:</strong>
+        <span th:text="${rental.dropLocation != null ? rental.dropLocation : 'Not returned yet'}"></span>
+    </p>
+
+    <p><strong>Status:</strong>
+        <span th:text="${rental.status}"></span>
+    </p>
+
+</div>
 
 </body>
 </html>

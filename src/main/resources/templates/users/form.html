@@ -1,10 +1,47 @@
-<!DOCTYPE html>
-<html lang="en">
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title>User Form</title>
+    <link rel="stylesheet" th:href="@{/css/driveza-app.css}">
 </head>
 <body>
+
+<div class="container">
+
+    <h1>User Form</h1>
+
+    <form th:action="@{/users/save}"
+          th:object="${user}"
+          method="post">
+
+        <input type="hidden" th:field="*{id}" />
+
+        <label>Username</label>
+        <input type="text" th:field="*{username}" required />
+
+        <label>Email</label>
+        <input type="email" th:field="*{email}" required />
+
+        <label>Role</label>
+        <select th:field="*{role}">
+            <option th:each="r : ${T(com.team3.driveza.model.Role).values()}"
+                    th:value="${r}"
+                    th:text="${r}">
+            </option>
+        </select>
+
+        <label>Status</label>
+        <select th:field="*{active}">
+            <option th:value="true">ACTIVE</option>
+            <option th:value="false">BLOCKED</option>
+        </select>
+
+        <button type="submit">Save User</button>
+
+    </form>
+
+</div>
 
 </body>
 </html>

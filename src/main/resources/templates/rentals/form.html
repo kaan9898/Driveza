@@ -1,10 +1,46 @@
-<!DOCTYPE html>
-<html lang="en">
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title>Create Rental</title>
+    <link rel="stylesheet" th:href="@{/css/driveza-app.css}">
 </head>
 <body>
+
+<div class="container">
+
+    <h1>Create Rental</h1>
+
+    <form th:action="@{/rentals/save}"
+          th:object="${rental}"
+          method="post">
+
+        <input type="hidden" th:field="*{id}" />
+
+        <label>User</label>
+        <select th:field="*{user.id}">
+            <option th:each="u : ${users}"
+                    th:value="${u.id}"
+                    th:text="${u.username}">
+            </option>
+        </select>
+
+        <label>Vehicle</label>
+        <select th:field="*{vehicle.id}">
+            <option th:each="v : ${vehicles}"
+                    th:value="${v.id}"
+                    th:text="${v.brand + ' ' + v.model}">
+            </option>
+        </select>
+
+        <label>Pickup Location</label>
+        <input type="text" th:field="*{pickupLocation}" required />
+
+        <button type="submit">Start Rental</button>
+
+    </form>
+
+</div>
 
 </body>
 </html>

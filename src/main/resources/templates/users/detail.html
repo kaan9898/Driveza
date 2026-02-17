@@ -1,10 +1,28 @@
-<!DOCTYPE html>
-<html lang="en">
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title>User Detail</title>
+    <link rel="stylesheet" th:href="@{/css/driveza-app.css}">
 </head>
 <body>
+
+<div class="container">
+
+    <h1>User Detail</h1>
+
+    <p><strong>ID:</strong> <span th:text="${user.id}"></span></p>
+    <p><strong>Username:</strong> <span th:text="${user.username}"></span></p>
+    <p><strong>Email:</strong> <span th:text="${user.email}"></span></p>
+    <p><strong>Role:</strong> <span th:text="${user.role}"></span></p>
+    <p><strong>Status:</strong>
+        <span th:text="${user.active ? 'ACTIVE' : 'BLOCKED'}"></span>
+    </p>
+    <p><strong>Created At:</strong>
+        <span th:text="${#temporals.format(user.createdAt, 'yyyy-MM-dd HH:mm')}"></span>
+    </p>
+
+</div>
 
 </body>
 </html>
