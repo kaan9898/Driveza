@@ -5,6 +5,7 @@ import com.team3.driveza.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import java.util.List;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
@@ -14,11 +15,12 @@ public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
+    // TODO: Use DTOs
     public User getUserById(long id) {
         return findOrThrow(id);
     }
 
-    public Iterable<User> getAllUsers() {
+    public List<User> getAllUsers() {
         return userRepository.findAll();
     }
 
@@ -52,7 +54,7 @@ public class UserService {
         user.setDob(newUser.getDob());
         user.setRole(newUser.getRole());
 
-        // Şifre gönderildiyse güncelle, gönderilmediyse dokunma
+        // Update password if it has been set
         if (newUser.getPassword() != null && !newUser.getPassword().isBlank()) {
             user.setPassword(passwordEncoder.encode(newUser.getPassword()));
         }

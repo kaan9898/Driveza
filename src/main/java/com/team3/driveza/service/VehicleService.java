@@ -6,6 +6,7 @@ import com.team3.driveza.repository.VehicleRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -14,11 +15,11 @@ public class VehicleService {
     private VehicleRepository vehicleRepository;
 
     // TODO: Use DTOs
-    public Iterable<Vehicle> getAllVehicles() {
+    public List<Vehicle> getAllVehicles() {
         return vehicleRepository.findAll();
     }
 
-    public Iterable<Vehicle> getAvailableVehicles() {
+    public List<Vehicle> getAvailableVehicles() {
         return vehicleRepository.findAllByStatus(VehicleStatus.AVAILABLE);
     }
 
@@ -26,7 +27,7 @@ public class VehicleService {
         return getVehicle(id);
     }
 
-    public Iterable<Vehicle> getNearbyVehicles(Double lat, Double lon, Double radiusInKM) {
+    public List<Vehicle> getNearbyVehicles(Double lat, Double lon, Double radiusInKM) {
         return vehicleRepository.findAllByFormula(lat, lon, radiusInKM);
     }
 
