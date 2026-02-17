@@ -295,3 +295,40 @@ body {
     .settingsGrid{ grid-template-columns: 1fr; }
     .profileStats{ grid-template-columns: 1fr; }
 }
+
+/* Admin extras */
+.adminGrid{ grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.stat__label{ color:#64748b; font-weight: 900; font-size: 13px; }
+.stat__value{ font-size: 28px; font-weight: 950; margin-top: 6px; }
+.quickActions{ display:flex; gap: 10px; flex-wrap: wrap; }
+
+.tableWrap{ overflow:auto; }
+.table{ width:100%; border-collapse: collapse; }
+.table th, .table td{
+    padding: 12px 10px;
+    border-bottom: 1px solid #eef2f7;
+    font-size: 14px;
+}
+.table th{ text-align:left; color:#475569; font-weight: 950; }
+.right{ text-align:right; white-space: nowrap; }
+
+.formGrid{
+    margin-top: 14px;
+    display:grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+}
+
+.btn--danger{
+    background: #ef4444;
+    color: #fff;
+}
+.btn--danger:hover{ filter: brightness(0.95); }
+
+@media (max-width: 980px){
+    .adminGrid{ grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .formGrid{ grid-template-columns: 1fr; }
+}
+@media (max-width: 640px){
+    .adminGrid{ grid-template-columns: 1fr; }
+}
