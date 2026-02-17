@@ -8,4 +8,6 @@ import java.util.List;
 
 @Repository
 public interface RentalRepository extends ListCrudRepository<Rental, Long> {
+    List<Rental> findByUserId(long userId);
+
 }
