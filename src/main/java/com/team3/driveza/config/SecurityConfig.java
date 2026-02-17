@@ -1,5 +1,6 @@
 package com.team3.driveza.config;
-import com.team3.driveza.service.UserService;
+
+import com.team3.driveza.service.UserDetailsServiceImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -7,9 +8,6 @@ import org.springframework.security.authentication.dao.DaoAuthenticationProvider
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.core.userdetails.UserDetailsPasswordService;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
@@ -22,25 +20,23 @@ import java.util.Objects;
 @RequiredArgsConstructor
 public class SecurityConfig {
 
-  private final UserService userService;
-  @Bean
-  public PasswordEncoder passwordEncoder() {
-    return new BCryptPasswordEncoder();
-  }
+  // UserDetailsServiceImpl hem UserDetailsService hem UserDetailsPasswordService implement eder
+  private final UserDetailsServiceImpl userDetailsService;
+  private final PasswordEncoder passwordEncoder;   // PasswordEncoderConfig'den gelir — döngü yok
 
   @Bean
-  public DaoAuthenticationProvider authenticationProvider(UserDetailsService userDetailsService, UserDetailsPasswordService userDetailsPasswordService) {
+  public DaoAuthenticationProvider authenticationProvider() {
     DaoAuthenticationProvider provider = new DaoAuthenticationProvider(userDetailsService);
-    provider.setUserDetailsPasswordService(userDetailsPasswordService);
-    provider.setPasswordEncoder(passwordEncoder());
+    provider.setUserDetailsPasswordService(userDetailsService);
+    provider.setUserDetailsPasswordService(userDetailsService);
+    provider.setPasswordEncoder(passwordEncoder);
     return provider;
   }
 
   @Bean
-  public SecurityFilterChain securityFilterChain(HttpSecurity http, UserDetailsService userDetailsService, UserDetailsPasswordService userDetailsPasswordService) throws Exception {
-
+  public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
     http
-            .authenticationProvider(authenticationProvider(userDetailsService, userDetailsPasswordService))
+            .authenticationProvider(authenticationProvider())
             .authorizeHttpRequests(auth -> auth
                     .requestMatchers("/css/**", "/js/**", "/images/**", "/webjars/**", "/favicon.ico", "/error")
                     .permitAll()
@@ -54,7 +50,6 @@ public class SecurityConfig {
                     .hasAnyRole("USER", "ADMIN")
                     .anyRequest().authenticated()
             )
-
             .formLogin(form -> form
                     .loginPage("/login")
                     .loginProcessingUrl("/login")
@@ -84,6 +79,7 @@ public class SecurityConfig {
 
     return http.build();
   }
+
   @Bean
   public AuthenticationSuccessHandler authenticationSuccessHandler() {
     return (request, response, authentication) -> {
