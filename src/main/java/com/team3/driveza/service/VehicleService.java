@@ -24,14 +24,14 @@ public class VehicleService {
     }
 
     public Vehicle getVehicleById(long id) throws RuntimeException {
-        return getVehicle(id);
+        return getVehicleWithoutDTO(id);
     }
 
     public List<Vehicle> getNearbyVehicles(Double lat, Double lon, Double radiusInKM) {
         return vehicleRepository.findAllByFormula(lat, lon, radiusInKM);
     }
 
-    public Vehicle createVehicle(Vehicle newVehicle) {
+    public Vehicle createVehicle(Vehicle newVehicle) throws RuntimeException {
         Vehicle vehicle = new Vehicle();
         vehicle.setModel(newVehicle.getModel());
         vehicle.setLongitude(newVehicle.getLongitude());
@@ -42,8 +42,8 @@ public class VehicleService {
         return vehicle;
     }
 
-    public Vehicle updateVehicle(long id, Vehicle newVehicle) {
-        Vehicle vehicle = getVehicle(id);
+    public Vehicle updateVehicle(long id, Vehicle newVehicle) throws RuntimeException {
+        Vehicle vehicle = getVehicleWithoutDTO(id);
         vehicle.setModel(newVehicle.getModel());
         vehicle.setLongitude(newVehicle.getLongitude());
         vehicle.setLatitude(newVehicle.getLatitude());
@@ -54,11 +54,11 @@ public class VehicleService {
     }
 
     public void deleteVehicle(long id) throws RuntimeException {
-        Vehicle vehicle = getVehicle(id);
+        Vehicle vehicle = getVehicleWithoutDTO(id);
         vehicleRepository.delete(vehicle);
     }
 
-    private Vehicle getVehicle(long id) throws RuntimeException {
+    public Vehicle getVehicleWithoutDTO(long id) throws RuntimeException {
         Optional<Vehicle> optionalVehicle = vehicleRepository.findById(id);
         if (optionalVehicle.isEmpty()) {
             throw new RuntimeException("This vehicle does not exist.");

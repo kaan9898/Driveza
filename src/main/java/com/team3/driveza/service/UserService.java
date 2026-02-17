@@ -1,6 +1,7 @@
 package com.team3.driveza.service;
 
 import com.team3.driveza.model.User;
+import com.team3.driveza.model.enums.Role;
 import com.team3.driveza.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -34,7 +35,7 @@ public class UserService {
         user.setName(newUser.getName());
         user.setEmail(newUser.getEmail());
         user.setDob(newUser.getDob());
-        user.setRole(newUser.getRole());
+        user.setRole(Role.USER);
         user.setPassword(passwordEncoder.encode(newUser.getPassword()));  // hash
 
         return userRepository.save(user);
