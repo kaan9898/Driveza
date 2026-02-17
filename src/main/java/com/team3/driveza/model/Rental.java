@@ -12,7 +12,8 @@ import java.time.ZonedDateTime;
 @Data
 @NoArgsConstructor
 public class Rental {
-    @Id @GeneratedValue
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
     private ZonedDateTime startTime;
     private ZonedDateTime endTime;

@@ -14,7 +14,7 @@ import org.hibernate.validator.constraints.Range;
 @NoArgsConstructor
 public class Vehicle {
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
     @ManyToOne
     @JoinColumn
