@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 import java.time.ZonedDateTime;
 
 @Entity
+@Table(name = "user")
 @Data
 @NoArgsConstructor
 public class User {

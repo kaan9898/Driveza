@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 import org.hibernate.validator.constraints.Range;
 
 @Entity
+@Table(name = "vehicle")
 @Data
 @NoArgsConstructor
 public class Vehicle {
