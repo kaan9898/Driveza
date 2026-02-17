@@ -1,10 +1,42 @@
-<!DOCTYPE html>
-<html lang="en">
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title>Model Form</title>
+    <link rel="stylesheet" th:href="@{/css/driveza-app.css}">
 </head>
 <body>
+
+<div class="container">
+
+    <h1>Vehicle Model Form</h1>
+
+    <form th:action="@{/models/save}"
+          th:object="${vehicleModel}"
+          method="post">
+
+        <input type="hidden" th:field="*{id}" />
+
+        <label>Brand</label>
+        <input type="text" th:field="*{brand}" required />
+
+        <label>Model Name</label>
+        <input type="text" th:field="*{modelName}" required />
+
+        <label>Fuel Type</label>
+        <input type="text" th:field="*{fuelType}" />
+
+        <label>Transmission</label>
+        <input type="text" th:field="*{transmission}" />
+
+        <label>Seats</label>
+        <input type="number" th:field="*{seats}" min="1" />
+
+        <button type="submit">Save Model</button>
+
+    </form>
+
+</div>
 
 </body>
 </html>
