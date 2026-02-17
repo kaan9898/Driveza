@@ -3,16 +3,16 @@ package com.team3.driveza.service;
 
 import com.team3.driveza.model.VehicleModel;
 import com.team3.driveza.repository.VehicleModelRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
 
 @Service
+@RequiredArgsConstructor
 public class VehicleModelService {
-    @Autowired
-    private VehicleModelRepository vehicleModelRepository;
+    private final VehicleModelRepository vehicleModelRepository;
 
     // TODO: Use DTOs
     public List<VehicleModel> getAllModels() {
@@ -20,33 +20,30 @@ public class VehicleModelService {
     }
 
     public VehicleModel getModelById(long id) throws RuntimeException {
-        return getModelWithoutDTO(id);
+        return findOrThrow(id);
     }
 
     public VehicleModel createModel(VehicleModel newVehicleModel) {
         VehicleModel vehicleModel = new VehicleModel();
         vehicleModel.setModel(newVehicleModel.getModel());
         vehicleModel.setBrand(newVehicleModel.getBrand());
-        return vehicleModel;
+        return vehicleModelRepository.save(vehicleModel);
     }
 
     public VehicleModel updateModel(long id, VehicleModel newVehicleModel) throws RuntimeException {
-        VehicleModel vehicleModel = getModelWithoutDTO(id);
+        VehicleModel vehicleModel = findOrThrow(id);
         vehicleModel.setModel(newVehicleModel.getModel());
         vehicleModel.setBrand(newVehicleModel.getBrand());
-        return vehicleModel;
+        return vehicleModelRepository.save(vehicleModel);
     }
 
     public void deleteModel(long id) {
-        VehicleModel vehicleModel = getModelWithoutDTO(id);
+        VehicleModel vehicleModel = findOrThrow(id);
         vehicleModelRepository.delete(vehicleModel);
     }
 
-    public VehicleModel getModelWithoutDTO(long id) throws RuntimeException {
-        Optional<VehicleModel> optionalVehicleModel = vehicleModelRepository.findById(id);
-        if (optionalVehicleModel.isEmpty()) {
-            throw new RuntimeException("This vehicle model does not exist.");
-        }
-        return optionalVehicleModel.get();
+    private VehicleModel findOrThrow(long id) throws RuntimeException {
+        return vehicleModelRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("This vehicle model does not exist."));
     }
 }

@@ -6,8 +6,10 @@ import com.team3.driveza.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import java.util.List;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+
 
 @Service
 @RequiredArgsConstructor
@@ -68,7 +70,7 @@ public class UserService {
         userRepository.delete(findOrThrow(id));
     }
 
-    private User findOrThrow(long id) {
+    public User findOrThrow(long id) {
         return userRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("User not found. id=" + id));
     }
