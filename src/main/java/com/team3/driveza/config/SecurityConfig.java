@@ -54,6 +54,7 @@ public class SecurityConfig {
                     .hasAnyRole("USER", "ADMIN")
                     .anyRequest().authenticated()
             )
+
             .formLogin(form -> form
                     .loginPage("/login")
                     .loginProcessingUrl("/login")
