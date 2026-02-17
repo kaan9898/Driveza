@@ -1,0 +1,23 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Vehicle Detail</title>
+</head>
+<body>
+
+<div class="container">
+
+    <h1 th:text="${vehicle.brand + ' ' + vehicle.model}"></h1>
+
+    <p>Status: <span th:text="${vehicle.status}"></span></p>
+    <p>Fuel: <span th:text="${vehicle.fuel + '%'}"></span></p>
+    <p>Price/Time: <span th:text="${vehicle.pricePerTime}"></span></p>
+    <p>Price/KM: <span th:text="${vehicle.pricePerKm}"></span></p>
+
+    <a th:href="@{'/admin/vehicles/' + ${vehicle.id} + '/edit'}">Edit</a>
+
+</div>
+
+</body>
+</html>

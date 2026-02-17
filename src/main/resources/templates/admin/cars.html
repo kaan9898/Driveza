@@ -1,10 +1,40 @@
-<!DOCTYPE html>
-<html lang="en">
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title>Admin Cars</title>
 </head>
 <body>
+
+<div class="container">
+
+    <h1>Cars</h1>
+
+    <table>
+
+        <thead>
+        <tr>
+            <th>ID</th>
+            <th>Brand</th>
+            <th>Model</th>
+            <th>Status</th>
+        </tr>
+        </thead>
+
+        <tbody>
+
+        <tr th:each="c : ${cars}">
+            <td th:text="${c.id}"></td>
+            <td th:text="${c.brand}"></td>
+            <td th:text="${c.model}"></td>
+            <td th:text="${c.status}"></td>
+        </tr>
+
+        </tbody>
+
+    </table>
+
+</div>
 
 </body>
 </html>

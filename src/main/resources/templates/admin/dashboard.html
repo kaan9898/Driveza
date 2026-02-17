@@ -1,10 +1,41 @@
-<!DOCTYPE html>
-<html lang="en">
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title>Admin Dashboard</title>
+    <link rel="stylesheet" th:href="@{/css/driveza-app.css}">
 </head>
 <body>
+
+<div class="container">
+
+    <h1>Admin Dashboard</h1>
+
+    <div class="adminGrid">
+
+        <div class="card pad">
+            <div>Total Vehicles</div>
+            <div th:text="${totalVehicles}">0</div>
+        </div>
+
+        <div class="card pad">
+            <div>Available Vehicles</div>
+            <div th:text="${availableVehicles}">0</div>
+        </div>
+
+        <div class="card pad">
+            <div>Active Rentals</div>
+            <div th:text="${activeRentals}">0</div>
+        </div>
+
+        <div class="card pad">
+            <div>Total Users</div>
+            <div th:text="${totalUsers}">0</div>
+        </div>
+
+    </div>
+
+</div>
 
 </body>
 </html>

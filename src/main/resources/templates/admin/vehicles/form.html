@@ -1,0 +1,40 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Vehicle Form</title>
+</head>
+<body>
+
+<div class="container">
+
+    <form th:action="@{/admin/vehicles/save}"
+          th:object="${vehicle}"
+          method="post">
+
+        <input type="hidden" th:field="*{id}" />
+
+        <input type="text" th:field="*{brand}" placeholder="Brand" required />
+        <input type="text" th:field="*{model}" placeholder="Model" required />
+
+        <select th:field="*{status}">
+            <option th:each="s : ${T(com.team3.driveza.model.VehicleStatus).values()}"
+                    th:value="${s}"
+                    th:text="${s}">
+            </option>
+        </select>
+
+        <input type="number" th:field="*{fuel}" placeholder="Fuel %" />
+        <input type="number" step="0.01" th:field="*{pricePerTime}" placeholder="Price/Time" />
+        <input type="number" step="0.01" th:field="*{pricePerKm}" placeholder="Price/KM" />
+        <input type="text" th:field="*{latitude}" placeholder="Latitude" />
+        <input type="text" th:field="*{longitude}" placeholder="Longitude" />
+
+        <button type="submit">Save</button>
+
+    </form>
+
+</div>
+
+</body>
+</html>

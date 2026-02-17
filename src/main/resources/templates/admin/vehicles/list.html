@@ -1,0 +1,65 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin Vehicles</title>
+</head>
+<body>
+
+<div class="container">
+
+    <h1>Vehicles</h1>
+
+    <a th:href="@{/admin/vehicles/new}">+ Add Vehicle</a>
+
+    <table>
+
+        <thead>
+        <tr>
+            <th>ID</th>
+            <th>Brand</th>
+            <th>Model</th>
+            <th>Status</th>
+            <th>Fuel</th>
+            <th>Price/Time</th>
+            <th>Price/KM</th>
+            <th>Actions</th>
+        </tr>
+        </thead>
+
+        <tbody>
+
+        <tr th:if="${#lists.isEmpty(vehicles)}">
+            <td colspan="8">No vehicles found</td>
+        </tr>
+
+        <tr th:each="v : ${vehicles}">
+            <td th:text="${v.id}"></td>
+            <td th:text="${v.brand}"></td>
+            <td th:text="${v.model}"></td>
+            <td th:text="${v.status}"></td>
+            <td th:text="${v.fuel + '%'}"></td>
+            <td th:text="${v.pricePerTime}"></td>
+            <td th:text="${v.pricePerKm}"></td>
+
+            <td>
+                <a th:href="@{'/admin/vehicles/' + ${v.id}}">View</a>
+                <a th:href="@{'/admin/vehicles/' + ${v.id} + '/edit'}">Edit</a>
+
+                <form th:action="@{'/admin/vehicles/' + ${v.id} + '/delete'}"
+                      method="post">
+                    <input type="hidden"
+                           th:name="${_csrf.parameterName}"
+                           th:value="${_csrf.token}" />
+                    <button type="submit">Delete</button>
+                </form>
+            </td>
+        </tr>
+
+        </tbody>
+    </table>
+
+</div>
+
+</body>
+</html>
