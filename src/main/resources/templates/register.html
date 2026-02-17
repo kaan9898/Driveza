@@ -6,11 +6,6 @@
     <title>Driveza | Register</title>
 
     <link rel="stylesheet" th:href="@{/css/driveza-login.css}" />
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Driveza | Register</title>
-
-  <link rel="stylesheet" th:href="@{/css/driveza-login.css}" />
 </head>
 
 <body>
@@ -66,9 +61,8 @@
                     <span>OR</span>
                 </div>
 
-                <a class="google-btn"
-                   th:href="@{/oauth2/authorization/google}">
-                    <img src="https://developers.google.com/identity/images/g-logo.png">
+                <a class="google-btn" th:href="@{/oauth2/authorization/google}">
+                    <img src="https://developers.google.com/identity/images/g-logo.png" alt="Google">
                     Sign up with Google
                 </a>
 
@@ -80,71 +74,6 @@
 
         </div>
     </div>
-  <div class="frame">
-
-    <!-- Top brand -->
-    <div class="brand">
-      <img class="brand__logo" th:src="@{/images/logo.svg}" alt="Driveza" />
-    </div>
-
-    <!-- Background -->
-    <div class="art" th:style="'background-image:url(' + @{/images/bg.jpg} + ');'">
-
-      <!-- Register Card -->
-      <div class="card">
-        <h2 class="card__title">Create Account</h2>
-        <p class="card__sub">Join Driveza today</p>
-
-        <!-- Error message -->
-        <div class="alert alert--error" th:if="${error}" th:text="${error}"></div>
-
-        <form class="form" th:action="@{/register}" method="post">
-
-          <label class="label">First Name</label>
-          <div class="inputWrap">
-            <span class="icon">👤</span>
-            <input class="input" name="firstName" type="text" placeholder="First name" required />
-          </div>
-
-          <label class="label">Last Name</label>
-          <div class="inputWrap">
-            <span class="icon">👤</span>
-            <input class="input" name="lastName" type="text" placeholder="Last name" required />
-          </div>
-
-          <label class="label">Email</label>
-          <div class="inputWrap">
-            <span class="icon">✉️</span>
-            <input class="input" name="email" type="email" placeholder="Email address" required />
-          </div>
-
-          <label class="label">Password</label>
-          <div class="inputWrap">
-            <span class="icon">🔒</span>
-            <input class="input" name="password" type="password" placeholder="Create password" required />
-          </div>
-
-          <button class="btn" type="submit">Sign Up</button>
-        </form>
-
-        <div class="divider">
-          <span>OR</span>
-        </div>
-
-        <a class="google-btn"
-           th:href="@{/oauth2/authorization/google}">
-          <img src="https://developers.google.com/identity/images/g-logo.png">
-          Sign up with Google
-        </a>
-
-        <div class="bottom">
-          <span>Already have an account?</span>
-          <a class="link strong" th:href="@{/login}">Sign In</a>
-        </div>
-      </div>
-
-    </div>
-  </div>
 </div>
 </body>
 </html>
