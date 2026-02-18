@@ -1,20 +1,40 @@
 package com.team3.driveza.service;
 
+import com.team3.driveza.Dto.Auth.AuthResponseDto;
+import com.team3.driveza.Dto.Auth.LoginRequestDto;
+import com.team3.driveza.Dto.Auth.RegisterRequestDto;
+import com.team3.driveza.Dto.User.UserFormDto;
 import com.team3.driveza.model.User;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 @Service
+@RequiredArgsConstructor
 public class AuthService {
 
-    // Temporary register logic
-    public User register(User user) {
-        // Later: password encoding, validation, saving to DB
-        return user;
+    private final UserService userService;
+
+    public AuthResponseDto register(RegisterRequestDto request) {
+        UserFormDto form = new UserFormDto();
+        form.setName(request.getName());
+        form.setEmail(request.getEmail());
+        form.setPassword(request.getPassword());
+        User created = userService.createUser(form);
+        return toResponse(created, "Registration successful.");
     }
 
-    // Temporary login logic
-    public String login(User user) {
-        // Later: validate password, return JWT
-        return "Login successful (JWT will be added later)";
+    public AuthResponseDto login(LoginRequestDto request) {
+        User user = userService.getUserByEmail(request.getEmail());
+        return toResponse(user, "Login successful.");
+    }
+
+    private AuthResponseDto toResponse(User user, String message) {
+        return AuthResponseDto.builder()
+                .id(user.getId())
+                .name(user.getName())
+                .email(user.getEmail())
+                .role(user.getRole() != null ? user.getRole().name() : null)
+                .message(message)
+                .build();
     }
 }

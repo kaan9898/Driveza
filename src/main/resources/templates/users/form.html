@@ -11,14 +11,14 @@
 
     <h1>User Form</h1>
 
-    <form th:action="@{/users/save}"
+    <form th:action="@{${formAction}}"
           th:object="${user}"
           method="post">
 
         <input type="hidden" th:field="*{id}" />
 
         <label>Username</label>
-        <input type="text" th:field="*{username}" required />
+        <input type="text" th:field="*{name}" required />
 
         <label>Email</label>
         <input type="email" th:field="*{email}" required />
@@ -31,11 +31,11 @@
             </option>
         </select>
 
-        <label>Status</label>
-        <select th:field="*{active}">
-            <option th:value="true">ACTIVE</option>
-            <option th:value="false">BLOCKED</option>
-        </select>
+        <label>Date of birth</label>
+        <input type="date" th:field="*{dob}" />
+
+        <label>Password</label>
+        <input type="password" th:field="*{password}" placeholder="Leave empty to keep current" />
 
         <button type="submit">Save User</button>
 

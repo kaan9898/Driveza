@@ -1,28 +1,29 @@
 package com.team3.driveza.controller;
 
-import com.team3.driveza.model.User;
+import com.team3.driveza.Dto.Auth.AuthResponseDto;
+import com.team3.driveza.Dto.Auth.LoginRequestDto;
+import com.team3.driveza.Dto.Auth.RegisterRequestDto;
 import com.team3.driveza.service.AuthService;
-import org.springframework.http.HttpStatus;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.ResponseBody;
 
 /**
- * Serves the custom login page and keeps API endpoints for registration/login.
- * Public endpoints, no authentication required.
+ * Serves the custom login/register pages and keeps API endpoints for authentication.
  */
 @Controller
+@RequiredArgsConstructor
 public class AuthController {
 
     private final AuthService authService;
-
-    public AuthController(AuthService authService) {
-        this.authService = authService;
-    }
 
     // Renders the Thymeleaf login template expected by Spring Security.
     @GetMapping("/login")
@@ -30,44 +31,43 @@ public class AuthController {
         return "login";
     }
 
+    // Shows the register page and prepares the form DTO.
     @GetMapping("/register")
-    public String registerPage() {
+    public String registerPage(Model model) {
+        model.addAttribute("registerRequest", new RegisterRequestDto());
         return "register";
     }
 
     @PostMapping("/register")
-    public String registerForm(@ModelAttribute User user) {
-        authService.register(user);
+    public String registerForm(@Valid @ModelAttribute("registerRequest") RegisterRequestDto registerRequest,
+                               BindingResult bindingResult,
+                               Model model) {
+        if (bindingResult.hasErrors()) {
+            return "register";
+        }
+        try {
+            authService.register(registerRequest);
+        } catch (RuntimeException ex) {
+            model.addAttribute("error", ex.getMessage());
+            return "register";
+        }
         return "redirect:/login?registered=true";
     }
 
     /**
-     * Register a new user
-     * POST /api/auth/register
-     *
-     * @param user Users object with username, password, etc.
-     * @return Created user
+     * Register a new user over the API.
      */
-    @PostMapping("/api/auth/register")
-    @ResponseBody
-    public ResponseEntity<User> register(@RequestBody User user) {
-        return ResponseEntity
-                .status(HttpStatus.CREATED)
-                .body(authService.register(user));
+    @PostMapping(value = "/api/auth/register", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<AuthResponseDto> register(@Valid @RequestBody RegisterRequestDto registerRequest) {
+        AuthResponseDto response = authService.register(registerRequest);
+        return ResponseEntity.status(201).body(response);
     }
 
     /**
-     * Login a user
-     * POST /api/auth/login
-     *
-     * @param user Users object with username/password
-     * @return Login response (for now string, later JWT token)
+     * Login a user through the API.
      */
-    @PostMapping("/api/auth/login")
-    @ResponseBody
-    public ResponseEntity<String> login(@RequestBody User user) {
-        return ResponseEntity.ok(
-                authService.login(user)
-        );
+    @PostMapping(value = "/api/auth/login", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<AuthResponseDto> login(@Valid @RequestBody LoginRequestDto loginRequest) {
+        return ResponseEntity.ok(authService.login(loginRequest));
     }
 }
