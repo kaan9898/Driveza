@@ -5,6 +5,7 @@ import com.team3.driveza.Dto.User.UserFormDto;
 import com.team3.driveza.model.enums.Role;
 import com.team3.driveza.Dto.User.UserListDto;
 import com.team3.driveza.model.User;
+import com.team3.driveza.model.enums.Role;
 import com.team3.driveza.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -16,6 +17,8 @@ import java.time.ZoneId;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
+=======
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -37,6 +40,12 @@ public class UserService {
     public User getUserByEmail(String email) {
         return userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("User not found with email: " + email));
+    public User getUserById(long id) {
+        return findOrThrow(id);
+    }
+
+    public List<User> getAllUsers() {
+        return userRepository.findAll();
     }
 
     @Transactional
@@ -45,6 +54,15 @@ public class UserService {
             throw new IllegalArgumentException("Email already in use.");
         }
         User user = mapFormToEntity(form, new User(), true);
+=======
+
+        User user = new User();
+        user.setName(newUser.getName());
+        user.setEmail(newUser.getEmail());
+        user.setDob(newUser.getDob());
+        user.setRole(Role.USER);
+        user.setPassword(passwordEncoder.encode(newUser.getPassword()));  // hash
+
         return userRepository.save(user);
     }
 
@@ -55,6 +73,15 @@ public class UserService {
             throw new IllegalArgumentException("Email already in use.");
         }
         mapFormToEntity(form, user, false);
+        user.setName(newUser.getName());
+        user.setEmail(newUser.getEmail());
+        user.setDob(newUser.getDob());
+        user.setRole(newUser.getRole());
+
+        // Update password if it has been set
+        if (newUser.getPassword() != null && !newUser.getPassword().isBlank()) {
+            user.setPassword(passwordEncoder.encode(newUser.getPassword()));
+        }
         return userRepository.save(user);
     }
 
@@ -82,6 +109,8 @@ public class UserService {
     }
 
     private User findOrThrow(long id) {
+
+    public User findOrThrow(long id) {
         return userRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("User not found. id=" + id));
     }

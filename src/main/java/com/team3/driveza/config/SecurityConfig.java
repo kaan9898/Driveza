@@ -20,9 +20,8 @@ import java.util.Objects;
 @RequiredArgsConstructor
 public class SecurityConfig {
 
-  // UserDetailsServiceImpl hem UserDetailsService hem UserDetailsPasswordService implement eder
   private final UserDetailsServiceImpl userDetailsService;
-  private final PasswordEncoder passwordEncoder;   // PasswordEncoderConfig'den gelir — döngü yok
+  private final PasswordEncoder passwordEncoder;
 
   @Bean
   public DaoAuthenticationProvider authenticationProvider() {

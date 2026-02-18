@@ -9,11 +9,12 @@ import lombok.NoArgsConstructor;
 import org.hibernate.validator.constraints.Range;
 
 @Entity
+@Table(name = "vehicle")
 @Data
 @NoArgsConstructor
 public class Vehicle {
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
     @ManyToOne
     @JoinColumn
