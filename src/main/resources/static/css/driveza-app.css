@@ -339,3 +339,146 @@ body {
     width: 100%;
     border-radius: 12px;
 }
+
+/* ===== Admin Dashboard Animations ===== */
+
+.topbar--enter {
+    animation: slideDown 500ms ease-out both;
+}
+
+.pageHead--enter {
+    animation: fadeUp 500ms ease-out both;
+    animation-delay: 80ms;
+}
+
+.statCard {
+    position: relative;
+    overflow: hidden;
+    transform: translateY(12px);
+    opacity: 0;
+    animation: cardIn 520ms cubic-bezier(.2,.9,.2,1) both;
+}
+
+/* stagger effect using nth-child */
+.statCard:nth-child(1) { animation-delay: 120ms; }
+.statCard:nth-child(2) { animation-delay: 170ms; }
+.statCard:nth-child(3) { animation-delay: 220ms; }
+.statCard:nth-child(4) { animation-delay: 270ms; }
+.statCard:nth-child(5) { animation-delay: 320ms; }
+.statCard:nth-child(6) { animation-delay: 370ms; }
+
+.statCard:hover {
+    transform: translateY(-4px);
+    transition: transform 180ms ease, box-shadow 180ms ease;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.10);
+}
+
+/* subtle moving highlight (like car paint shine) */
+.statCard::before {
+    content: "";
+    position: absolute;
+    top: -40%;
+    left: -60%;
+    width: 120%;
+    height: 120%;
+    transform: rotate(12deg);
+    background: linear-gradient(
+            90deg,
+            rgba(255,255,255,0) 0%,
+            rgba(255,255,255,0.30) 40%,
+            rgba(255,255,255,0) 70%
+    );
+    opacity: 0;
+}
+
+.statCard:hover::before {
+    opacity: 1;
+    animation: shine 900ms ease;
+}
+
+.statNumber {
+    font-size: 32px;
+    font-weight: 800;
+    letter-spacing: 0.5px;
+    margin-top: 6px;
+}
+
+.statHint {
+    margin-top: 8px;
+    font-size: 12px;
+    opacity: 0.7;
+}
+
+/* keyframes */
+@keyframes cardIn {
+    from { transform: translateY(14px); opacity: 0; }
+    to   { transform: translateY(0); opacity: 1; }
+}
+
+@keyframes fadeUp {
+    from { transform: translateY(10px); opacity: 0; }
+    to   { transform: translateY(0); opacity: 1; }
+}
+
+@keyframes slideDown {
+    from { transform: translateY(-10px); opacity: 0; }
+    to   { transform: translateY(0); opacity: 1; }
+}
+
+@keyframes shine {
+    0%   { transform: translateX(-30%) rotate(12deg); }
+    100% { transform: translateX(120%) rotate(12deg); }
+}
+
+/* accessibility: reduce motion */
+@media (prefers-reduced-motion: reduce) {
+    .topbar--enter, .pageHead--enter, .statCard {
+        animation: none !important;
+        opacity: 1 !important;
+        transform: none !important;
+    }
+    .statCard:hover::before { animation: none !important; }
+}
+
+.adminStatsGrid {
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+}
+
+.adminBg {
+    position: relative;
+    min-height: 100vh;
+    background: url('/images/bg.jpg') center center / cover no-repeat fixed;
+}
+
+.adminOverlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.65);
+    backdrop-filter: blur(4px);
+    z-index: 0;
+}
+
+.adminContent {
+    position: relative;
+    z-index: 1;
+}
+
+/* Smooth entrance */
+.topbar--enter,
+.pageHead--enter {
+    animation: fadeUp 0.6s ease forwards;
+}
+
+@keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.statCard {
+    transition: all 0.3s ease;
+}
+
+.statCard:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 15px 35px rgba(0,0,0,0.4);
+}

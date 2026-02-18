@@ -2,65 +2,98 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Admin Vehicles</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <title>Driveza | Admin Vehicles</title>
     <link rel="stylesheet" th:href="@{/css/driveza-app.css}">
 </head>
+
 <body>
 
-<div class="container">
-
-    <h1>Vehicles</h1>
-
-    <a th:href="@{/admin/vehicles/new}">+ Add Vehicle</a>
-
-    <table>
-
-        <thead>
-        <tr>
-            <th>ID</th>
-            <th>Brand</th>
-            <th>Model</th>
-            <th>Status</th>
-            <th>Fuel</th>
-            <th>Price/Time</th>
-            <th>Price/KM</th>
-            <th>Actions</th>
-        </tr>
-        </thead>
-
-        <tbody>
-
-        <tr th:if="${#lists.isEmpty(vehicles)}">
-            <td colspan="8">No vehicles found</td>
-        </tr>
-
-        <tr th:each="v : ${vehicles}">
-            <td th:text="${v.id}"></td>
-            <td th:text="${v.brand}"></td>
-            <td th:text="${v.model}"></td>
-            <td th:text="${v.status}"></td>
-            <td th:text="${v.fuel + '%'}"></td>
-            <td th:text="${v.pricePerTime}"></td>
-            <td th:text="${v.pricePerKm}"></td>
-
-            <td>
-                <a th:href="@{'/admin/vehicles/' + ${v.id}}">View</a>
-                <a th:href="@{'/admin/vehicles/' + ${v.id} + '/edit'}">Edit</a>
-
-                <form th:action="@{'/admin/vehicles/' + ${v.id} + '/delete'}"
-                      method="post">
-                    <input type="hidden"
-                           th:name="${_csrf.parameterName}"
-                           th:value="${_csrf.token}" />
-                    <button type="submit">Delete</button>
-                </form>
-            </td>
-        </tr>
-
-        </tbody>
-    </table>
-
+<!-- Background Image -->
+<div class="art"
+     th:style="'background-image:url(' + @{/images/bg.jpg} + '); position:fixed; inset:0; background-size:cover; background-position:center; z-index:-2;'">
 </div>
+
+<!-- Dark Overlay -->
+<div style="position:fixed; inset:0; background:rgba(0,0,0,0.6); z-index:-1;"></div>
+
+<header class="topbar">
+    <div class="topbar__left">
+        <a class="brand" th:href="@{/admin/dashboard}">
+            <img class="brand__logo" th:src="@{/images/logo.svg}" alt="Driveza"/>
+            <span class="brand__name">Driveza Admin</span>
+        </a>
+    </div>
+
+    <nav class="topbar__nav">
+        <a class="nav__link" th:href="@{/admin/dashboard}">Dashboard</a>
+        <a class="nav__link nav__link--active" th:href="@{/admin/vehicles}">Vehicles</a>
+    </nav>
+
+    <div class="topbar__right">
+        <form th:action="@{/logout}" method="post">
+            <button class="btn btn--ghost" type="submit">Logout</button>
+        </form>
+    </div>
+</header>
+
+<main class="container">
+
+    <section class="pageHead">
+        <div>
+            <h1 class="pageTitle">Vehicle Management</h1>
+            <p class="pageSub">Manage your fleet</p>
+        </div>
+
+        <a class="btn" th:href="@{/admin/vehicles/new}">+ Add Vehicle</a>
+    </section>
+
+    <section class="card pad" style="overflow-x:auto; backdrop-filter: blur(8px); background: rgba(255,255,255,0.85);">
+
+        <table style="width:100%; border-collapse: collapse;">
+            <thead>
+            <tr style="text-align:left;">
+                <th>ID</th>
+                <th>Brand</th>
+                <th>Model</th>
+                <th>Type</th>
+                <th>Status</th>
+                <th>Price</th>
+                <th>Location</th>
+                <th>Actions</th>
+            </tr>
+            </thead>
+
+            <tbody>
+            <tr th:each="v, iterStat : ${vehicles}">
+                <td th:text="${iterStat.index+1}">1</td>
+                <td th:text="${v.model.brand}"></td>
+                <td th:text="${v.model.model}"></td>
+                <td th:text="${v.type}"></td>
+                <td th:text="${v.status}"></td>
+                <td th:text="'€' + ${v.pricePerMin} + '/min'"></td>
+                <td>
+                    <span th:text="${v.latitude}"></span>,
+                    <span th:text="${v.longitude}"></span>
+                </td>
+                <td>
+                    <a class="btn btn--ghost" th:href="@{'/admin/vehicles/' + ${v.id}}">View</a>
+                    <a class="btn btn--ghost" th:href="@{'/admin/vehicles/' + ${v.id} + '/edit'}">Edit</a>
+
+                    <form th:action="@{'/admin/vehicles/' + ${v.id} + '/delete'}"
+                          method="post"
+                          style="display:inline;">
+                        <button class="btn btn--danger" type="submit">Delete</button>
+                    </form>
+                </td>
+            </tr>
+            </tbody>
+
+        </table>
+
+    </section>
+
+</main>
 
 </body>
 </html>

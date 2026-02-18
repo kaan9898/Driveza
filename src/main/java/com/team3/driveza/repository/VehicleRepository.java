@@ -41,4 +41,7 @@ public interface VehicleRepository extends ListCrudRepository<Vehicle, Long> {
     List<Vehicle> findAllWithinRadius(@Param("lat") double lat,
                                       @Param("lon") double lon,
                                       @Param("radius") double radius);
+
+    long count();
+    long countByStatus(VehicleStatus status);
 }
