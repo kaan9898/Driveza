@@ -1,41 +1,133 @@
 <!doctype html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <meta charset="UTF-8">
-    <title>Admin Dashboard</title>
-    <link rel="stylesheet" th:href="@{/css/driveza-app.css}">
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Driveza | Admin Dashboard</title>
+
+    <link rel="stylesheet" th:href="@{/css/driveza-app.css}" />
 </head>
+
 <body>
 
-<div class="container">
-
-    <h1>Admin Dashboard</h1>
-
-    <div class="adminGrid">
-
-        <div class="card pad">
-            <div>Total Vehicles</div>
-            <div th:text="${totalVehicles}">0</div>
-        </div>
-
-        <div class="card pad">
-            <div>Available Vehicles</div>
-            <div th:text="${availableVehicles}">0</div>
-        </div>
-
-        <div class="card pad">
-            <div>Active Rentals</div>
-            <div th:text="${activeRentals}">0</div>
-        </div>
-
-        <div class="card pad">
-            <div>Total Users</div>
-            <div th:text="${totalUsers}">0</div>
-        </div>
-
+<!-- Top Bar -->
+<header class="topbar">
+    <div class="topbar__left">
+        <a class="brand" th:href="@{/admin/dashboard}">
+            <img class="brand__logo" th:src="@{/images/logo.svg}" alt="Driveza" />
+            <span class="brand__name">Admin Panel</span>
+        </a>
     </div>
 
-</div>
+    <nav class="topbar__nav">
+        <a class="nav__link nav__link--active" th:href="@{/admin/dashboard}">Dashboard</a>
+        <a class="nav__link" th:href="@{/admin/vehicles/list.html}">Vehicles</a>
+        <a class="nav__link" th:href="@{/admin/vehicles/detail.html}">Rentals</a>
+        <a class="nav__link" th:href="@{/admin/users.html}">Users</a>
+        <a class="nav__link" th:href="@{/admin/vehicles/form.html}">Models</a>
+    </nav>
+
+    <div class="topbar__right">
+        <a class="btn btn--ghost" th:href="@{/logout}">Logout</a>
+    </div>
+</header>
+
+<main class="container">
+
+    <!-- Page header -->
+    <section class="pageHead">
+        <div>
+            <h1 class="pageTitle">Dashboard Overview</h1>
+            <p class="pageSub">System statistics and quick access</p>
+        </div>
+    </section>
+
+    <!-- Stats Cards -->
+    <section class="grid">
+
+        <!-- Dynamic Option A -->
+        <!--
+        <article class="carCard">
+            <div class="carCard__body">
+                <div class="carCard__title">Total Vehicles</div>
+                <div class="big" th:text="${totalVehicles}">0</div>
+            </div>
+        </article>
+        -->
+
+        <!-- Static Option B -->
+        <article class="carCard">
+            <div class="carCard__body">
+                <div class="carCard__title">Total Vehicles</div>
+                <div class="big">24</div>
+            </div>
+        </article>
+
+        <article class="carCard">
+            <div class="carCard__body">
+                <div class="carCard__title">Available Vehicles</div>
+                <div class="big">14</div>
+            </div>
+        </article>
+
+        <article class="carCard">
+            <div class="carCard__body">
+                <div class="carCard__title">Active Rentals</div>
+                <div class="big">6</div>
+            </div>
+        </article>
+
+        <article class="carCard">
+            <div class="carCard__body">
+                <div class="carCard__title">Total Users</div>
+                <div class="big">120</div>
+            </div>
+        </article>
+
+    </section>
+
+    <!-- Quick Actions -->
+    <section class="pageHead">
+        <h2 class="pageTitle">Quick Actions</h2>
+    </section>
+
+    <section class="grid">
+
+        <article class="carCard">
+            <div class="carCard__body">
+                <div class="carCard__title">Manage Vehicles</div>
+                <p class="muted">Add, edit or disable vehicles</p>
+                <a class="btn" th:href="@{/admin/vehicles}">Open</a>
+            </div>
+        </article>
+
+        <article class="carCard">
+            <div class="carCard__body">
+                <div class="carCard__title">Manage Rentals</div>
+                <p class="muted">View active and past rentals</p>
+                <a class="btn" th:href="@{/admin/rentals}">Open</a>
+            </div>
+        </article>
+
+        <article class="carCard">
+            <div class="carCard__body">
+                <div class="carCard__title">Manage Users</div>
+                <p class="muted">View and update user accounts</p>
+                <a class="btn" th:href="@{/admin/users}">Open</a>
+            </div>
+        </article>
+
+        <article class="carCard">
+            <div class="carCard__body">
+                <div class="carCard__title">Manage Models</div>
+                <p class="muted">Vehicle model configuration</p>
+                <a class="btn" th:href="@{/admin/models}">Open</a>
+            </div>
+        </article>
+
+    </section>
+
+</main>
 
 </body>
 </html>
