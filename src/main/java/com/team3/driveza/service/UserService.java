@@ -1,11 +1,15 @@
 package com.team3.driveza.service;
 
 import com.team3.driveza.model.User;
+import com.team3.driveza.model.enums.Role;
 import com.team3.driveza.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+
 
 @Service
 @RequiredArgsConstructor
@@ -14,11 +18,12 @@ public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
+    // TODO: Use DTOs
     public User getUserById(long id) {
         return findOrThrow(id);
     }
 
-    public Iterable<User> getAllUsers() {
+    public List<User> getAllUsers() {
         return userRepository.findAll();
     }
 
@@ -32,7 +37,7 @@ public class UserService {
         user.setName(newUser.getName());
         user.setEmail(newUser.getEmail());
         user.setDob(newUser.getDob());
-        user.setRole(newUser.getRole());
+        user.setRole(Role.USER);
         user.setPassword(passwordEncoder.encode(newUser.getPassword()));  // hash
 
         return userRepository.save(user);
@@ -52,7 +57,7 @@ public class UserService {
         user.setDob(newUser.getDob());
         user.setRole(newUser.getRole());
 
-        // Şifre gönderildiyse güncelle, gönderilmediyse dokunma
+        // Update password if it has been set
         if (newUser.getPassword() != null && !newUser.getPassword().isBlank()) {
             user.setPassword(passwordEncoder.encode(newUser.getPassword()));
         }
@@ -65,7 +70,7 @@ public class UserService {
         userRepository.delete(findOrThrow(id));
     }
 
-    private User findOrThrow(long id) {
+    public User findOrThrow(long id) {
         return userRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("User not found. id=" + id));
     }

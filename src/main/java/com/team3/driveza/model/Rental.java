@@ -8,10 +8,12 @@ import lombok.NoArgsConstructor;
 import java.time.ZonedDateTime;
 
 @Entity
+@Table(name = "rental")
 @Data
 @NoArgsConstructor
 public class Rental {
-    @Id @GeneratedValue
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
     private ZonedDateTime startTime;
     private ZonedDateTime endTime;

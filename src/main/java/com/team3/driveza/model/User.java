@@ -10,10 +10,12 @@ import lombok.NoArgsConstructor;
 import java.time.ZonedDateTime;
 
 @Entity
+@Table(name = "user")
 @Data
 @NoArgsConstructor
 public class User {
-    @Id @GeneratedValue
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
     @NotBlank
     private String name;
