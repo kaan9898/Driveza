@@ -53,7 +53,7 @@ public class SecurityConfig {
             .formLogin(form -> form
                     .loginPage("/login")
                     .loginProcessingUrl("/login")
-                    .usernameParameter("username")
+                    .usernameParameter("email")
                     .passwordParameter("password")
                     .successHandler(authenticationSuccessHandler())
                     .failureUrl("/login?error")
