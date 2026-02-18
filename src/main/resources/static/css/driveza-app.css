@@ -332,3 +332,10 @@ body {
 @media (max-width: 640px){
     .adminGrid{ grid-template-columns: 1fr; }
 }
+
+
+#map{
+    height: 500px;
+    width: 100%;
+    border-radius: 12px;
+}

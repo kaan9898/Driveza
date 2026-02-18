@@ -81,4 +81,58 @@ public class VehicleService {
                 .orElseThrow(() -> new RuntimeException("This vehicle does not exist."));
     }
 
+
+
+    public List<Vehicle> getCars(String q, Double lat, Double lon, Double radiusKm, String sort) {
+
+        // 1) base list (available only)
+        List<Vehicle> cars;
+
+        boolean hasLocation = lat != null && lon != null;
+        boolean hasRadius = radiusKm != null;
+
+        if (hasLocation && hasRadius) {
+            cars = vehicleRepository.findAllWithinRadius(lat, lon, radiusKm);
+            // keep only AVAILABLE if needed (radius query currently returns all)
+            cars = cars.stream()
+                    .filter(v -> v.getStatus() == VehicleStatus.AVAILABLE)
+                    .toList();
+        } else if (q != null && !q.isBlank()) {
+            cars = vehicleRepository.searchAvailable(VehicleStatus.AVAILABLE, q.trim());
+        } else {
+            cars = vehicleRepository.findAllByStatus(VehicleStatus.AVAILABLE);
+        }
+
+        // 2) sorting
+        if ("priceAsc".equals(sort)) {
+            cars = cars.stream()
+                    .sorted((a, b) -> Double.compare(a.getPricePerMin(), b.getPricePerMin()))
+                    .toList();
+        }
+
+        // distanceAsc needs lat/lon
+        if ("distanceAsc".equals(sort) && hasLocation) {
+            cars = cars.stream()
+                    .sorted((a, b) -> Double.compare(
+                            distanceKm(lat, lon, a.getLatitude(), a.getLongitude()),
+                            distanceKm(lat, lon, b.getLatitude(), b.getLongitude())
+                    ))
+                    .toList();
+        }
+
+        return cars;
+    }
+
+    // simple Haversine for sorting
+    private double distanceKm(double lat1, double lon1, double lat2, double lon2) {
+        double R = 6371.0;
+        double dLat = Math.toRadians(lat2 - lat1);
+        double dLon = Math.toRadians(lon2 - lon1);
+        double aa = Math.sin(dLat/2) * Math.sin(dLat/2)
+                + Math.cos(Math.toRadians(lat1)) * Math.cos(Math.toRadians(lat2))
+                * Math.sin(dLon/2) * Math.sin(dLon/2);
+        return 2 * R * Math.atan2(Math.sqrt(aa), Math.sqrt(1-aa));
+    }
+
+
 }
