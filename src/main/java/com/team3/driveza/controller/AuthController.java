@@ -15,7 +15,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.ResponseBody;
 
 /**
  * Serves the custom login/register pages and keeps API endpoints for authentication.
@@ -32,6 +31,7 @@ public class AuthController {
         return "login";
     }
 
+    // Shows the register page and prepares the form DTO.
     @GetMapping("/register")
     public String registerPage(Model model) {
         model.addAttribute("registerRequest", new RegisterRequestDto());
@@ -55,32 +55,19 @@ public class AuthController {
     }
 
     /**
-     * Register a new user
-     * POST /api/auth/register
-     *
-     * @param user Users object with username, password, etc.
-     * @return Created user
+     * Register a new user over the API.
      */
-    @PostMapping("/api/auth/register")
-    @ResponseBody
-    public ResponseEntity<User> register(@RequestBody User user) {
-        return ResponseEntity
-                .status(HttpStatus.CREATED)
-                .body(authService.register(user));
+    @PostMapping(value = "/api/auth/register", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<AuthResponseDto> register(@Valid @RequestBody RegisterRequestDto registerRequest) {
+        AuthResponseDto response = authService.register(registerRequest);
+        return ResponseEntity.status(201).body(response);
     }
 
     /**
-     * Login a user
-     * POST /api/auth/login
-     *
-     * @param user Users object with username/password
-     * @return Login response (for now string, later JWT token)
+     * Login a user through the API.
      */
-    @PostMapping("/api/auth/login")
-    @ResponseBody
-    public ResponseEntity<String> login(@RequestBody User user) {
-        return ResponseEntity.ok(
-                authService.login(user)
-        );
+    @PostMapping(value = "/api/auth/login", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<AuthResponseDto> login(@Valid @RequestBody LoginRequestDto loginRequest) {
+        return ResponseEntity.ok(authService.login(loginRequest));
     }
 }
