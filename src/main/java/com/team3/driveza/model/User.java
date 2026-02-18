@@ -1,13 +1,10 @@
 package com.team3.driveza.model;
-
-import com.team3.driveza.model.User;
 import com.team3.driveza.model.enums.Role;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Past;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.data.annotation.Id;
 
 import java.time.ZonedDateTime;
 
@@ -16,10 +13,9 @@ import java.time.ZonedDateTime;
 @Data
 @NoArgsConstructor
 public class User {
-    @jakarta.persistence.Id
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
+    private Long id;
 
     @NotBlank
     private String name;
@@ -28,6 +24,7 @@ public class User {
     private String password;
 
     @NotBlank
+    @Column(unique = true)
     private String email;
 
     @Past

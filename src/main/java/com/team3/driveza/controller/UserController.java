@@ -64,12 +64,12 @@ public class UserController {
         UserDetailDto detail = userService.getUserById(id);
         UserFormDto form = toForm(detail);
         model.addAttribute("user", form);
-        model.addAttribute("formAction", "/users/" + id + "/edit");
+        model.addAttribute("formAction", "/users/" + id);
         return "users/form";
     }
 
     // Accept the edit form submission and return to the list.
-    @PostMapping("/{id}/edit")
+    @PostMapping("/{id}")
     public String updateUser(@PathVariable Long id, @ModelAttribute("user") UserFormDto userForm) {
         userService.updateUser(id, userForm);
         return "redirect:/users";

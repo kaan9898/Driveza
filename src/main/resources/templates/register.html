@@ -1,112 +1,156 @@
 <!doctype html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
     <title>Driveza | Register</title>
-    <link rel="stylesheet" th:href="@{/css/driveza-login.css}" />
+    <link rel="stylesheet" th:href="@{/css/driveza-login.css}">
 </head>
 
 <body>
 <div class="wrap">
     <div class="frame">
+
+        <!-- Logo -->
         <div class="brand">
-            <img class="brand__logo" th:src="@{/images/logo.svg}" alt="Driveza" />
+            <img class="brand__logo"
+                 th:src="@{/images/logo.svg}"
+                 alt="Driveza Logo">
         </div>
 
-        <div class="art" th:style="'background-image:url(' + @{/images/bg.jpg} + ');'">
+        <div class="art"
+             th:style="'background-image:url(' + @{/images/bg.jpg} + ');'">
+
             <div class="card">
+
                 <h2 class="card__title">Create Account</h2>
                 <p class="card__sub">Join Driveza today</p>
 
-                <div class="alert alert--error" th:if="${error}" th:text="${error}"></div>
+                <!-- GLOBAL ERROR -->
+                <div class="alert alert--error"
+                     th:if="${error}"
+                     th:text="${error}">
+                </div>
 
-                <form class="form" th:action="@{/register}" th:object="${registerRequest}" method="post">
-                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                <!-- FORM -->
+                <form class="form"
+                      th:action="@{/register}"
+                      th:object="${registerRequest}"
+                      method="post">
 
-                    <label class="label">Name</label>
-                    <div class="inputWrap">
-                        <span class="icon">👤</span>
-                        <input class="input" th:field="*{name}" type="text" placeholder="Your full name" required />
-                <form class="form" th:action="@{/register}" method="post">
+                    <!-- CSRF -->
+                    <input type="hidden"
+                           th:name="${_csrf.parameterName}"
+                           th:value="${_csrf.token}"/>
 
-                    <!-- Full Name -->
+                    <!-- NAME -->
                     <label class="label">Full Name</label>
                     <div class="inputWrap">
                         <span class="icon">👤</span>
-                        <input class="input" name="name" type="text" placeholder="Full name" required />
+                        <input class="input"
+                               th:field="*{name}"
+                               type="text"
+                               placeholder="Enter full name"
+                               required>
                     </div>
+                    <small class="error"
+                           th:if="${#fields.hasErrors('name')}"
+                           th:errors="*{name}"></small>
 
-                    <!-- Date of Birth (calendar) -->
+
+                    <!-- DATE OF BIRTH -->
                     <label class="label">Date of Birth</label>
                     <div class="inputWrap">
                         <span class="icon">📅</span>
-                        <input class="input" id="dob" name="dob" type="date" required />
+                        <input class="input"
+                               id="dob"
+                               th:field="*{dob}"
+                               type="date"
+                               required>
                     </div>
+                    <small class="error"
+                           th:if="${#fields.hasErrors('dob')}"
+                           th:errors="*{dob}"></small>
 
-                    <!-- Age (auto) -->
+
+                    <!-- AGE (Frontend Only) -->
                     <label class="label">Age</label>
                     <div class="inputWrap">
                         <span class="icon">🎂</span>
-                        <input class="input" id="age" name="age" type="number" placeholder="Age" readonly />
+                        <input class="input"
+                               id="age"
+                               type="number"
+                               placeholder="Auto calculated"
+                               readonly>
                     </div>
 
-                    <!-- Email -->
+
+                    <!-- EMAIL -->
                     <label class="label">Email</label>
                     <div class="inputWrap">
                         <span class="icon">✉️</span>
-                        <input class="input" th:field="*{email}" type="email" placeholder="Email address" required />
+                        <input class="input"
+                               th:field="*{email}"
+                               type="email"
+                               placeholder="Enter email"
+                               required>
                     </div>
+                    <small class="error"
+                           th:if="${#fields.hasErrors('email')}"
+                           th:errors="*{email}"></small>
 
-                    <!-- Password -->
+
+                    <!-- PASSWORD -->
                     <label class="label">Password</label>
                     <div class="inputWrap">
                         <span class="icon">🔒</span>
-                        <input class="input" th:field="*{password}" type="password" placeholder="Create password" required />
+                        <input class="input"
+                               id="password"
+                               th:field="*{password}"
+                               type="password"
+                               placeholder="Create password"
+                               required>
                     </div>
 
-                    <button class="btn" type="submit">Sign Up</button>
+                    <!-- Password Strength -->
+                    <div class="strength">
+                        <div id="strengthBar"></div>
+                        <small id="strengthText"></small>
+                    </div>
+
+                    <small class="error"
+                           th:if="${#fields.hasErrors('password')}"
+                           th:errors="*{password}"></small>
+
+                    <button class="btn" type="submit">
+                        Sign Up
+                    </button>
+
                 </form>
 
+                <!-- Divider -->
                 <div class="divider">
                     <span>OR</span>
                 </div>
 
-                <a class="google-btn" th:href="@{/oauth2/authorization/google}">
-                    <img src="https://developers.google.com/identity/images/g-logo.png" alt="Google logo" />
-                    <img src="https://developers.google.com/identity/images/g-logo.png" alt="Google">
+                <!-- Google OAuth -->
+                <a class="google-btn"
+                   th:href="@{/oauth2/authorization/google}">
+                    <img src="https://developers.google.com/identity/images/g-logo.png"
+                         alt="Google">
                     Sign up with Google
                 </a>
 
+                <!-- Bottom -->
                 <div class="bottom">
                     <span>Already have an account?</span>
-                    <a class="link strong" th:href="@{/login}">Sign In</a>
+                    <a class="link strong"
+                       th:href="@{/login}">
+                        Sign In
+                    </a>
                 </div>
+
             </div>
         </div>
     </div>
 </div>
-<script>
-    const dobInput = document.getElementById('dob');
-    const ageInput = document.getElementById('age');
-
-    function calculateAge(dateString) {
-        const dob = new Date(dateString);
-        if (isNaN(dob.getTime())) return '';
-
-        const today = new Date();
-        let age = today.getFullYear() - dob.getFullYear();
-
-        const m = today.getMonth() - dob.getMonth();
-        if (m < 0 || (m === 0 && today.getDate() < dob.getDate())) {
-            age--;
-        }
-        return age >= 0 ? age : '';
-    }
-
-    dobInput.addEventListener('change', () => {
-        ageInput.value = calculateAge(dobInput.value);
-    });
-</script>
-</body>
-</html>
