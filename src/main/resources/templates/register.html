@@ -30,24 +30,35 @@
 
                 <form class="form" th:action="@{/register}" method="post">
 
-                    <label class="label">First Name</label>
+                    <!-- Full Name -->
+                    <label class="label">Full Name</label>
                     <div class="inputWrap">
                         <span class="icon">👤</span>
-                        <input class="input" name="firstName" type="text" placeholder="First name" required />
+                        <input class="input" name="fullName" type="text" placeholder="Full name" required />
                     </div>
 
-                    <label class="label">Last Name</label>
+                    <!-- Date of Birth (calendar) -->
+                    <label class="label">Date of Birth</label>
                     <div class="inputWrap">
-                        <span class="icon">👤</span>
-                        <input class="input" name="lastName" type="text" placeholder="Last name" required />
+                        <span class="icon">📅</span>
+                        <input class="input" id="dob" name="dob" type="date" required />
                     </div>
 
+                    <!-- Age (auto) -->
+                    <label class="label">Age</label>
+                    <div class="inputWrap">
+                        <span class="icon">🎂</span>
+                        <input class="input" id="age" name="age" type="number" placeholder="Age" readonly />
+                    </div>
+
+                    <!-- Email -->
                     <label class="label">Email</label>
                     <div class="inputWrap">
                         <span class="icon">✉️</span>
                         <input class="input" name="email" type="email" placeholder="Email address" required />
                     </div>
 
+                    <!-- Password -->
                     <label class="label">Password</label>
                     <div class="inputWrap">
                         <span class="icon">🔒</span>
@@ -75,5 +86,29 @@
         </div>
     </div>
 </div>
+
+<script>
+    const dobInput = document.getElementById('dob');
+    const ageInput = document.getElementById('age');
+
+    function calculateAge(dateString) {
+        const dob = new Date(dateString);
+        if (isNaN(dob.getTime())) return '';
+
+        const today = new Date();
+        let age = today.getFullYear() - dob.getFullYear();
+
+        const m = today.getMonth() - dob.getMonth();
+        if (m < 0 || (m === 0 && today.getDate() < dob.getDate())) {
+            age--;
+        }
+        return age >= 0 ? age : '';
+    }
+
+    dobInput.addEventListener('change', () => {
+        ageInput.value = calculateAge(dobInput.value);
+    });
+</script>
+
 </body>
 </html>
