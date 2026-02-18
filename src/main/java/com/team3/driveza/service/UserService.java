@@ -36,7 +36,6 @@ public class UserService {
         return userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("User not found with email: " + email));
     }
-
     @Transactional
     public User createUser(UserFormDto form) {
         if (userRepository.existsByEmail(form.getEmail())) {
