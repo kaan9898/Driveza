@@ -32,6 +32,7 @@ public class SecurityConfig {
     provider.setPasswordEncoder(passwordEncoder);
     return provider;
   }
+
   @Bean
   public AuthenticationManager authenticationManager(AuthenticationConfiguration authConfig) throws Exception {
     return authConfig.getAuthenticationManager();
@@ -44,14 +45,17 @@ public class SecurityConfig {
             .authorizeHttpRequests(auth -> auth
                     .requestMatchers("/css/**", "/js/**", "/images/**", "/webjars/**", "/favicon.ico", "/error")
                     .permitAll()
-                    .requestMatchers("/login", "/register", "/cars", "/cars/**", "/car-details", "/car-details/**")
+
+                    .requestMatchers("/login", "/register", "/oauth2/**", "/login/oauth2/**")
                     .permitAll()
-                    .requestMatchers("/oauth2/**", "/login/oauth2/**")
-                    .permitAll()
+
+                    .requestMatchers("/cars", "/cars/**", "/map", "/map/**", "/account", "/account/**",
+                            "/car-details/**", "/rentals/**")
+                    .hasAnyRole("USER", "ADMIN")
+
                     .requestMatchers("/admin/**", "/vehicles/**", "/models/**", "/users/**")
                     .hasRole("ADMIN")
-                    .requestMatchers("/account", "/account/**", "/rentals/**")
-                    .hasAnyRole("USER", "ADMIN")
+
                     .anyRequest().authenticated()
             )
             .formLogin(form -> form
