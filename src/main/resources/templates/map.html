@@ -1,0 +1,107 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Driveza | Map</title>
+
+  <link rel="stylesheet" th:href="@{/css/driveza-app.css}"/>
+
+  <!-- Leaflet CSS -->
+  <link rel="stylesheet"
+        href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+
+  <style>
+    #map {
+      height: 550px;
+      width: 100%;
+      border-radius: 12px;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+
+<body>
+
+<!-- Top Bar -->
+<header class="topbar">
+  <div class="topbar__left">
+    <a class="brand" th:href="@{/cars}">
+      <img class="brand__logo" th:src="@{/images/logo.svg}" alt="Driveza"/>
+      <span class="brand__name">Driveza</span>
+    </a>
+  </div>
+
+  <nav class="topbar__nav">
+    <a class="nav__link" th:href="@{/cars}">Cars</a>
+    <a class="nav__link nav__link--active" th:href="@{/map}">Map</a>
+    <a class="nav__link" th:href="@{/account}">Account</a>
+  </nav>
+
+  <div class="topbar__right">
+    <form th:action="@{/logout}" method="post">
+      <button class="btn btn--ghost" type="submit">Logout</button>
+    </form>
+  </div>
+</header>
+
+<main class="container">
+
+  <section class="pageHead">
+    <div>
+      <h1 class="pageTitle">Available Vehicles Map</h1>
+      <p class="pageSub">View nearby available vehicles on the map</p>
+    </div>
+  </section>
+
+  <section class="card pad">
+
+    <!-- Info message if no vehicles -->
+    <div th:if="${#lists.isEmpty(vehicles)}"
+         class="alert alert--info">
+      No vehicles available at the moment.
+    </div>
+
+    <!-- Map Container -->
+    <div id="map"></div>
+
+  </section>
+
+</main>
+
+<!-- Leaflet JS -->
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+<script th:inline="javascript">
+  /*<![CDATA[*/
+
+  const vehicles = [[${vehicles}]];
+
+  // Default center (Riga example — change if needed)
+  const map = L.map('map').setView([56.9496, 24.1052], 12);
+
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '© OpenStreetMap contributors'
+  }).addTo(map);
+
+  if (vehicles && vehicles.length > 0) {
+
+    vehicles.forEach(v => {
+
+      if (v.latitude && v.longitude) {
+
+        L.marker([v.latitude, v.longitude])
+                .addTo(map)
+                .bindPopup(
+                        "<b>" + v.brand + " " + v.model + "</b><br/>" +
+                        "€" + v.pricePerHour + "/h"
+                );
+      }
+    });
+  }
+
+  /*]]>*/
+</script>
+
+</body>
+</html>

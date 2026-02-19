@@ -1,32 +1,32 @@
 <!doctype html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <title>Driveza | Account</title>
-
-  <link rel="stylesheet" th:href="@{/css/driveza-app.css}" />
+  <link rel="stylesheet" th:href="@{/css/driveza-app.css}"/>
 </head>
 
 <body>
 
-<!-- Top Bar -->
 <header class="topbar">
   <div class="topbar__left">
     <a class="brand" th:href="@{/cars}">
-      <img class="brand__logo" th:src="@{/images/logo.svg}" alt="Driveza" />
+      <img class="brand__logo" th:src="@{/images/logo.svg}" alt="Driveza"/>
       <span class="brand__name">Driveza</span>
     </a>
   </div>
 
   <nav class="topbar__nav">
     <a class="nav__link" th:href="@{/cars}">Cars</a>
-    <a class="nav__link" th:href="@{/map}">Map</a>
     <a class="nav__link nav__link--active" th:href="@{/account}">Account</a>
   </nav>
 
   <div class="topbar__right">
-    <a class="btn btn--ghost" th:href="@{/logout}">Logout</a>
+    <form th:action="@{/logout}" method="post" style="display:inline;">
+      <button class="btn btn--ghost" type="submit">Logout</button>
+    </form>
   </div>
 </header>
 
@@ -34,124 +34,101 @@
 
   <section class="pageHead">
     <div>
-      <h1 class="pageTitle">Account</h1>
-      <p class="pageSub">Manage your profile and settings</p>
+      <h1 class="pageTitle">My Account</h1>
+      <p class="pageSub">Manage your profile and security settings.</p>
+    </div>
+
+    <!-- Role badge -->
+    <div>
+            <span class="badge"
+                  th:classappend="${user.role.name() == 'ADMIN'} ? ' badge--warn' : ' badge--ok'"
+                  th:text="${user.role}">USER</span>
     </div>
   </section>
 
-  <!-- Alerts -->
+  <!-- Alerts (optional) -->
+  <div class="alert alert--info" th:if="${param.updated}">
+    Profile updated successfully.
+  </div>
   <div class="alert alert--error" th:if="${param.error}">
-    Could not update your account. Please try again.
-  </div>
-  <div class="alert alert--info" th:if="${param.success}">
-    Account updated successfully.
+    Something went wrong. Please try again.
   </div>
 
-  <section class="accountGrid">
-
-    <!-- Left: Profile summary -->
-    <article class="card pad">
-      <h2 class="sectionTitle">Profile</h2>
-      <p class="muted">Basic information</p>
-
-      <div class="profileBox">
-        <div class="avatar">👤</div>
+  <!-- Profile summary card -->
+  <section class="card pad" style="margin-bottom:16px;">
+    <div style="display:flex; gap:16px; align-items:center; justify-content:space-between; flex-wrap:wrap;">
+      <div style="display:flex; gap:14px; align-items:center;">
+        <div style="width:54px;height:54px;border-radius:14px;background:rgba(255,255,255,.08);
+                            display:flex;align-items:center;justify-content:center;font-size:22px;">
+          👤
+        </div>
         <div>
-          <!-- later: th:text="${user.fullName}" -->
-          <div class="profileName">Gayantha Chamith</div>
-          <!-- later: th:text="${user.email}" -->
-          <div class="profileEmail">user@driveza.com</div>
-          <div class="profileRole">
-            <span class="badge badge--ok">USER</span>
-          </div>
+          <div style="font-weight:800; font-size:18px;" th:text="${user.name}">User Name</div>
+          <div class="muted" th:text="${user.email}">user@email.com</div>
         </div>
       </div>
 
-      <div class="profileStats">
-        <div class="infoBox">
-          <div class="labelSmall">Active Rental</div>
-          <div class="valueBig small">No</div>
-        </div>
-        <div class="infoBox">
-          <div class="labelSmall">Total Rentals</div>
-          <div class="valueBig small">0</div>
-        </div>
+      <!-- Edit button (go to /account/edit later if you want) -->
+      <a class="btn btn--ghost" th:href="@{/account/edit}">Edit Profile</a>
+    </div>
+  </section>
+
+  <!-- Details + Security in two cards -->
+  <section class="grid" style="grid-template-columns:1.2fr .8fr; gap:16px;">
+    <!-- Account details -->
+    <section class="card pad">
+      <h2 style="margin:0 0 12px 0;">Account Details</h2>
+
+      <div class="field">
+        <label class="label">Full Name</label>
+        <input class="input" type="text" th:value="${user.name}" readonly/>
       </div>
-    </article>
 
-    <!-- Right: Active rental card -->
-    <aside class="card pad">
-      <h2 class="sectionTitle">My Active Rental</h2>
-      <p class="muted">If you have a rented car, it appears here</p>
-
-      <!-- UI placeholder -->
-      <div class="rentalCard">
-        <div class="rentalRow">
-          <span class="muted">Car</span>
-          <b>Toyota Prius</b>
-        </div>
-        <div class="rentalRow">
-          <span class="muted">Status</span>
-          <span class="badge badge--warn">RENTED</span>
-        </div>
-        <div class="rentalRow">
-          <span class="muted">Start</span>
-          <b>Today 10:20</b>
-        </div>
-        <div class="rentalRow">
-          <span class="muted">Pickup</span>
-          <b>Riga Center</b>
-        </div>
-
-        <div class="actions">
-          <button class="btn" type="button">Return Car</button>
-          <a class="btn btn--ghost" th:href="@{/cars}">Find Cars</a>
-        </div>
-
-        <p class="hint">
-          If you already have an active rental, you can’t rent another car until you return this one.
-        </p>
+      <div class="field">
+        <label class="label">Email</label>
+        <input class="input" type="email" th:value="${user.email}" readonly/>
       </div>
-    </aside>
 
-    <!-- Full width: Settings form -->
-    <article class="card pad accountFull">
-      <h2 class="sectionTitle">Account Settings</h2>
-      <p class="muted">Update your details. (Backend can be added later)</p>
+      <div class="field">
+        <label class="label">Date of Birth</label>
+        <input class="input" type="text"
+               th:value="${user.dob != null ? #temporals.format(user.dob, 'yyyy-MM-dd') : 'Not set'}"
+               readonly/>
+      </div>
 
-      <form class="settingsForm" method="post" th:action="@{/account/update}">
-        <!-- If CSRF enabled -->
-        <input type="hidden" th:if="${_csrf != null}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+      <div class="field">
+        <label class="label">Role</label>
+        <input class="input" type="text" th:value="${user.role}" readonly/>
+      </div>
 
-        <div class="settingsGrid">
-          <div class="field">
-            <label class="label">Username</label>
-            <input class="input" name="username" type="text" placeholder="username" value="user" />
-          </div>
+      <div style="display:flex; gap:10px; margin-top:12px; flex-wrap:wrap;">
+        <a class="btn" th:href="@{/account/edit}">Edit</a>
+        <a class="btn btn--ghost" th:href="@{/cars}">Back to Cars</a>
+      </div>
+    </section>
 
-          <div class="field">
-            <label class="label">Email</label>
-            <input class="input" name="email" type="email" placeholder="email" value="user@driveza.com" />
-          </div>
+    <!-- Security -->
+    <section class="card pad">
+      <h2 style="margin:0 0 12px 0;">Security</h2>
 
-          <div class="field">
-            <label class="label">New Password</label>
-            <input class="input" name="newPassword" type="password" placeholder="New password" />
-          </div>
+      <div class="field">
+        <label class="label">Password</label>
+        <input class="input" type="password" value="********" readonly/>
+        <div class="muted" style="margin-top:6px;">For security, password is hidden.</div>
+      </div>
 
-          <div class="field">
-            <label class="label">Confirm Password</label>
-            <input class="input" name="confirmPassword" type="password" placeholder="Confirm password" />
-          </div>
-        </div>
+      <div style="display:flex; gap:10px; margin-top:12px; flex-wrap:wrap;">
+        <!-- later connect to /account/change-password -->
+        <a class="btn btn--ghost" th:href="@{/account/change-password}">Change Password</a>
+      </div>
 
-        <div class="formActions">
-          <button class="btn" type="submit">Save Changes</button>
-          <button class="btn btn--ghost" type="reset">Reset</button>
-        </div>
-      </form>
-    </article>
+      <hr style="opacity:.15; margin:16px 0;"/>
 
+      <div class="muted">
+        Logged in as:
+        <b sec:authentication="name">email</b>
+      </div>
+    </section>
   </section>
 
 </main>

@@ -2,40 +2,117 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Admin Dashboard</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <title>Driveza | Admin Dashboard</title>
     <link rel="stylesheet" th:href="@{/css/driveza-app.css}">
 </head>
-<body>
 
-<div class="container">
+<body class="adminBg">
 
-    <h1>Admin Dashboard</h1>
+<!-- Background Overlay -->
+<div class="adminOverlay"></div>
 
-    <div class="adminGrid">
+<!-- Main Content Wrapper -->
+<div class="adminContent">
 
-        <div class="card pad">
-            <div>Total Vehicles</div>
-            <div th:text="${totalVehicles}">0</div>
+    <header class="topbar topbar--enter">
+        <div class="topbar__left">
+            <a class="brand" th:href="@{/admin/dashboard}">
+                <img class="brand__logo" th:src="@{/images/logo.svg}" alt="Driveza"/>
+                <span class="brand__name">Driveza Admin</span>
+            </a>
         </div>
 
-        <div class="card pad">
-            <div>Available Vehicles</div>
-            <div th:text="${availableVehicles}">0</div>
-        </div>
+        <nav class="topbar__nav">
+            <a class="nav__link nav__link--active" th:href="@{/admin/dashboard}">Dashboard</a>
+            <a class="nav__link" th:href="@{/admin/vehicles}">Vehicles</a>
+        </nav>
 
-        <div class="card pad">
-            <div>Active Rentals</div>
-            <div th:text="${activeRentals}">0</div>
+        <div class="topbar__right">
+            <form th:action="@{/logout}" method="post">
+                <button class="btn btn--ghost" type="submit">Logout</button>
+            </form>
         </div>
+    </header>
 
-        <div class="card pad">
-            <div>Total Users</div>
-            <div th:text="${totalUsers}">0</div>
-        </div>
+    <main class="container">
 
-    </div>
+        <!-- Page Header -->
+        <section class="pageHead pageHead--enter">
+            <div>
+                <h1 class="pageTitle">Admin Dashboard</h1>
+                <p class="pageSub">Live statistics from PostgreSQL database</p>
+            </div>
+        </section>
+
+        <!-- Dashboard Stats Grid -->
+        <section class="grid adminStatsGrid">
+
+            <div class="card pad statCard">
+                <div class="muted">Total Vehicles</div>
+                <div class="statNumber" th:attr="data-value=${totalVehicles}">0</div>
+                <div class="statHint">Fleet size</div>
+            </div>
+
+            <div class="card pad statCard">
+                <div class="muted">Available Vehicles</div>
+                <div class="statNumber" th:attr="data-value=${availableVehicles}">0</div>
+                <div class="statHint">Ready to rent</div>
+            </div>
+
+            <div class="card pad statCard">
+                <div class="muted">Rented Vehicles</div>
+                <div class="statNumber" th:attr="data-value=${rentedVehicles}">0</div>
+                <div class="statHint">Currently active rentals</div>
+            </div>
+
+            <div class="card pad statCard">
+                <div class="muted">Total Users</div>
+                <div class="statNumber" th:attr="data-value=${totalUsers}">0</div>
+                <div class="statHint">Registered accounts</div>
+            </div>
+
+            <div class="card pad statCard">
+                <div class="muted">Admins</div>
+                <div class="statNumber" th:attr="data-value=${adminUsers}">0</div>
+                <div class="statHint">Management access</div>
+            </div>
+
+            <div class="card pad statCard">
+                <div class="muted">Normal Users</div>
+                <div class="statNumber" th:attr="data-value=${normalUsers}">0</div>
+                <div class="statHint">Customer accounts</div>
+            </div>
+
+        </section>
+
+    </main>
 
 </div>
+
+<!-- Count-Up Animation Script -->
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        const nums = document.querySelectorAll(".statNumber");
+
+        nums.forEach(el => {
+            const target = Number(el.getAttribute("data-value")) || 0;
+            const duration = 800;
+            const start = performance.now();
+
+            function tick(now) {
+                const progress = Math.min((now - start) / duration, 1);
+                const eased = 1 - Math.pow(1 - progress, 3); // easeOutCubic
+                const value = Math.round(eased * target);
+                el.textContent = value;
+
+                if (progress < 1) requestAnimationFrame(tick);
+            }
+
+            requestAnimationFrame(tick);
+        });
+    });
+</script>
 
 </body>
 </html>
