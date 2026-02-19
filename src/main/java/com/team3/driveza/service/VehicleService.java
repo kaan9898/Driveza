@@ -30,7 +30,7 @@ public class VehicleService {
         return vehicleRepository.findAllByFormula(lat, lon, radiusInKM);
     }
 
-    public Vehicle createVehicle(Vehicle newVehicle) throws RuntimeException {
+    public void createVehicle(Vehicle newVehicle) throws RuntimeException {
         Vehicle vehicle = new Vehicle();
         vehicle.setModel(newVehicle.getModel());
         vehicle.setLongitude(newVehicle.getLongitude());
@@ -38,10 +38,10 @@ public class VehicleService {
         vehicle.setPricePerMin(newVehicle.getPricePerMin());
         vehicle.setType(newVehicle.getType());
         vehicle.setStatus(newVehicle.getStatus());
-        return vehicleRepository.save(vehicle);
+        vehicleRepository.save(vehicle);
     }
 
-    public Vehicle updateVehicle(long id, Vehicle newVehicle) throws RuntimeException {
+    public void updateVehicle(long id, Vehicle newVehicle) throws RuntimeException {
         Vehicle vehicle = findOrThrow(id);
         vehicle.setModel(newVehicle.getModel());
         vehicle.setLongitude(newVehicle.getLongitude());
@@ -49,7 +49,7 @@ public class VehicleService {
         vehicle.setPricePerMin(newVehicle.getPricePerMin());
         vehicle.setType(newVehicle.getType());
         vehicle.setStatus(newVehicle.getStatus());
-        return vehicleRepository.save(vehicle);
+        vehicleRepository.save(vehicle);
     }
 
     public Vehicle rentById(long id) throws RuntimeException {
@@ -61,14 +61,14 @@ public class VehicleService {
         return vehicleRepository.save(vehicle);
     }
 
-    public Vehicle returnVehicle(Vehicle vehicle, double lat, double lon) throws RuntimeException {
+    public void returnVehicle(Vehicle vehicle, double lat, double lon) throws RuntimeException {
         if (vehicle.getStatus() != VehicleStatus.RENTED) {
             throw new RuntimeException("Vehicle can't be returned.");
         }
         vehicle.setStatus(VehicleStatus.AVAILABLE);
         vehicle.setLatitude(lat);
         vehicle.setLongitude(lon);
-        return vehicleRepository.save(vehicle);
+        vehicleRepository.save(vehicle);
     }
 
     public void deleteVehicle(long id) throws RuntimeException {
@@ -123,7 +123,6 @@ public class VehicleService {
         return cars;
     }
 
-    // simple Haversine for sorting
     private double distanceKm(double lat1, double lon1, double lat2, double lon2) {
         double R = 6371.0;
         double dLat = Math.toRadians(lat2 - lat1);
