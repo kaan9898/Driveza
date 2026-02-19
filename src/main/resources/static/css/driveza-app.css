@@ -482,3 +482,26 @@ body {
     transform: translateY(-6px);
     box-shadow: 0 15px 35px rgba(0,0,0,0.4);
 }
+
+.modalBackdrop.show { display: flex !important; }
+.modalBackdrop{ display:none; }
+.modalBackdrop.show{ display:flex; }
+
+body.adminBg { position: relative; min-height: 100vh; }
+
+/* overlay must be BEHIND everything */
+.adminOverlay{
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,.20);   /* small dim */
+    pointer-events: none;
+    z-index: 0;
+    backdrop-filter: none !important; /* kill blur if any */
+    filter: none !important;          /* kill blur if any */
+}
+
+/* all real UI must be ABOVE overlay */
+.adminContent{
+    position: relative;
+    z-index: 1;
+}

@@ -1,6 +1,8 @@
 package com.team3.driveza.controller;
 
 import com.team3.driveza.model.Vehicle;
+import com.team3.driveza.repository.VehicleModelRepository;
+import com.team3.driveza.service.VehicleModelService;
 import com.team3.driveza.service.VehicleService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -20,9 +22,12 @@ import java.util.List;
 public class AdminVehicleController {
 
     private final VehicleService vehicleService;
+    private final VehicleModelRepository vehicleModelRepository;
 
-    public AdminVehicleController(VehicleService vehicleService) {
+    public AdminVehicleController(VehicleService vehicleService, VehicleModelRepository vehicleModelRepository) {
+
         this.vehicleService = vehicleService;
+        this.vehicleModelRepository = vehicleModelRepository;
     }
 
     // Admin list of all vehicles, including rented/unavailable.
@@ -36,6 +41,7 @@ public class AdminVehicleController {
     @GetMapping("/new")
     public String showCreateForm(Model model) {
         model.addAttribute("vehicle", new Vehicle());
+        model.addAttribute("vehicleModels", vehicleModelRepository.findAll());
         return "admin/vehicles/form";
     }
 
