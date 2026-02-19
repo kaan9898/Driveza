@@ -7,6 +7,7 @@ import com.team3.driveza.service.RentalService;
 import com.team3.driveza.service.UserService;
 import com.team3.driveza.service.VehicleService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -61,12 +62,12 @@ public class PageController {
         List<Vehicle> vehicleList;
         if (lat == null || lon == null) {
 
-        vehicleList =vehicleService.getAvailableVehicles();
+        vehicleList =vehicleService.getAvailableVehicles(Pageable.unpaged()).toList();
         }else{
-            vehicleList = vehicleService.getNearbyVehicles(lat,lon,radius);
+            vehicleList = vehicleService.getCars(null, lat, lon, radius, null).toList();
 
             if(vehicleList.isEmpty()){
-                vehicleList = vehicleService.getAvailableVehicles();
+                vehicleList = vehicleService.getAvailableVehicles(Pageable.unpaged()).toList();
             }
         }
         System.out.println("MAP vehicle count : "+ vehicleList.size());

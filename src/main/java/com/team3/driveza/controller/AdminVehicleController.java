@@ -4,6 +4,7 @@ import com.team3.driveza.model.Vehicle;
 import com.team3.driveza.repository.VehicleModelRepository;
 import com.team3.driveza.service.VehicleModelService;
 import com.team3.driveza.service.VehicleService;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -33,7 +34,7 @@ public class AdminVehicleController {
     // Admin list of all vehicles, including rented/unavailable.
     @GetMapping
     public String listAdminVehicles(Model model) {
-        model.addAttribute("vehicles", vehicleService.getAllVehicles());
+        model.addAttribute("vehicles", vehicleService.getAllVehicles(Pageable.unpaged()));
         return "admin/vehicles/list";
     }
 
