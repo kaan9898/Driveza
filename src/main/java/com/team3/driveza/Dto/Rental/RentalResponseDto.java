@@ -12,5 +12,5 @@ public class RentalResponseDto {
         ACTIVE, INACTIVE
     }
     private statusEnum status;
-    private double price;
+    private double pricePerMin;
 }
