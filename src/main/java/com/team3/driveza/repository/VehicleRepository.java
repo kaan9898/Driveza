@@ -4,17 +4,10 @@ import com.team3.driveza.model.Vehicle;
 import com.team3.driveza.model.enums.VehicleStatus;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.NativeQuery;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.ListCrudRepository;
-import org.springframework.data.repository.ListPagingAndSortingRepository;
-import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
-
-import java.util.List;
 
 @Repository
 public interface VehicleRepository extends JpaRepository<Vehicle, Long> {
@@ -69,11 +62,11 @@ public interface VehicleRepository extends JpaRepository<Vehicle, Long> {
                     where g.distance<:radius
             """, nativeQuery = true)
     Page<Vehicle> findAllWithinRadiusAndName(@Param("lat") double lat,
-                                      @Param("lon") double lon,
-                                      @Param("radius") double radius,
-                                      @Param("status") String status,
-                                      @Param("q") String q,
-                                      Pageable pageable
+                                             @Param("lon") double lon,
+                                             @Param("radius") double radius,
+                                             @Param("status") String status,
+                                             @Param("q") String q,
+                                             Pageable pageable
     );
 
     long count();
