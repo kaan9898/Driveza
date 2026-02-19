@@ -4,14 +4,11 @@ import com.team3.driveza.model.Vehicle;
 import com.team3.driveza.repository.VehicleModelRepository;
 import com.team3.driveza.service.VehicleModelService;
 import com.team3.driveza.service.VehicleService;
+import com.team3.driveza.service.VpicService;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -24,11 +21,15 @@ public class AdminVehicleController {
 
     private final VehicleService vehicleService;
     private final VehicleModelRepository vehicleModelRepository;
+    private final VpicService vpicService;
+    private final VehicleModelService vehicleModelService;
 
-    public AdminVehicleController(VehicleService vehicleService, VehicleModelRepository vehicleModelRepository) {
+    public AdminVehicleController(VehicleService vehicleService, VehicleModelRepository vehicleModelRepository, VpicService vpicService, VehicleModelService vehicleModelService) {
 
         this.vehicleService = vehicleService;
         this.vehicleModelRepository = vehicleModelRepository;
+        this.vpicService = vpicService;
+        this.vehicleModelService = vehicleModelService;
     }
 
     // Admin list of all vehicles, including rented/unavailable.
@@ -43,12 +44,16 @@ public class AdminVehicleController {
     public String showCreateForm(Model model) {
         model.addAttribute("vehicle", new Vehicle());
         model.addAttribute("vehicleModels", vehicleModelRepository.findAll());
+        model.addAttribute("makes", vpicService.getAllMakes());
         return "admin/vehicles/form";
     }
 
     // Create new vehicle from admin form.
     @PostMapping
-    public String createVehicle(@ModelAttribute Vehicle vehicle) {
+    public String createVehicle(@ModelAttribute Vehicle vehicle, @RequestParam String brand, @RequestParam String modelName) {
+        var vm = vehicleModelService.findOrCreate(brand, modelName);
+        vehicle.setModel(vm);
+
         vehicleService.createVehicle(vehicle);
         return "redirect:/admin/vehicles";
     }
@@ -64,6 +69,7 @@ public class AdminVehicleController {
     @GetMapping("/{id}/edit")
     public String showEditForm(@PathVariable Long id, Model model) {
         model.addAttribute("vehicle", vehicleService.getVehicleById(id));
+        model.addAttribute("models", vehicleModelRepository);
         return "admin/vehicles/form";
     }
 
