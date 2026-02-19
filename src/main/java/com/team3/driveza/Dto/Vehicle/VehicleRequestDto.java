@@ -1,8 +1,8 @@
-package com.team3.driveza.Dto.Car;
+package com.team3.driveza.Dto.Vehicle;
 
-public class CarRequestDto {
+public class VehicleRequestDto {
     private String model;
-    private String brand;
+      private String brand;
     private double pricePerKm;
     private int fuelLevel;
     private int latitude;

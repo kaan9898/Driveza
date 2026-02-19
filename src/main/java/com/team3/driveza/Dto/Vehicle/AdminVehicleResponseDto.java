@@ -1,6 +1,6 @@
-package com.team3.driveza.Dto.Car;
+package com.team3.driveza.Dto.Vehicle;
 
-public class AdminCarResponseDto {
+public class AdminVehicleResponseDto {
     private int carId;
     private String brand;
     private String model;
