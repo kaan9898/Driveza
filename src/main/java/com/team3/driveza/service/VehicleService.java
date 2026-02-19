@@ -6,6 +6,7 @@ import com.team3.driveza.repository.VehicleRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.Comparator;
 import java.util.List;
 
 @Service
@@ -32,7 +33,6 @@ public class VehicleService {
 
     public void createVehicle(Vehicle newVehicle) throws RuntimeException {
         Vehicle vehicle = new Vehicle();
-        vehicle.setModel(newVehicle.getModel());
         vehicle.setLongitude(newVehicle.getLongitude());
         vehicle.setLatitude(newVehicle.getLatitude());
         vehicle.setPricePerMin(newVehicle.getPricePerMin());
@@ -106,7 +106,7 @@ public class VehicleService {
         // 2) sorting
         if ("priceAsc".equals(sort)) {
             cars = cars.stream()
-                    .sorted((a, b) -> Double.compare(a.getPricePerMin(), b.getPricePerMin()))
+                    .sorted(Comparator.comparingDouble(Vehicle::getPricePerMin))
                     .toList();
         }
 
