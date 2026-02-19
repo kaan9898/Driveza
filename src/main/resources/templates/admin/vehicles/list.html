@@ -1,21 +1,56 @@
 <!doctype html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <meta charset="UTF-8">
+    <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1"/>
     <title>Driveza | Admin Vehicles</title>
+
     <link rel="stylesheet" th:href="@{/css/driveza-app.css}">
+
+    <style>
+        /* ✅ remove blur/overlay look */
+        body { background: #0b0f14; } /* or keep default app bg */
+        .adminOverlay { display:none !important; }
+
+        /* Clickable row */
+        .clickRow { cursor: pointer; }
+        .clickRow:hover { filter: brightness(1.02); transform: translateY(-1px); transition: .15s; }
+
+        /* Modal */
+        .modalBackdrop{
+            position: fixed; inset: 0;
+            background: rgba(0,0,0,.100);
+            display: none;
+            align-items: center; justify-content: center;
+            z-index: 9999;
+            padding: 18px;
+        }
+        .modalBackdrop.show{ display:flex; }
+
+        .modalBox{
+            width: min(820px, 100%);
+            max-height: 85vh;
+            overflow: auto;
+            border-radius: 14px;
+            animation: pop .15s ease-out;
+        }
+        @keyframes pop { from { transform: scale(.98); opacity: .7; } to { transform: scale(1); opacity: 1; } }
+
+        .modalHeader{ display:flex; align-items:center; justify-content: space-between; gap: 12px; }
+        .modalClose{ border: none; background: transparent; font-size: 22px; line-height: 1; cursor: pointer; }
+
+        .twoCol{
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0,1fr));
+            gap: 14px;
+        }
+        @media (max-width: 720px){
+            .twoCol{ grid-template-columns: 1fr; }
+        }
+    </style>
 </head>
 
 <body>
-
-<!-- Background Image -->
-<div class="art"
-     th:style="'background-image:url(' + @{/images/bg.jpg} + '); position:fixed; inset:0; background-size:cover; background-position:center; z-index:-2;'">
-</div>
-
-<!-- Dark Overlay -->
-<div style="position:fixed; inset:0; background:rgba(0,0,0,0.6); z-index:-1;"></div>
 
 <header class="topbar">
     <div class="topbar__left">
@@ -41,59 +76,186 @@
 
     <section class="pageHead">
         <div>
-            <h1 class="pageTitle">Vehicle Management</h1>
-            <p class="pageSub">Manage your fleet</p>
+            <h1 class="pageTitle">Vehicles</h1>
+            <p class="pageSub">Click a row to edit or delete</p>
         </div>
 
-        <a class="btn" th:href="@{/admin/vehicles/new}">+ Add Vehicle</a>
+        <div>
+            <a class="btn" th:href="@{/admin/vehicles/new}">+ Add Vehicle</a>
+        </div>
     </section>
 
-    <section class="card pad" style="overflow-x:auto; backdrop-filter: blur(8px); background: rgba(255,255,255,0.85);">
-
-        <table style="width:100%; border-collapse: collapse;">
+    <section class="card pad">
+        <table class="table" style="width:100%">
             <thead>
-            <tr style="text-align:left;">
-                <th>ID</th>
+            <tr>
+                <th>#</th>
                 <th>Brand</th>
                 <th>Model</th>
                 <th>Type</th>
                 <th>Status</th>
-                <th>Price</th>
-                <th>Location</th>
-                <th>Actions</th>
+                <th>Price/min</th>
+                <th>Lat</th>
+                <th>Lon</th>
             </tr>
             </thead>
 
             <tbody>
-            <tr th:each="v, iterStat : ${vehicles}">
-                <td th:text="${iterStat.index+1}">1</td>
-                <td th:text="${v.model.brand}"></td>
-                <td th:text="${v.model.model}"></td>
-                <td th:text="${v.type}"></td>
-                <td th:text="${v.status}"></td>
-                <td th:text="'€' + ${v.pricePerMin} + '/min'"></td>
-                <td>
-                    <span th:text="${v.latitude}"></span>,
-                    <span th:text="${v.longitude}"></span>
-                </td>
-                <td>
-                    <a class="btn btn--ghost" th:href="@{'/admin/vehicles/' + ${v.id}}">View</a>
-                    <a class="btn btn--ghost" th:href="@{'/admin/vehicles/' + ${v.id} + '/edit'}">Edit</a>
+            <tr th:if="${#lists.isEmpty(vehicles)}">
+                <td colspan="8" class="muted">No vehicles found.</td>
+            </tr>
 
-                    <form th:action="@{'/admin/vehicles/' + ${v.id} + '/delete'}"
-                          method="post"
-                          style="display:inline;">
-                        <button class="btn btn--danger" type="submit">Delete</button>
-                    </form>
-                </td>
+            <tr class="clickRow"
+                th:each="v, stat : ${vehicles}"
+                th:attr="
+            data-id=${v.id},
+            data-modelid=${v.model != null ? v.model.id : 0},
+            data-brand=${v.model != null ? v.model.brand : ''},
+            data-model=${v.model != null ? v.model.model : ''},
+            data-type=${v.type},
+            data-status=${v.status},
+            data-price=${v.pricePerMin},
+            data-lat=${v.latitude},
+            data-lon=${v.longitude}
+          "
+                onclick="openVehicleModal(this)">
+                <td th:text="${stat.count}">1</td>
+
+                <td th:text="${v.model != null ? v.model.brand : '—'}">Toyota</td>
+                <td th:text="${v.model != null ? v.model.model : '—'}">Prius</td>
+
+                <td th:text="${v.type}">CAR</td>
+                <td th:text="${v.status}">AVAILABLE</td>
+                <td th:text="${v.pricePerMin}">0.25</td>
+                <td th:text="${v.latitude}">56.9</td>
+                <td th:text="${v.longitude}">24.1</td>
             </tr>
             </tbody>
-
         </table>
-
     </section>
 
 </main>
+
+<!-- ✅ Modal -->
+<div id="vehicleModal" class="modalBackdrop" onclick="backdropClose(event)">
+    <div class="modalBox card pad" onclick="event.stopPropagation()">
+
+        <div class="modalHeader">
+            <div>
+                <h2 style="margin:0">Edit Vehicle</h2>
+                <div class="muted" id="modalSub">—</div>
+            </div>
+            <button class="modalClose" onclick="closeVehicleModal()" aria-label="Close">×</button>
+        </div>
+
+        <hr style="opacity:.2; margin:14px 0;"/>
+
+        <!-- ✅ Edit form (NOT nested) -->
+        <form id="editForm" method="post">
+            <!-- ✅ CSRF -->
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+
+            <div class="twoCol">
+
+                <div class="field">
+                    <label class="label">Brand</label>
+                    <input class="input" id="brand" type="text" readonly>
+                </div>
+
+                <div class="field">
+                    <label class="label">Model</label>
+                    <input class="input" id="model" type="text" readonly>
+                </div>
+
+                <!-- ✅ IMPORTANT: keep model relation -->
+                <input type="hidden" id="modelId" name="model.id">
+
+                <div class="field">
+                    <label class="label">Type</label>
+                    <select class="select" id="type" name="type" required>
+                        <option value="CAR">CAR</option>
+                        <option value="PREMIUM_CAR">PREMIUM CAR</option>
+                        <option value="MOTORCYCLE">MOTORCYCLE</option>
+                    </select>
+                </div>
+
+                <div class="field">
+                    <label class="label">Status</label>
+                    <select class="select" id="status" name="status" required>
+                        <option value="AVAILABLE">AVAILABLE</option>
+                        <option value="RENTED">RENTED</option>
+                    </select>
+                </div>
+
+                <div class="field">
+                    <label class="label">Price per minute (€)</label>
+                    <input class="input" id="pricePerMin" name="pricePerMin" type="number" step="0.01" min="0" required>
+                </div>
+
+                <div class="field">
+                    <label class="label">Latitude</label>
+                    <input class="input" id="latitude" name="latitude" type="number" step="0.000001" required>
+                </div>
+
+                <div class="field">
+                    <label class="label">Longitude</label>
+                    <input class="input" id="longitude" name="longitude" type="number" step="0.000001" required>
+                </div>
+
+            </div>
+
+            <div style="display:flex; gap:10px; margin-top:16px; flex-wrap: wrap;">
+                <button class="btn" type="submit">Save Changes</button>
+                <button class="btn btn--ghost" type="button" onclick="closeVehicleModal()">Cancel</button>
+            </div>
+        </form>
+
+        <!-- ✅ Delete form (separate) -->
+        <form id="deleteForm" method="post" style="margin-top:10px;">
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+            <button class="btn btn--danger" type="submit">Delete Vehicle</button>
+        </form>
+
+    </div>
+</div>
+
+<script>
+    function openVehicleModal(row){
+        const id = row.dataset.id;
+
+        document.getElementById('brand').value = row.dataset.brand || '';
+        document.getElementById('model').value = row.dataset.model || '';
+
+        document.getElementById('modelId').value = row.dataset.modelid || 0;
+
+        document.getElementById('type').value = row.dataset.type || 'CAR';
+        document.getElementById('status').value = row.dataset.status || 'AVAILABLE';
+
+        document.getElementById('pricePerMin').value = row.dataset.price || 0;
+        document.getElementById('latitude').value = row.dataset.lat || 0;
+        document.getElementById('longitude').value = row.dataset.lon || 0;
+
+        document.getElementById('modalSub').textContent =
+            `Vehicle ID: ${id} • ${row.dataset.brand} ${row.dataset.model}`;
+
+        document.getElementById('editForm').action = `/admin/vehicles/${id}/edit`;
+        document.getElementById('deleteForm').action = `/admin/vehicles/${id}/delete`;
+
+        document.getElementById('vehicleModal').classList.add('show');
+    }
+
+    function closeVehicleModal(){
+        document.getElementById('vehicleModal').classList.remove('show');
+    }
+
+    function backdropClose(){
+        closeVehicleModal();
+    }
+
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') closeVehicleModal();
+    });
+</script>
 
 </body>
 </html>

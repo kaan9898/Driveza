@@ -2,6 +2,7 @@ package com.team3.driveza.controller;
 
 
 import com.team3.driveza.service.AdminDashboardService;
+import com.team3.driveza.service.VehicleService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.ui.Model;
 import org.springframework.stereotype.Controller;
@@ -15,15 +16,24 @@ public class AdminDashboardController {
 
 
     private final AdminDashboardService adminDashboardService;
+    private final VehicleService vehicleService;
 
     @GetMapping("/dashboard")
     public String dashboard(Model model) {
-        model.addAttribute("totalVehicles", adminDashboardService.totalVehicles());
-        model.addAttribute("availableVehicles", adminDashboardService.availableVehicles());
-        model.addAttribute("rentedVehicle", adminDashboardService.rentedVehicles());
+
+        long totalVehicle = vehicleService.getAllVehicles().size();
+        long availableVehicles = vehicleService.getAvailableVehicles().size();
+        long rentedVehicles = totalVehicle - availableVehicles;
+        model.addAttribute("totalVehicles", totalVehicle);
+        model.addAttribute("availableVehicles", availableVehicles);
+        model.addAttribute("rentedVehicles", rentedVehicles);
         model.addAttribute("totalUsers", adminDashboardService.totalUsers());
         model.addAttribute("adminUsers", adminDashboardService.adminUsers());
         model.addAttribute("normalUsers", adminDashboardService.normalUsers());
+
+        System.out.println("TOTAL: " + totalVehicle);
+        System.out.println("AVAILABLE: " + availableVehicles);
+        System.out.println("RENTED: " + rentedVehicles);
         return "admin/dashboard"; // templates/admin/dashboard.html
     }
 }
