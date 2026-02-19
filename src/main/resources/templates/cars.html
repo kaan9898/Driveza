@@ -6,12 +6,101 @@
     <title>Driveza | Cars</title>
 
     <link rel="stylesheet" th:href="@{/css/driveza-app.css}" />
+
+    <!-- Page-only effects (safe, doesn't touch main CSS) -->
+    <style>
+        /* Background hero */
+        .pageHero {
+            position: relative;
+            overflow: hidden;
+            border-radius: 16px;
+            padding: 22px;
+            margin-bottom: 18px;
+            background: #0b1220;
+        }
+        .pageHero::before{
+            content:"";
+            position:absolute; inset:0;
+            background-image: url("/images/user-bg.jpg");
+            background-size: cover;
+            background-position: center;
+            filter: saturate(1.05) contrast(1.05);
+            opacity: .22;
+        }
+        .pageHero::after{
+            content:"";
+            position:absolute; inset:0;
+            background: radial-gradient(1200px 400px at 20% 0%, rgba(255,255,255,.10), transparent 60%),
+            linear-gradient(180deg, rgba(0,0,0,.25), rgba(0,0,0,.45));
+        }
+        .pageHero__content{
+            position: relative;
+            display:flex;
+            align-items:flex-start;
+            justify-content: space-between;
+            gap: 16px;
+        }
+
+        /* Animations */
+        .fadeUp {
+            animation: fadeUp .55s ease-out both;
+        }
+        @keyframes fadeUp{
+            from{ opacity:0; transform: translateY(10px); }
+            to{ opacity:1; transform: translateY(0); }
+        }
+
+        .cardPop {
+            animation: cardPop .45s ease-out both;
+        }
+        @keyframes cardPop{
+            from{ opacity:0; transform: translateY(12px) scale(.98); }
+            to{ opacity:1; transform: translateY(0) scale(1); }
+        }
+
+        /* Hover effect for car cards */
+        .carCard{
+            transition: transform .15s ease, box-shadow .15s ease;
+            will-change: transform;
+        }
+        .carCard:hover{
+            transform: translateY(-2px);
+            box-shadow: 0 10px 28px rgba(0,0,0,.18);
+        }
+
+        /* Filters sticky */
+        .filtersSticky{
+            position: sticky;
+            top: 12px;
+            z-index: 2;
+        }
+
+        /* Small badge tune */
+        .badge{
+            letter-spacing: .3px;
+        }
+
+        /* Empty state */
+        .emptyState{
+            text-align:center;
+            padding: 26px;
+        }
+        .emptyState__title{
+            font-size: 18px;
+            font-weight: 800;
+            margin-bottom: 6px;
+        }
+        .emptyState__sub{
+            opacity: .8;
+            margin-bottom: 14px;
+        }
+    </style>
 </head>
 
 <body>
 
 <!-- Top Bar -->
-<header class="topbar">
+<header class="topbar fadeUp">
     <div class="topbar__left">
         <a class="brand" th:href="@{/cars}">
             <img class="brand__logo" th:src="@{/images/logo.svg}" alt="Driveza" />
@@ -25,29 +114,29 @@
         <a class="nav__link" th:href="@{/account}">Account</a>
     </nav>
 
-<!--    <div class="topbar__right">-->
-<!--        <a class="btn btn&#45;&#45;ghost" th:href="@{/logout}">Logout</a>-->
-<!--    </div>-->
-    <form th:action = "@{/logout}" method="post" style="display:inline;">
+    <form th:action="@{/logout}" method="post" style="display:inline;">
         <button class="btn btn--ghost" type="submit">Logout</button>
     </form>
-
 </header>
 
 <main class="container">
 
-    <!-- Page header -->
-    <section class="pageHead">
-        <div>
-            <h1 class="pageTitle">Available Cars</h1>
-            <p class="pageSub">Only <b>AVAILABLE</b> cars are shown for users.</p>
-        </div>
+    <!-- HERO HEADER -->
+    <section class="pageHero fadeUp">
+        <div class="pageHero__content">
+            <div>
+                <h1 class="pageTitle" style="margin:0 0 6px 0;">Available Cars</h1>
+                <p class="pageSub" style="margin:0;">
+                    Only <b>AVAILABLE</b> cars are shown for users.
+                </p>
+            </div>
 
-        <!-- active rental quick action (optional UI) -->
-        <div class="activeRental">
-            <div class="activeRental__label">My Rental</div>
-            <div class="activeRental__value">No active rental</div>
-            <button class="btn btn--small btn--disabled" type="button" disabled>Return</button>
+            <!-- active rental quick action -->
+            <div class="activeRental">
+                <div class="activeRental__label">My Rental</div>
+                <div class="activeRental__value">No active rental</div>
+                <button class="btn btn--small btn--disabled" type="button" disabled>Return</button>
+            </div>
         </div>
     </section>
 
@@ -60,32 +149,33 @@
     </div>
 
     <!-- Filters -->
-    <section class="filters card">
+    <section class="filters card filtersSticky fadeUp">
         <form class="filters__grid" method="get" th:action="@{/cars}">
             <div class="field">
                 <label class="label">Search model</label>
-                <input class="input" name="q" type="text" placeholder="e.g., Prius, BMW X3" />
+                <input class="input" name="q" type="text"
+                       placeholder="e.g., Prius, BMW X3"
+                       th:value="${param.q}" />
                 <input type="hidden" name="lat" id="lat" />
                 <input type="hidden" name="lon" id="lon" />
             </div>
 
             <div class="field">
                 <label class="label">Sort</label>
-
                 <select class="select" name="sort">
-                    <option value="" th:selected="${param.sort == null}">Recommended</option>
-                    <option value="distanceAsc" th:selected="${param.sort == 'distanceAsc'}">Distance (nearest)</option>
-                    <option value="priceAsc" th:selected="${param.sort == 'priceAsc'}">Price (lowest)</option>
+                    <option value="" th:selected="${param.sort == null or param.sort[0] == ''}">Recommended</option>
+                    <option value="distanceAsc" th:selected="${param.sort != null and param.sort[0] == 'distanceAsc'}">Distance (nearest)</option>
+                    <option value="priceAsc" th:selected="${param.sort != null and param.sort[0] == 'priceAsc'}">Price (lowest)</option>
                 </select>
             </div>
 
             <div class="field">
                 <label class="label">Radius</label>
                 <select class="select" name="radius">
-                    <option value="1">1 km</option>
-                    <option value="3" selected>3 km</option>
-                    <option value="5">5 km</option>
-                    <option value="10">10 km</option>
+                    <option value="1"  th:selected="${param.radius != null and param.radius[0] == '1'}">1 km</option>
+                    <option value="3"  th:selected="${param.radius == null or param.radius[0] == '3'}">3 km</option>
+                    <option value="5"  th:selected="${param.radius != null and param.radius[0] == '5'}">5 km</option>
+                    <option value="10" th:selected="${param.radius != null and param.radius[0] == '10'}">10 km</option>
                 </select>
             </div>
 
@@ -96,44 +186,51 @@
         </form>
 
         <script>
+            // optional: fill lat/lon for distance/radius filtering
             if (navigator.geolocation) {
                 navigator.geolocation.getCurrentPosition((pos) => {
-                    document.getElementById("lat").value = pos.coords.latitude;
-                    document.getElementById("lon").value = pos.coords.longitude;
+                    const latEl = document.getElementById("lat");
+                    const lonEl = document.getElementById("lon");
+                    if (latEl && lonEl) {
+                        latEl.value = pos.coords.latitude;
+                        lonEl.value = pos.coords.longitude;
+                    }
                 });
             }
         </script>
     </section>
 
     <!-- Cars Grid -->
-    <section class="grid">
+    <section class="grid" style="margin-top:16px;">
 
-        <!-- Show message if empty -->
-        <div class="alert alert--info" th:if="${#lists.isEmpty(cars)}">
-            No available cars right now.
+        <!-- Empty state -->
+        <div class="card pad emptyState" th:if="${#lists.isEmpty(cars)}">
+            <div class="emptyState__title">No available cars right now</div>
+            <div class="emptyState__sub">Try increasing the radius or clearing your filters.</div>
+            <a class="btn" th:href="@{/cars}">Show all available</a>
         </div>
 
         <!-- Dynamic cards -->
-        <article class="carCard" th:each="car : ${cars}">
+        <article class="carCard cardPop" th:each="car, iter : ${cars}" th:style="'animation-delay:' + (${iter.index} * 50) + 'ms;'">
             <img class="carCard__img" th:src="@{/images/car-placeholder.jpg}" alt="car"/>
 
             <div class="carCard__body">
                 <div class="carCard__top">
                     <div>
                         <div class="carCard__title"
-                             th:text="${car.model.brand + ' ' + car.model.model}">
+                             th:text="${car.model != null ? car.model.brand + ' ' + car.model.model : 'Unknown Model'}">
                             Toyota Prius
                         </div>
-                        <div class="carCard__meta" th:text="${car.type}"></div>
+                        <div class="carCard__meta" th:text="${car.type}">HYBRID</div>
                     </div>
 
-                    <span class="badge badge--ok" th:text="${car.status}"></span>
+                    <span class="badge badge--ok" th:text="${car.status}">AVAILABLE</span>
                 </div>
 
                 <div class="carCard__info">
                     <div class="infoRow">
                         <span class="muted">Price</span>
-                        <b th:text="'€' + ${car.pricePerMin} + '/min'"></b>
+                        <b th:text="'€' + ${car.pricePerMin} + '/min'">€0.25/min</b>
                     </div>
                     <div class="infoRow">
                         <span class="muted">Lat</span>
@@ -149,89 +246,7 @@
             </div>
         </article>
 
-
-
-        <!-- ✅ Option B: static demo cards (works now even without backend) -->
-<!--        <article class="carCard">-->
-<!--            <img class="carCard__img" th:src="@{/images/car-placeholder.jpg}" alt="car" />-->
-<!--            <div class="carCard__body">-->
-<!--                <div class="carCard__top">-->
-<!--                    <div>-->
-<!--                        <div class="carCard__title">Toyota Prius</div>-->
-<!--                        <div class="carCard__meta">Hybrid • Automatic</div>-->
-<!--                    </div>-->
-<!--                    <span class="badge badge&#45;&#45;ok">AVAILABLE</span>-->
-<!--                </div>-->
-
-<!--                <div class="carCard__info">-->
-<!--                    <div class="infoRow">-->
-<!--                        <span class="muted">Distance</span><b>1.2 km</b>-->
-<!--                    </div>-->
-<!--                    <div class="infoRow">-->
-<!--                        <span class="muted">Price</span><b>€10/h</b>-->
-<!--                    </div>-->
-<!--                </div>-->
-
-<!--                <button class="btn" type="button">Rent</button>-->
-<!--            </div>-->
-<!--        </article>-->
-
-<!--        <article class="carCard">-->
-<!--            <img class="carCard__img" th:src="@{/images/car-placeholder.jpg}" alt="car" />-->
-<!--            <div class="carCard__body">-->
-<!--                <div class="carCard__top">-->
-<!--                    <div>-->
-<!--                        <div class="carCard__title">BMW X3</div>-->
-<!--                        <div class="carCard__meta">SUV • Petrol</div>-->
-<!--                    </div>-->
-<!--                    <span class="badge badge&#45;&#45;ok">AVAILABLE</span>-->
-<!--                </div>-->
-
-<!--                <div class="carCard__info">-->
-<!--                    <div class="infoRow">-->
-<!--                        <span class="muted">Distance</span><b>2.8 km</b>-->
-<!--                    </div>-->
-<!--                    <div class="infoRow">-->
-<!--                        <span class="muted">Price</span><b>€18/h</b>-->
-<!--                    </div>-->
-<!--                </div>-->
-
-<!--                <button class="btn" type="button">Rent</button>-->
-<!--            </div>-->
-<!--        </article>-->
-
-<!--        <article class="carCard">-->
-<!--            <img class="carCard__img" th:src="@{/images/car-placeholder.jpg}" alt="car" />-->
-<!--            <div class="carCard__body">-->
-<!--                <div class="carCard__top">-->
-<!--                    <div>-->
-<!--                        <div class="carCard__title">Audi A4</div>-->
-<!--                        <div class="carCard__meta">Sedan • Diesel</div>-->
-<!--                    </div>-->
-<!--                    <span class="badge badge&#45;&#45;ok">AVAILABLE</span>-->
-<!--                </div>-->
-
-<!--                <div class="carCard__info">-->
-<!--                    <div class="infoRow">-->
-<!--                        <span class="muted">Distance</span><b>4.0 km</b>-->
-<!--                    </div>-->
-<!--                    <div class="infoRow">-->
-<!--                        <span class="muted">Price</span><b>€15/h</b>-->
-<!--                    </div>-->
-<!--                </div>-->
-
-<!--                <button class="btn" type="button">Rent</button>-->
-<!--            </div>-->
-<!--        </article>-->
-
-<!--    </section>-->
-
-<!--    &lt;!&ndash; Pagination (UI only for now) &ndash;&gt;-->
-<!--    <section class="pagination">-->
-<!--        <button class="btn btn&#45;&#45;ghost btn&#45;&#45;small" type="button" disabled>Prev</button>-->
-<!--        <div class="pagination__text">Page 1 of 5</div>-->
-<!--        <button class="btn btn&#45;&#45;ghost btn&#45;&#45;small" type="button">Next</button>-->
-   </section>
+    </section>
 
 </main>
 
