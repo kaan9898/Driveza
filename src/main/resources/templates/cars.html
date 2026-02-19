@@ -222,8 +222,11 @@
         </div>
 
         <!-- Dynamic cards -->
-        <article class="carCard cardPop" th:each="car, iter : ${cars}" th:style="'animation-delay:' + (${iter.index} * 50) + 'ms;'">
-            <img class="carCard__img" th:src="@{/images/car-placeholder.jpg}" alt="car"/>
+<!--        <article class="carCard cardPop" th:each="car, iter : ${cars}" th:style="'animation-delay:' + (${iter.index} * 50) + 'ms;'">-->
+        <article class="carCard cardPop"
+                 th:each="car, iterStat : ${cars}"
+                 th:style="'animation-delay:' + (${iterStat.index} * 250) + 'ms;'">
+        <img class="carCard__img" th:src="@{/images/car-placeholder.jpg}" alt="car"/>
 
             <div class="carCard__body">
                 <div class="carCard__top">
