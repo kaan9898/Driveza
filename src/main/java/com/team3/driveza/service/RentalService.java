@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.ZonedDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -51,5 +52,9 @@ public class RentalService {
     public Rental findOrThrow(long id) throws RuntimeException {
         return rentalRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("This rental does not exist."));
+    }
+
+    public Optional<Rental> getActiveRentalForUser(long userId){
+        return rentalRepository.findFirstByUserIdAndStatus(userId, RentalStatus.ACTIVE);
     }
 }
