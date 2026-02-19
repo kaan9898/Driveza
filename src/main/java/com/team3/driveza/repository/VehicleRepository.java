@@ -2,46 +2,74 @@ package com.team3.driveza.repository;
 
 import com.team3.driveza.model.Vehicle;
 import com.team3.driveza.model.enums.VehicleStatus;
-import org.springframework.data.jpa.repository.NativeQuery;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.ListCrudRepository;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
-
 @Repository
-public interface VehicleRepository extends ListCrudRepository<Vehicle, Long> {
-    List<Vehicle> findAllByStatus(VehicleStatus vehicleStatus);
-
-    // oh no bro...
-    // Spherical law of cosines, 6371km radius of earth
-    @NativeQuery("select l.* from locs l where acos( sin(radians(l.lat))*sin(radians(?1))+cos(radians(l.lat))*cos(radians(?1))*cos(radians(?2)-radians(l.long)) ) * 6371 < ?3")
-    List<Vehicle> findAllByFormula(Double lat, Double lon, Double radiusInKM);
+public interface VehicleRepository extends JpaRepository<Vehicle, Long> {
+    Page<Vehicle> findAllByStatus(VehicleStatus vehicleStatus, Pageable pageable);
 
     // Search by brand or model (requires Vehicle has model -> VehicleModel relation)
-    @Query("""
-        select v from Vehicle v
-        join v.model m
-        where v.status = :status
-          and ( lower(m.brand) like lower(concat('%', :q, '%'))
-             or lower(m.model) like lower(concat('%', :q, '%')) )
-    """)
-    List<Vehicle> searchAvailable(@Param("status") VehicleStatus status, @Param("q") String q);
+    @Query(value = """
+                select v.*
+                from Vehicle v
+                join vehicle_model vm
+                on v.model_id=vm.id
+                where v.status='AVAILABLE'
+                  and ( lower(vm.brand) like lower(concat('%', :q, '%'))
+                     or lower(vm.model) like lower(concat('%', :q, '%')))
+            """, nativeQuery = true)
+    Page<Vehicle> searchAvailable(@Param("q") String q,
+                                  Pageable pageable);
 
     // Radius filter (native): spherical law of cosines
     @Query(value = """
-        select * from vehicle v
-        where acos(
-            sin(radians(v.latitude)) * sin(radians(:lat))
-            + cos(radians(v.latitude)) * cos(radians(:lat))
-            * cos(radians(:lon) - radians(v.longitude))
-        ) * 6371 < :radius
-    """, nativeQuery = true)
-    List<Vehicle> findAllWithinRadius(@Param("lat") double lat,
+                    select * from (
+                        select *, acos(
+                            sin(radians(v.latitude)) * sin(radians(:lat))
+                            + cos(radians(v.latitude)) * cos(radians(:lat))
+                            * cos(radians(:lon) - radians(v.longitude))
+                        ) * 6371.0 as distance
+                        from vehicle v
+                        where v.status=:status
+                    ) as g
+                    where g.distance<:radius
+            """, nativeQuery = true)
+    Page<Vehicle> findAllWithinRadius(@Param("lat") double lat,
                                       @Param("lon") double lon,
-                                      @Param("radius") double radius);
+                                      @Param("radius") double radius,
+                                      @Param("status") String status,
+                                      Pageable pageable);
+
+    @Query(value = """
+                    select * from (
+                        select v.*, acos(
+                            sin(radians(v.latitude)) * sin(radians(:lat))
+                            + cos(radians(v.latitude)) * cos(radians(:lat))
+                            * cos(radians(:lon) - radians(v.longitude))
+                        ) * 6371.0 as distance
+                        from vehicle v
+                        join vehicle_model vm
+                        on v.model_id=vm.id
+                        where v.status=:status
+                          and ( lower(vm.brand) like lower(concat('%', :q, '%'))
+                             or lower(vm.model) like lower(concat('%', :q, '%')))
+                    ) as g
+                    where g.distance<:radius
+            """, nativeQuery = true)
+    Page<Vehicle> findAllWithinRadiusAndName(@Param("lat") double lat,
+                                             @Param("lon") double lon,
+                                             @Param("radius") double radius,
+                                             @Param("status") String status,
+                                             @Param("q") String q,
+                                             Pageable pageable
+    );
 
     long count();
+
     long countByStatus(VehicleStatus status);
 }
