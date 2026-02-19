@@ -25,7 +25,7 @@ public class VehicleController {
     }
 
     // Show available vehicles on the index page.
-    @GetMapping
+    @GetMapping("/listVehicles")
     public String listVehicles(Model model) {
         model.addAttribute("vehicles", vehicleService.getAvailableVehicles());
         return "vehicles/list";
@@ -35,7 +35,7 @@ public class VehicleController {
     @GetMapping("/{id}")
     public String getVehicleById(@PathVariable Long id, Model model) {
         model.addAttribute("vehicle", vehicleService.getVehicleById(id));
-        return "vehicles/detail";
+        return "vehicles/list";
     }
 
     // Render the form for registering a new vehicle.
