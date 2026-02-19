@@ -1,7 +1,9 @@
 package com.team3.driveza.controller;
 
 
+import com.team3.driveza.model.User;
 import com.team3.driveza.model.Vehicle;
+import com.team3.driveza.service.RentalService;
 import com.team3.driveza.service.UserService;
 import com.team3.driveza.service.VehicleService;
 import lombok.RequiredArgsConstructor;
@@ -11,6 +13,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import java.security.Principal;
 import java.util.List;
 
 @Controller
@@ -20,6 +23,7 @@ public class PageController {
 
     private final UserService userService;
     private final VehicleService vehicleService;
+    private final RentalService rentalService;
 
     @GetMapping("/cars")
     public String cars(
@@ -28,9 +32,17 @@ public class PageController {
             @RequestParam(required = false) Double radius,
             @RequestParam(required = false) Double lat,
             @RequestParam(required = false) Double lon,
-            Model model) {
+            Principal principal, Model model) {
         var cars = vehicleService.getCars(q,lat,lon,radius,sort); // adding sorting part 
         model.addAttribute("cars", cars);
+
+        User user = userService.findByEmail(principal.getName())
+                .orElseThrow(() -> new RuntimeException("User not found"));
+//        System.out.println(principal.getName());
+        // active rental
+        model.addAttribute("activeRental", rentalService.getActiveRentalForUser(user.getId()).orElse(null));
+
+
         return "cars"; }
 
     @GetMapping("/account")

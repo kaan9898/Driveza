@@ -13,6 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -105,5 +106,9 @@ public class UserService {
 
     private LocalDate toLocalDate(java.time.ZonedDateTime zonedDateTime) {
         return zonedDateTime != null ? zonedDateTime.toLocalDate() : null;
+    }
+
+    public Optional<User> findByEmail(String email){
+        return userRepository.findByEmail(email);
     }
 }

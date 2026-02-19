@@ -132,7 +132,18 @@
             </div>
 
             <!-- active rental quick action -->
-            <div class="activeRental">
+            <div class="activeRental" th:if="${activeRental != null}">
+                <div class="activeRental__label">My Rental</div>
+                <div class="activeRental__value"
+                     th:text="${activeRental.vehicle.model.brand + ' ' + activeRental.vehicle.model.model}">
+                    Toyota Prius
+                </div>
+                <form th:action="@{'/rentals/' + ${activeRental.id} + '/return'}" method="post">
+                    <button class="btn btn--small" type="submit">Return</button>
+                </form>
+            </div>
+
+            <div class="activeRental" th:if="${activeRental == null}">
                 <div class="activeRental__label">My Rental</div>
                 <div class="activeRental__value">No active rental</div>
                 <button class="btn btn--small btn--disabled" type="button" disabled>Return</button>
@@ -242,7 +253,9 @@
                     </div>
                 </div>
 
-                <button class="btn" type="button">Rent</button>
+                <form th:action="@{'/rentals/' + ${car.id} + '/rent'}" method="post">
+                    <button class="btn" type="submit">Rent</button>
+                </form>
             </div>
         </article>
 
