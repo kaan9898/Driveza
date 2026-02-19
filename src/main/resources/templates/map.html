@@ -16,14 +16,30 @@
       height: 550px;
       width: 100%;
       border-radius: 12px;
-      margin-top: 20px;
+      margin-top: 16px;
+      overflow: hidden;
     }
+    .mapActions{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      align-items:center;
+      margin-top:10px;
+    }
+    .pill {
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: rgba(0,0,0,.06);
+      font-size: 13px;
+    }
+    .mutedSmall { font-size: 13px; opacity: .75; }
+    /* Hide vehicle data nodes */
+    #vehiclePoints { display:none; }
   </style>
 </head>
 
 <body>
 
-<!-- Top Bar -->
 <header class="topbar">
   <div class="topbar__left">
     <a class="brand" th:href="@{/cars}">
@@ -50,19 +66,44 @@
   <section class="pageHead">
     <div>
       <h1 class="pageTitle">Available Vehicles Map</h1>
-      <p class="pageSub">View nearby available vehicles on the map</p>
+      <p class="pageSub">View available vehicles on the map</p>
     </div>
   </section>
 
   <section class="card pad">
 
-    <!-- Info message if no vehicles -->
-    <div th:if="${#lists.isEmpty(vehicles)}"
-         class="alert alert--info">
+    <div class="mapActions">
+      <button class="btn" type="button" id="btnLocate">Use my location</button>
+      <a class="btn btn--ghost" th:href="@{/map}">Reset view</a>
+
+      <span class="pill">
+        Vehicles on map:
+        <b th:text="${vehicles != null ? #lists.size(vehicles) : 0}">0</b>
+      </span>
+
+      <span class="mutedSmall" id="locationStatus"></span>
+    </div>
+
+    <div th:if="${vehicles == null or #lists.isEmpty(vehicles)}"
+         class="alert alert--info" style="margin-top:12px;">
       No vehicles available at the moment.
     </div>
 
-    <!-- Map Container -->
+    <!-- ✅ Hidden vehicle data rendered safely -->
+    <div id="vehiclePoints">
+      <div th:each="v : ${vehicles}"
+           class="vehiclePoint"
+           th:attr="data-id=${v.id},
+                    data-lat=${v.latitude},
+                    data-lon=${v.longitude},
+                    data-type=${v.type},
+                    data-status=${v.status},
+                    data-price=${v.pricePerMin},
+                    data-brand=${v.model != null ? v.model.brand : 'Unknown'},
+                    data-model=${v.model != null ? v.model.model : 'Unknown'}">
+      </div>
+    </div>
+
     <div id="map"></div>
 
   </section>
@@ -72,35 +113,88 @@
 <!-- Leaflet JS -->
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
-<script th:inline="javascript">
-  /*<![CDATA[*/
+<script>
+  // Default center (Riga)
+  const defaultCenter = [56.9496, 24.1052];
+  const defaultZoom = 12;
 
-  const vehicles = [[${vehicles}]];
-
-  // Default center (Riga example — change if needed)
-  const map = L.map('map').setView([56.9496, 24.1052], 12);
+  const map = L.map('map').setView(defaultCenter, defaultZoom);
 
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     attribution: '© OpenStreetMap contributors'
   }).addTo(map);
 
-  if (vehicles && vehicles.length > 0) {
+  const markersLayer = L.layerGroup().addTo(map);
+  const bounds = [];
 
-    vehicles.forEach(v => {
+  // ✅ Read vehicles from hidden HTML (no Thymeleaf JS syntax issues)
+  const nodes = document.querySelectorAll(".vehiclePoint");
+  nodes.forEach(node => {
+    const lat = parseFloat(node.dataset.lat);
+    const lon = parseFloat(node.dataset.lon);
+    if (Number.isNaN(lat) || Number.isNaN(lon)) return;
 
-      if (v.latitude && v.longitude) {
+    const brand = node.dataset.brand || "Unknown";
+    const model = node.dataset.model || "Unknown";
+    const type = node.dataset.type || "";
+    const status = node.dataset.status || "";
+    const price = parseFloat(node.dataset.price || "0");
 
-        L.marker([v.latitude, v.longitude])
-                .addTo(map)
-                .bindPopup(
-                        "<b>" + v.brand + " " + v.model + "</b><br/>" +
-                        "€" + v.pricePerHour + "/h"
-                );
-      }
-    });
+    const popup =
+            `<b>${escapeHtml(brand)} ${escapeHtml(model)}</b><br/>
+       Type: ${escapeHtml(type)}<br/>
+       Status: ${escapeHtml(status)}<br/>
+       Price: €${price.toFixed(2)}/min`;
+
+    L.marker([lat, lon]).addTo(markersLayer).bindPopup(popup);
+    bounds.push([lat, lon]);
+  });
+
+  // Fit to markers if any
+  if (bounds.length > 0) {
+    map.fitBounds(bounds, { padding: [30, 30] });
   }
 
-  /*]]>*/
+  // ✅ Locate button
+  const statusEl = document.getElementById("locationStatus");
+  document.getElementById("btnLocate").addEventListener("click", () => {
+    if (!navigator.geolocation) {
+      statusEl.textContent = "Geolocation not supported in this browser.";
+      return;
+    }
+    statusEl.textContent = "Detecting your location...";
+
+    navigator.geolocation.getCurrentPosition(
+            (pos) => {
+              const lat = pos.coords.latitude;
+              const lon = pos.coords.longitude;
+
+              statusEl.textContent = `You are here: ${lat.toFixed(5)}, ${lon.toFixed(5)}`;
+
+              L.circleMarker([lat, lon], {
+                radius: 8,
+                weight: 2,
+                fillOpacity: 0.6
+              }).addTo(map).bindPopup("You are here").openPopup();
+
+              map.setView([lat, lon], 14);
+            },
+            (err) => {
+              statusEl.textContent = "Location permission denied or failed.";
+              console.error(err);
+            },
+            { enableHighAccuracy: true, timeout: 8000 }
+    );
+  });
+
+  function escapeHtml(str) {
+    return String(str ?? '')
+            .replaceAll('&','&amp;')
+            .replaceAll('<','&lt;')
+            .replaceAll('>','&gt;')
+            .replaceAll('"','&quot;')
+            .replaceAll("'","&#039;");
+  }
 </script>
 
 </body>
