@@ -1,10 +1,24 @@
 package com.team3.driveza.Dto.Vehicle;
 
+import com.team3.driveza.model.enums.VehicleStatus;
+import com.team3.driveza.model.enums.VehicleType;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class VehicleResponseDto {
-    private int carId;
+    private Long id;
     private String brand;
-    private String model;
-    private double pricePerKm;
-    private int fuelLevel;
-    private double distance;
+    private String modelName;
+    private VehicleStatus status;
+    private VehicleType type;
+    private double pricePerMin;
+    private double latitude;
+    private double longitude;
+    private double distanceKm;
 }
