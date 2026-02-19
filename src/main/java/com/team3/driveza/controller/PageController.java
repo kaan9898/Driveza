@@ -8,6 +8,7 @@ import com.team3.driveza.service.UserService;
 import com.team3.driveza.service.VehicleService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -25,6 +26,24 @@ public class PageController {
     private final UserService userService;
     private final VehicleService vehicleService;
     private final RentalService rentalService;
+
+    @GetMapping("/")
+    public String root(Authentication authentication) {
+        if (authentication == null
+                || !authentication.isAuthenticated()
+                || authentication instanceof AnonymousAuthenticationToken) {
+            return "redirect:/login";
+        }
+        boolean isAdmin = authentication.getAuthorities()
+                .stream()
+                .anyMatch(a -> "ROLE_ADMIN".equals(a.getAuthority()));
+        return isAdmin ? "redirect:/admin/dashboard" : "redirect:/cars";
+    }
+
+    @GetMapping("/403")
+    public String accessDenied() {
+        return "403";
+    }
 
     @GetMapping("/cars")
     public String cars(

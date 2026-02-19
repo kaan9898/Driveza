@@ -505,3 +505,29 @@ body.adminBg { position: relative; min-height: 100vh; }
     position: relative;
     z-index: 1;
 }
+/* smoother stagger effect */
+.cardPop {
+    opacity: 0;
+    transform: translateY(12px) scale(.98);
+}
+.cardPop {
+    animation-fill-mode: forwards;
+}
+.btn {
+    transition: transform .12s ease, box-shadow .12s ease;
+}
+.btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 10px 25px rgba(0,0,0,.18);
+}
+.btn:active {
+    transform: translateY(0);
+    box-shadow: none;
+}
+body {
+    animation: pageFade .35s ease-out both;
+}
+@keyframes pageFade {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}

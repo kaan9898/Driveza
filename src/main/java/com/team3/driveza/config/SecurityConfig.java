@@ -45,8 +45,14 @@ public class SecurityConfig {
             .authorizeHttpRequests(auth -> auth
                     .requestMatchers("/css/**", "/js/**", "/images/**", "/webjars/**", "/favicon.ico", "/error")
                     .permitAll()
+<<<<<<< UI
 
                     .requestMatchers("/login", "/register", "/oauth2/**", "/login/oauth2/**")
+=======
+                    .requestMatchers("/", "/login", "/register", "/cars", "/cars/**", "/car-details", "/car-details/**", "/403")
+                    .permitAll()
+                    .requestMatchers("/oauth2/**", "/login/oauth2/**")
+>>>>>>> main
                     .permitAll()
 
                     .requestMatchers("/cars", "/cars/**", "/map", "/map/**", "/account", "/account/**",
@@ -72,6 +78,7 @@ public class SecurityConfig {
                     .tokenValiditySeconds(24 * 60 * 60)
                     .key("driveza-rmb-key")
             )
+            .exceptionHandling(exception -> exception.accessDeniedPage("/403"))
             .logout(logout -> logout
                     .logoutUrl("/logout")
                     .logoutSuccessUrl("/login?logout")

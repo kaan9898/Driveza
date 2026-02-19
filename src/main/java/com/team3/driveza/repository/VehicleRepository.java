@@ -15,8 +15,8 @@ public interface VehicleRepository extends JpaRepository<Vehicle, Long> {
 
     // Search by brand or model (requires Vehicle has model -> VehicleModel relation)
     @Query(value = """
-                select v.*
-                from Vehicle v
+                select v.*, v.price_per_min as pricePerMin
+                from vehicle v
                 join vehicle_model vm
                 on v.model_id=vm.id
                 where v.status='AVAILABLE'
@@ -29,7 +29,7 @@ public interface VehicleRepository extends JpaRepository<Vehicle, Long> {
     // Radius filter (native): spherical law of cosines
     @Query(value = """
                     select * from (
-                        select *, acos(
+                        select *, price_per_min as pricePerMin, acos(
                             sin(radians(v.latitude)) * sin(radians(:lat))
                             + cos(radians(v.latitude)) * cos(radians(:lat))
                             * cos(radians(:lon) - radians(v.longitude))
@@ -47,7 +47,7 @@ public interface VehicleRepository extends JpaRepository<Vehicle, Long> {
 
     @Query(value = """
                     select * from (
-                        select v.*, acos(
+                        select v.*, v.price_per_min as pricePerMin, acos(
                             sin(radians(v.latitude)) * sin(radians(:lat))
                             + cos(radians(v.latitude)) * cos(radians(:lat))
                             * cos(radians(:lon) - radians(v.longitude))

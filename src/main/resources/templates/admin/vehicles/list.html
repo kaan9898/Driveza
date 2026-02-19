@@ -6,44 +6,102 @@
     <title>Driveza | Admin Vehicles</title>
 
     <link rel="stylesheet" th:href="@{/css/driveza-app.css}">
-
     <style>
-        /* ✅ remove blur/overlay look */
-        body { background: #0b0f14; } /* or keep default app bg */
-        .adminOverlay { display:none !important; }
+        /* ✅ Next-level background (no blur) */
+        body {
+            min-height: 100vh;
+            margin: 0;
+            background: url('/images/user-bg.jpg') no-repeat center center fixed;
+            background-size: cover;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* ✅ Dark overlay for readability (NO blur) */
+        body::before {
+            content: "";
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.55);
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        /* ✅ Keep everything above overlay */
+        header, main, .modalBackdrop {
+            position: relative;
+            z-index: 1;
+        }
+
+        /* ✅ Smooth entrance animation for page */
+        header.topbar, main.container {
+            animation: fadeUp .35s ease-out;
+        }
+
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
 
         /* Clickable row */
         .clickRow { cursor: pointer; }
-        .clickRow:hover { filter: brightness(1.02); transform: translateY(-1px); transition: .15s; }
+        .clickRow:hover {
+            transform: translateY(-2px);
+            transition: .15s;
+            background: rgba(255,255,255,.04);
+        }
 
         /* Modal */
         .modalBackdrop{
             position: fixed; inset: 0;
-            background: rgba(0,0,0,.100);
+            background: rgba(0,0,0,.65);
             display: none;
             align-items: center; justify-content: center;
             z-index: 9999;
             padding: 18px;
+            animation: fadeIn .2s ease-out;
         }
         .modalBackdrop.show{ display:flex; }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
 
         .modalBox{
             width: min(820px, 100%);
             max-height: 85vh;
             overflow: auto;
             border-radius: 14px;
-            animation: pop .15s ease-out;
+            animation: pop .18s ease-out;
         }
-        @keyframes pop { from { transform: scale(.98); opacity: .7; } to { transform: scale(1); opacity: 1; } }
 
-        .modalHeader{ display:flex; align-items:center; justify-content: space-between; gap: 12px; }
-        .modalClose{ border: none; background: transparent; font-size: 22px; line-height: 1; cursor: pointer; }
+        @keyframes pop {
+            from { transform: scale(.97); opacity: .7; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        .modalHeader{
+            display:flex;
+            align-items:center;
+            justify-content: space-between;
+            gap: 12px;
+        }
+
+        .modalClose{
+            border: none;
+            background: transparent;
+            font-size: 22px;
+            line-height: 1;
+            cursor: pointer;
+        }
 
         .twoCol{
             display: grid;
             grid-template-columns: repeat(2, minmax(0,1fr));
             gap: 14px;
         }
+
         @media (max-width: 720px){
             .twoCol{ grid-template-columns: 1fr; }
         }
@@ -184,6 +242,7 @@
                     <select class="select" id="status" name="status" required>
                         <option value="AVAILABLE">AVAILABLE</option>
                         <option value="RENTED">RENTED</option>
+                        <option value="OUT_OF_SERVICE">OUT_OF_SERVICE</option>
                     </select>
                 </div>
 

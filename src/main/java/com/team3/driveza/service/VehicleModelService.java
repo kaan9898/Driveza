@@ -45,4 +45,14 @@ public class VehicleModelService {
         return vehicleModelRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("This vehicle model does not exist."));
     }
+
+    public VehicleModel findOrCreate(String brand, String model){
+        return vehicleModelRepository.findByBrandIgnoreCaseAndModelIgnoreCase(brand.trim(),model.trim())
+                .orElseGet(()->{
+                    VehicleModel vehicleModel = new VehicleModel();
+                    vehicleModel.setBrand(brand.trim());
+                    vehicleModel.setModel(model.trim());
+                    return vehicleModelRepository.save(vehicleModel);
+                });
+    }
 }
