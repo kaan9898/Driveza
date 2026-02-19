@@ -59,10 +59,31 @@
                   th:action="${vehicle.id == 0} ? @{/admin/vehicles} : @{/admin/vehicles/{id}/edit(id=${vehicle.id})}"
                   th:object="${vehicle}">
 
-                <!-- CSRF -->
                 <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
 
                 <div class="twoCol" style="display:grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap:14px;">
+
+                    <!-- ✅ BRAND (searchable) -->
+                    <div class="field">
+                        <label class="label">Brand</label>
+                        <input class="input" id="brandInput" name="brand" list="brandList"
+                               placeholder="Start typing e.g., Toyota" required>
+                        <datalist id="brandList">
+                            <!-- optional preload from controller -->
+                            <option th:each="b : ${makes}" th:value="${b}"></option>
+                        </datalist>
+                        <div class="muted" style="margin-top:6px;">Search and select a brand</div>
+                    </div>
+
+                    <!-- ✅ MODEL (searchable) -->
+                    <div class="field">
+                        <label class="label">Model</label>
+                        <input class="input" id="modelInput" name="modelName" list="modelList"
+                               placeholder="Select brand first" required>
+                        <datalist id="modelList"></datalist>
+                        <div class="muted" style="margin-top:6px;">Models load after brand selection</div>
+                    </div>
+
                     <div class="field">
                         <label class="label">Type</label>
                         <select class="select" th:field="*{type}" required>
@@ -95,21 +116,6 @@
                         <input class="input" type="number" step="0.000001" th:field="*{longitude}" required/>
                     </div>
 
-                    <!-- IMPORTANT:
-                         Vehicle.model is ManyToOne, so you usually need a dropdown.
-                         If you haven't built vehicleModel selection yet, keep this part for later.
-                    -->
-                    <!--
-                    <div class="field">
-                      <label class="label">Vehicle Model</label>
-                      <select class="select" th:field="*{model}">
-                        <option th:each="m : ${vehicleModels}"
-                                th:value="${m.id}"
-                                th:text="${m.brand + ' ' + m.model}">
-                        </option>
-                      </select>
-                    </div>
-                    -->
                 </div>
 
                 <div style="display:flex; gap:10px; margin-top:16px;">
@@ -122,5 +128,35 @@
     </main>
 
 </div>
+
+<script>
+    // If you did NOT preload makes in controller, uncomment this to load makes from internet:
+    // fetch("/api/vpic/makes")
+    //   .then(r => r.json())
+    //   .then(makes => {
+    //     const dl = document.getElementById("brandList");
+    //     dl.innerHTML = makes.map(m => `<option value="${m}"></option>`).join("");
+    //   });
+
+    const brandInput = document.getElementById("brandInput");
+    const modelInput = document.getElementById("modelInput");
+    const modelList = document.getElementById("modelList");
+
+    async function loadModels(make){
+        modelList.innerHTML = "";
+        modelInput.value = "";
+        if(!make) return;
+
+        const res = await fetch(`/api/vpic/models?make=${encodeURIComponent(make)}`);
+        const models = await res.json();
+
+        modelList.innerHTML = models.map(m => `<option value="${m}"></option>`).join("");
+        modelInput.placeholder = models.length ? "Start typing model..." : "No models found";
+    }
+
+    // Load models when brand changes
+    brandInput.addEventListener("change", () => loadModels(brandInput.value));
+</script>
+
 </body>
 </html>

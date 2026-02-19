@@ -94,7 +94,7 @@ public class VehicleService {
 
         Sort sort;
         if (sortString.equals("priceAsc")) {
-            sort = Sort.by(Sort.Direction.ASC, "price_per_min");
+            sort = Sort.by(Sort.Direction.ASC, "pricePerMin");
         } else if (sortString.equals("distanceAsc") && hasLocation) {
             sort = Sort.by(Sort.Direction.ASC, "distance");
         } else {

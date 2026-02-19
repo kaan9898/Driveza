@@ -43,6 +43,9 @@ public class SecurityConfig {
     http
             .authenticationProvider(authenticationProvider())
             .authorizeHttpRequests(auth -> auth
+                    .requestMatchers("/css/**", "/js/**", "/images/**", "/webjars/**", "/favicon.ico", "/error")
+                    .permitAll()
+                    .requestMatchers("/login", "/register", "/oauth2/**", "/login/oauth2/**")
                     .requestMatchers("/", "/login", "/register", "/cars", "/cars/**", "/car-details", "/car-details/**", "/403")
                     .permitAll()
                     .requestMatchers("/oauth2/**", "/login/oauth2/**")
