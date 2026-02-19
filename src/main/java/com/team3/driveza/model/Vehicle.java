@@ -6,6 +6,8 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.PositiveOrZero;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 import org.hibernate.validator.constraints.Range;
 
 @Entity
@@ -25,6 +27,8 @@ public class Vehicle {
     private double latitude;
     @PositiveOrZero
     private double pricePerMin;
+    @Enumerated(EnumType.STRING)
     private VehicleType type;
+    @Enumerated(EnumType.STRING)
     private VehicleStatus status;
 }

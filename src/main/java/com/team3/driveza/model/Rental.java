@@ -17,6 +17,7 @@ public class Rental {
     private long id;
     private ZonedDateTime startTime;
     private ZonedDateTime endTime;
+    @Enumerated(EnumType.STRING)
     private RentalStatus status;
     @OneToOne(cascade = CascadeType.DETACH)
     private User user;

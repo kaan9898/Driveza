@@ -7,7 +7,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -23,18 +22,18 @@ public class VehicleModelService {
         return findOrThrow(id);
     }
 
-    public VehicleModel createModel(VehicleModel newVehicleModel) {
+    public void createModel(VehicleModel newVehicleModel) {
         VehicleModel vehicleModel = new VehicleModel();
         vehicleModel.setModel(newVehicleModel.getModel());
         vehicleModel.setBrand(newVehicleModel.getBrand());
-        return vehicleModelRepository.save(vehicleModel);
+        vehicleModelRepository.save(vehicleModel);
     }
 
-    public VehicleModel updateModel(long id, VehicleModel newVehicleModel) throws RuntimeException {
+    public void updateModel(long id, VehicleModel newVehicleModel) throws RuntimeException {
         VehicleModel vehicleModel = findOrThrow(id);
         vehicleModel.setModel(newVehicleModel.getModel());
         vehicleModel.setBrand(newVehicleModel.getBrand());
-        return vehicleModelRepository.save(vehicleModel);
+        vehicleModelRepository.save(vehicleModel);
     }
 
     public void deleteModel(long id) {

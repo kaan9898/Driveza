@@ -1,6 +1,7 @@
 package com.team3.driveza.controller;
 
 
+import com.team3.driveza.model.enums.VehicleStatus;
 import com.team3.driveza.service.AdminDashboardService;
 import com.team3.driveza.service.VehicleService;
 import lombok.RequiredArgsConstructor;
@@ -21,9 +22,9 @@ public class AdminDashboardController {
     @GetMapping("/dashboard")
     public String dashboard(Model model) {
 
-        long totalVehicle = vehicleService.getAllVehicles().size();
-        long availableVehicles = vehicleService.getAvailableVehicles().size();
-        long rentedVehicles = totalVehicle - availableVehicles;
+        long totalVehicle = vehicleService.getVehicleCount();
+        long availableVehicles = vehicleService.getVehicleCountByStatus(VehicleStatus.AVAILABLE);
+        long rentedVehicles = vehicleService.getVehicleCountByStatus(VehicleStatus.RENTED);
         model.addAttribute("totalVehicles", totalVehicle);
         model.addAttribute("availableVehicles", availableVehicles);
         model.addAttribute("rentedVehicles", rentedVehicles);

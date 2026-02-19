@@ -2,6 +2,8 @@ package com.team3.driveza.controller;
 
 import com.team3.driveza.model.Vehicle;
 import com.team3.driveza.service.VehicleService;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -25,9 +27,9 @@ public class VehicleController {
     }
 
     // Show available vehicles on the index page.
-    @GetMapping
+    @GetMapping("/listVehicles")
     public String listVehicles(Model model) {
-        model.addAttribute("vehicles", vehicleService.getAvailableVehicles());
+        model.addAttribute("vehicles", vehicleService.getAvailableVehicles(Pageable.unpaged(Sort.by("id"))));
         return "vehicles/list";
     }
 
@@ -35,7 +37,7 @@ public class VehicleController {
     @GetMapping("/{id}")
     public String getVehicleById(@PathVariable Long id, Model model) {
         model.addAttribute("vehicle", vehicleService.getVehicleById(id));
-        return "vehicles/detail";
+        return "vehicles/list";
     }
 
     // Render the form for registering a new vehicle.
@@ -79,7 +81,7 @@ public class VehicleController {
                                  @RequestParam Double longitude,
                                  @RequestParam Double radius,
                                  Model model) {
-        model.addAttribute("vehicles", vehicleService.getNearbyVehicles(latitude, longitude, radius));
+        model.addAttribute("vehicles", vehicleService.getCars(null, latitude, longitude, radius, null));
         return "vehicles/list";
     }
 }
