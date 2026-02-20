@@ -46,6 +46,7 @@ public class SecurityConfig {
                     .requestMatchers("/css/**", "/js/**", "/images/**", "/webjars/**", "/favicon.ico", "/error")
                     .permitAll()
                     .requestMatchers("/login", "/register", "/oauth2/**", "/login/oauth2/**")
+                    .permitAll()
                     .requestMatchers("/", "/login", "/register", "/cars", "/cars/**", "/car-details", "/car-details/**", "/403")
                     .permitAll()
                     .requestMatchers("/oauth2/**", "/login/oauth2/**")
