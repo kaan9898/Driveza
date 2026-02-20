@@ -1,5 +1,7 @@
 package com.team3.driveza.service;
 
+import com.team3.driveza.exception.ConflictException;
+import com.team3.driveza.exception.ResourceNotFoundException;
 import com.team3.driveza.model.Vehicle;
 import com.team3.driveza.model.enums.VehicleStatus;
 import com.team3.driveza.repository.VehicleRepository;
@@ -31,7 +33,7 @@ public class VehicleService {
         return vehicleRepository.findAllByStatus(VehicleStatus.AVAILABLE, pageable);
     }
 
-    public Vehicle getVehicleById(long id) throws RuntimeException {
+    public Vehicle getVehicleById(long id) throws ResourceNotFoundException {
         return findOrThrow(id);
     }
 
@@ -57,18 +59,18 @@ public class VehicleService {
         vehicleRepository.save(vehicle);
     }
 
-    public Vehicle rentById(long id) throws RuntimeException {
+    public Vehicle rentById(long id) throws ConflictException {
         Vehicle vehicle = findOrThrow(id);
         if (vehicle.getStatus() != VehicleStatus.AVAILABLE) {
-            throw new RuntimeException("Vehicle can't be rented.");
+            throw new ConflictException("Vehicle can't be rented.");
         }
         vehicle.setStatus(VehicleStatus.RENTED);
         return vehicleRepository.save(vehicle);
     }
 
-    public void returnVehicle(Vehicle vehicle, double lat, double lon) throws RuntimeException {
+    public void returnVehicle(Vehicle vehicle, double lat, double lon) throws ConflictException {
         if (vehicle.getStatus() != VehicleStatus.RENTED) {
-            throw new RuntimeException("Vehicle can't be returned.");
+            throw new ConflictException("Vehicle can't be returned.");
         }
         vehicle.setStatus(VehicleStatus.AVAILABLE);
         vehicle.setLatitude(lat);
@@ -81,9 +83,9 @@ public class VehicleService {
         vehicleRepository.delete(vehicle);
     }
 
-    private Vehicle findOrThrow(long id) throws RuntimeException {
+    private Vehicle findOrThrow(long id) throws ResourceNotFoundException {
         return vehicleRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("This vehicle does not exist."));
+                .orElseThrow(() -> new ResourceNotFoundException("Vehicle not found. id=" + id));
     }
 
     public Page<Vehicle> getCars(String q, Double lat, Double lon, Double radiusKm, String sortString) {

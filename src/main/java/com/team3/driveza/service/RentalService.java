@@ -1,5 +1,7 @@
 package com.team3.driveza.service;
 
+import com.team3.driveza.exception.ConflictException;
+import com.team3.driveza.exception.ResourceNotFoundException;
 import com.team3.driveza.model.Rental;
 import com.team3.driveza.model.User;
 import com.team3.driveza.model.Vehicle;
@@ -31,17 +33,17 @@ public class RentalService {
         return rentalRepository.save(rental);
     }
 
-    public Rental returnVehicle(long rentalId, double latitude, double longitude) throws RuntimeException {
+    public Rental returnVehicle(long rentalId, double latitude, double longitude) throws ConflictException {
         Rental rental = findOrThrow(rentalId);
         if (rental.getStatus() != RentalStatus.ACTIVE) {
-            throw new RuntimeException("This rental can't be returned.");
+            throw new ConflictException("This rental can't be returned.");
         }
         rental.setEndTime(ZonedDateTime.now());
         vehicleService.returnVehicle(rental.getVehicle(), latitude, longitude);
         return rentalRepository.save(rental);
     }
 
-    public Rental getRentalById(long id) throws RuntimeException {
+    public Rental getRentalById(long id) throws ResourceNotFoundException {
         return findOrThrow(id);
     }
 
@@ -49,9 +51,9 @@ public class RentalService {
         return rentalRepository.findByUserId(userId);
     }
 
-    public Rental findOrThrow(long id) throws RuntimeException {
+    public Rental findOrThrow(long id) throws ResourceNotFoundException {
         return rentalRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("This rental does not exist."));
+                .orElseThrow(() -> new ResourceNotFoundException("Rental not found. id=" + id));
     }
 
     public Optional<Rental> getActiveRentalForUser(long userId){

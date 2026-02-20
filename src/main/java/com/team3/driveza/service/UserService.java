@@ -4,6 +4,8 @@ import com.team3.driveza.Dto.User.UserDetailDto;
 import com.team3.driveza.Dto.User.UserFormDto;
 import com.team3.driveza.model.enums.Role;
 import com.team3.driveza.Dto.User.UserListDto;
+import com.team3.driveza.exception.ConflictException;
+import com.team3.driveza.exception.ResourceNotFoundException;
 import com.team3.driveza.model.User;
 import com.team3.driveza.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -40,7 +42,7 @@ public class UserService {
     @Transactional
     public User createUser(UserFormDto form) {
         if (userRepository.existsByEmail(form.getEmail())) {
-            throw new IllegalArgumentException("Email already in use.");
+            throw new ConflictException("Email already in use.");
         }
         User user = mapFormToEntity(form, new User(), true);
         return userRepository.save(user);
@@ -50,7 +52,7 @@ public class UserService {
     public void updateUser(Long id, UserFormDto form) {
         User user = findOrThrow(id);
         if (!user.getEmail().equals(form.getEmail()) && userRepository.existsByEmail(form.getEmail())) {
-            throw new IllegalArgumentException("Email already in use.");
+            throw new ConflictException("Email already in use.");
         }
         mapFormToEntity(form, user, false);
         userRepository.save(user);
@@ -80,7 +82,7 @@ public class UserService {
     }
     public User findOrThrow(Long id) {
         return userRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("User not found. id=" + id));
+                .orElseThrow(() -> new ResourceNotFoundException("User not found. id=" + id));
     }
 
     private UserListDto toListDto(User user) {
