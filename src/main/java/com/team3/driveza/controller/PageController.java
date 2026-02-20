@@ -58,6 +58,7 @@ public class PageController {
 
         User user = userService.findByEmail(principal.getName())
                 .orElseThrow(() -> new RuntimeException("User not found"));
+        model.addAttribute("userId", user.getId());
 //        System.out.println(principal.getName());
         // active rental
         model.addAttribute("activeRental", rentalService.getActiveRentalForUser(user.getId()).orElse(null));

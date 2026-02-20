@@ -1,7 +1,9 @@
 package com.team3.driveza.controller;
 
 import com.team3.driveza.model.Rental;
+import com.team3.driveza.model.User;
 import com.team3.driveza.service.RentalService;
+import com.team3.driveza.service.UserService;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.http.ResponseEntity;
@@ -15,6 +17,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import java.security.Principal;
 import java.util.List;
 
 /**
@@ -25,9 +28,11 @@ import java.util.List;
 public class RentalController {
 
     private final RentalService rentalService;
+    private final UserService userService;
 
-    public RentalController(RentalService rentalService) {
+    public RentalController(RentalService rentalService, UserService userService) {
         this.rentalService = rentalService;
+        this.userService = userService;
     }
 
     // Display the current user rentals on a Thymeleaf page.
@@ -63,8 +68,10 @@ public class RentalController {
     public String returnVehicleForm(@PathVariable Long rentalId,
                                     @RequestParam Double latitude,
                                     @RequestParam Double longitude,
-                                    @RequestParam Long userId) {
+                                    @RequestParam Long userId,
+                                    java.security.Principal principal) {
         rentalService.returnVehicle(rentalId, latitude, longitude);
+//        return "redirect:/cars?success";
         return "redirect:/rentals?userId=" + userId;
     }
 
@@ -77,6 +84,19 @@ public class RentalController {
         return ResponseEntity.ok(
                 rentalService.rentVehicle(vehicleId, userId)
         );
+    }
+
+
+//    car rent
+    @PostMapping("/rentals/{vehicleId}/rent")
+    public String rentFromCard(@PathVariable Long vehicleId, Principal principal){
+        User user = userService.findByEmail(principal.getName()).orElseThrow(()-> new RuntimeException("user not found"));
+
+        if(rentalService.getActiveRentalForUser(user.getId()).isPresent()) {
+            return "redirect:/cars?alreadyRented";
+        }
+        rentalService.rentVehicle(vehicleId, user.getId());
+        return "redirect:/cars:success";
     }
 
     // API endpoint: return a vehicle by ID.
