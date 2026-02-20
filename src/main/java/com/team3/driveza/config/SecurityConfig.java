@@ -45,17 +45,16 @@ public class SecurityConfig {
             .authorizeHttpRequests(auth -> auth
                     .requestMatchers("/css/**", "/js/**", "/images/**", "/webjars/**", "/favicon.ico", "/error")
                     .permitAll()
+                    .requestMatchers("/login", "/register", "/oauth2/**", "/login/oauth2/**")
+                    .permitAll()
                     .requestMatchers("/", "/login", "/register", "/cars", "/cars/**", "/car-details", "/car-details/**", "/403")
                     .permitAll()
                     .requestMatchers("/oauth2/**", "/login/oauth2/**")
                     .permitAll()
-
                     .requestMatchers("/map", "/map/**", "/account", "/account/**", "/car-details/**", "/rentals/**")
                     .hasAnyRole("USER", "ADMIN")
-
                     .requestMatchers("/admin/**", "/vehicles/**", "/models/**", "/users/**")
                     .hasRole("ADMIN")
-
                     .anyRequest().authenticated()
             )
             .formLogin(form -> form

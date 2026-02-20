@@ -96,7 +96,8 @@ public class RentalController {
             return "redirect:/cars?alreadyRented";
         }
         rentalService.rentVehicle(vehicleId, user.getId());
-        return "redirect:/cars:success";
+        return "redirect:/cars"; //just for testing will need to implement
+//        return "redirect:/cars:success";
     }
 
     // API endpoint: return a vehicle by ID.
