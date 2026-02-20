@@ -1,14 +1,18 @@
 package com.team3.driveza.Dto.Common;
 
-import java.util.Date;
+import lombok.Builder;
+import lombok.Data;
 
+import java.time.Instant;
+import java.util.List;
+
+@Data
+@Builder
 public class ErrorResponseDto {
-    private String message;
+    private int status;
     private String error;
-    private enum statusCode {
-        SUCCESS, ERROR
-    }
-    private statusCode status;
-    private Date timestamp;
+    private String message;
     private String path;
+    private Instant timestamp;
+    private List<String> details; // for more detailed, richer feedback (OPTIONAL)
 }
