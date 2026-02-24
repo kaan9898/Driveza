@@ -5,7 +5,7 @@ import lombok.Data;
 
 import java.time.Instant;
 import java.util.List;
-
+// validation/not-found/conflict/permission stories all render the shared ErrorResponseDto
 @Data
 @Builder
 public class ErrorResponseDto {

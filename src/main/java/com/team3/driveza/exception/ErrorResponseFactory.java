@@ -10,7 +10,7 @@ import java.util.List;
 
 @Component
 public class ErrorResponseFactory {
-
+//built so every Thymeleaf controller failure builds a shared ErrorResponseDto that use error.html page
     public ErrorResponseDto build(HttpStatus status,
                                   String message,
                                   HttpServletRequest request,
