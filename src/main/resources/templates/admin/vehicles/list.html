@@ -270,8 +270,9 @@
         </form>
 
         <!-- ✅ Delete form (separate) -->
-        <form id="deleteForm" method="post" style="margin-top:10px;">
+        <form id="deleteForm" th:action="@{/admin/vehicles/delete}" method="post" style="margin-top:10px;">
             <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+            <input type="hidden" name="vehicleId" id="deleteVehicleId" />
             <button class="btn btn--danger" type="submit">Delete Vehicle</button>
         </form>
 
@@ -298,7 +299,7 @@
             `Vehicle ID: ${id} • ${row.dataset.brand} ${row.dataset.model}`;
 
         document.getElementById('editForm').action = `/admin/vehicles/${id}/edit`;
-        document.getElementById('deleteForm').action = `/admin/vehicles/${id}/delete`;
+        document.getElementById('deleteVehicleId').value = id;
 
         document.getElementById('vehicleModal').classList.add('show');
     }
