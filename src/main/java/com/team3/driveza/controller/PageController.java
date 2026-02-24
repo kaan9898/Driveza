@@ -2,16 +2,15 @@ package com.team3.driveza.controller;
 
 
 import com.team3.driveza.Dto.Rental.RentalResponseDto;
+import com.team3.driveza.Dto.Vehicle.VehicleUserResponseDto;
 import com.team3.driveza.exception.ResourceNotFoundException;
 import com.team3.driveza.model.Rental;
 import com.team3.driveza.model.User;
-import com.team3.driveza.model.Vehicle;
 import com.team3.driveza.model.enums.RentalStatus;
 import com.team3.driveza.service.RentalService;
 import com.team3.driveza.service.UserService;
 import com.team3.driveza.service.VehicleService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Pageable;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
@@ -56,12 +55,11 @@ public class PageController {
         if (principal == null) {
             return "redirect:/";
         }
-        var cars = vehicleService.getVehicles(q,lat,lon,radius,sort); // adding sorting part
+        var cars = vehicleService.getVehicles(q, lat, lon, radius, sort); // adding sorting part
         model.addAttribute("cars", cars);
 
         User user = userService.findByEmail(principal.getName());
         model.addAttribute("userId", user.getId());
-//        System.out.println(principal.getName());
         // active rental
         model.addAttribute("activeRental",
                 rentalService.getActiveRentalForUser(user.getId())
@@ -69,7 +67,8 @@ public class PageController {
                         .orElse(null));
 
 
-        return "cars"; }
+        return "cars";
+    }
 
     @GetMapping("/account")
     public String account(Model model, Authentication authentication) {
@@ -90,7 +89,7 @@ public class PageController {
                       Model model,
                       Principal principal) {
 
-        List<Vehicle> vehicleList = vehicleList = vehicleService.getVehicles(null, lat, lon, radius, null).toList();;
+        List<VehicleUserResponseDto> vehicleList = vehicleList = vehicleService.getVehicles(null, lat, lon, radius, null).toList();
 
         model.addAttribute("vehicles", vehicleList);
         model.addAttribute("lat", lat);
@@ -119,31 +118,31 @@ public class PageController {
     }
 
     @GetMapping("/account/change-password")
-    public String changePasswordPage(){
+    public String changePasswordPage() {
         return "change-password";
     }
 
     @PostMapping("/account/change-password")
-    public String changePassword(@RequestParam String oldPassword,@RequestParam String newPassword, @RequestParam String confirmPassword, Authentication authentication){
+    public String changePassword(@RequestParam String oldPassword, @RequestParam String newPassword, @RequestParam String confirmPassword, Authentication authentication) {
         String email = authentication.getName();
         try {
             userService.changePassword(email, oldPassword, newPassword, confirmPassword);
             return "redirect:/cars?passwordUpdated";
 //            return "redirect:/account/change-password?success";
-        } catch (RuntimeException e){
-            return "redirect:/account/change-password?error=" +e.getMessage();
+        } catch (RuntimeException e) {
+            return "redirect:/account/change-password?error=" + e.getMessage();
         }
     }
 
     @GetMapping("/account/edit")
-    public String editAccount(Model model, Authentication authentication){
+    public String editAccount(Model model, Authentication authentication) {
         String email = authentication.getName();
         model.addAttribute("user", userService.getUserByEmail(email));
         return "account-edit";
     }
 
     @PostMapping("/account/edit")
-    public String updateAccount(@RequestParam String name, @RequestParam(required = false) String dob, Authentication authentication){
+    public String updateAccount(@RequestParam String name, @RequestParam(required = false) String dob, Authentication authentication) {
         String email = authentication.getName();
         userService.updateProfile(email, name, dob);
         return "redirect:/account?updated";
