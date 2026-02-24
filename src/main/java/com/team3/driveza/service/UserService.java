@@ -2,6 +2,7 @@ package com.team3.driveza.service;
 
 import com.team3.driveza.Dto.User.UserDetailDto;
 import com.team3.driveza.Dto.User.UserFormDto;
+import com.team3.driveza.exception.UserNotFoundException;
 import com.team3.driveza.model.enums.Role;
 import com.team3.driveza.Dto.User.UserListDto;
 import com.team3.driveza.exception.ConflictException;
@@ -111,10 +112,6 @@ public class UserService {
         return zonedDateTime != null ? zonedDateTime.toLocalDate() : null;
     }
 
-    public Optional<User> findByEmail(String email){
-        return userRepository.findByEmail(email);
-    }
-
     //password change method
     public void changePassword(String email, String oldPassword, String newPassword, String confirmPassword){
         User user = userRepository.findByEmail(email).orElseThrow(() -> new RuntimeException("user not found"));
@@ -155,5 +152,9 @@ public class UserService {
             user.setDob(null);
         }
         userRepository.save(user);
+    }
+    public User findByEmail(String usernameOrEmail) {
+        return userRepository.findByEmail(usernameOrEmail)
+                .orElseThrow(() -> new UserNotFoundException(usernameOrEmail));
     }
 }
