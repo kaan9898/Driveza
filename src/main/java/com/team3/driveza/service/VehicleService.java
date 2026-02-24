@@ -22,7 +22,6 @@ public class VehicleService {
     private final VehicleRepository vehicleRepository;
     private final VehicleModelService vehicleModelService;
 
-    // TODO: Use DTOs
     public long getVehicleCount() {
         return vehicleRepository.count();
     }

@@ -89,7 +89,7 @@ public class PageController {
                       Model model,
                       Principal principal) {
 
-        List<VehicleUserResponseDto> vehicleList = vehicleList = vehicleService.getVehicles(null, lat, lon, radius, null).toList();
+        List<VehicleUserResponseDto> vehicleList = vehicleService.getVehicles(null, lat, lon, radius, null).toList();
 
         model.addAttribute("vehicles", vehicleList);
         model.addAttribute("lat", lat);
