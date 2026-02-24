@@ -104,19 +104,23 @@ public class PageController {
 //        return "map";
     }
 
-    @GetMapping("account/edit")
-    public String editAccount(Model model, Authentication authentication){
-        String email = authentication.getName();
-        model.addAttribute("user", userService.getUserByEmail(email));
-        return "account-edit";
+    @GetMapping("account/change-password")
+    public String changePasswordPage(){
+        return "change-password";
     }
 
-    @PostMapping("/account/edit")
-    public String updateAccount(@RequestParam String name, @RequestParam(required = false) String dob, Authentication authentication){
+    @PostMapping("account/change-password")
+    public String changePassword(@RequestParam String oldPassword,@RequestParam String newPassword, @RequestParam String confirmPassword, Authentication authentication){
         String email = authentication.getName();
-        userService.updateProfile(email, name, dob);
-        return "redirect:/account?updated";
+        try {
+            userService.changePassword(email, oldPassword, newPassword, confirmPassword);
+            return "redirect:/cars?passwordUpdated";
+//            return "redirect:/account/change-password?success";
+        } catch (RuntimeException e){
+            return "redirect:/account/change-password?error=" +e.getMessage();
+        }
     }
+
 
 
 }
