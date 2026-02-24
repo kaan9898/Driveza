@@ -1,0 +1,67 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Driveza | Edit Profile</title>
+  <link rel="stylesheet" th:href="@{/css/driveza-app.css}"/>
+</head>
+
+<body>
+
+<header class="topbar">
+  <div class="topbar__left">
+    <a class="brand" th:href="@{/cars}">
+      <img class="brand__logo" th:src="@{/images/logo.svg}" alt="Driveza"/>
+      <span class="brand__name">Driveza</span>
+    </a>
+  </div>
+
+  <nav class="topbar__nav">
+    <a class="nav__link" th:href="@{/cars}">Cars</a>
+    <a class="nav__link nav__link--active" th:href="@{/account}">Account</a>
+  </nav>
+
+  <form th:action="@{/logout}" method="post" style="display:inline;">
+    <button class="btn btn--ghost" type="submit">Logout</button>
+  </form>
+</header>
+
+<main class="container">
+
+  <section class="pageHead">
+    <div>
+      <h1 class="pageTitle">Edit Profile</h1>
+      <p class="pageSub">You can update only your name and date of birth.</p>
+    </div>
+  </section>
+
+  <div class="alert alert--error" th:if="${param.error}">
+    Something went wrong. Please try again.
+  </div>
+
+  <section class="card pad" style="max-width:680px;">
+    <form th:action="@{/account/edit}" method="post">
+      <div class="field">
+        <label class="label">Full Name</label>
+        <input class="input" name="name" type="text"
+               th:value="${user.name}" required/>
+      </div>
+
+      <div class="field">
+        <label class="label">Date of Birth</label>
+        <input class="input" name="dob" type="date"
+               th:value="${user.dob != null ? #temporals.format(user.dob,'yyyy-MM-dd') : ''}"/>
+      </div>
+
+      <div style="display:flex; gap:10px; margin-top:12px; flex-wrap:wrap;">
+        <button class="btn" type="submit">Save</button>
+        <a class="btn btn--ghost" th:href="@{/account}">Cancel</a>
+      </div>
+    </form>
+  </section>
+
+</main>
+
+</body>
+</html>

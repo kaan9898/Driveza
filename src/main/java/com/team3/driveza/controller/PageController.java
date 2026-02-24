@@ -13,6 +13,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import java.security.Principal;
@@ -102,5 +103,20 @@ public class PageController {
 //        System.out.println("nearby vehicle" + vehicleService.getNearbyVehicles(lat, lon, radious).size());
 //        return "map";
     }
+
+    @GetMapping("account/edit")
+    public String editAccount(Model model, Authentication authentication){
+        String email = authentication.getName();
+        model.addAttribute("user", userService.getUserByEmail(email));
+        return "account-edit";
+    }
+
+    @PostMapping("/account/edit")
+    public String updateAccount(@RequestParam String name, @RequestParam(required = false) String dob, Authentication authentication){
+        String email = authentication.getName();
+        userService.updateProfile(email, name, dob);
+        return "redirect:/account?updated";
+    }
+
 
 }
