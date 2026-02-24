@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -137,5 +138,22 @@ public class UserService {
         userRepository.save(user);
 
 
+    }
+
+    @Transactional
+    public void updateProfile(String email, String name, String dob){
+        User user = userRepository.findByEmail(email).orElseThrow(() -> new RuntimeException("User not found"));
+
+        user.setName(name.trim());
+
+        if(dob != null && !dob.isBlank()){
+            LocalDate ld = LocalDate.parse(dob);
+            ZonedDateTime zdt = ld.atStartOfDay(ZoneId.systemDefault());
+
+            user.setDob(zdt);
+        }else{
+            user.setDob(null);
+        }
+        userRepository.save(user);
     }
 }
