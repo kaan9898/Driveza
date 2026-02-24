@@ -1,7 +1,7 @@
 <!doctype html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <meta charset="UTF-8" />
+    <meta charset="UTF-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1"/>
     <title>Driveza | Vehicle Form</title>
     <link rel="stylesheet" th:href="@{/css/driveza-app.css}">
@@ -49,14 +49,14 @@
     <main class="container">
         <section class="pageHead">
             <div>
-                <h1 class="pageTitle" th:text="${vehicle.id == 0 ? 'Add Vehicle' : 'Edit Vehicle'}">Add Vehicle</h1>
+                <h1 class="pageTitle" th:text="${vehicleId == 0 ? 'Add Vehicle' : 'Edit Vehicle'}">Add Vehicle</h1>
                 <p class="pageSub">Fill the details and save.</p>
             </div>
         </section>
 
         <section class="card pad">
             <form method="post"
-                  th:action="${vehicle.id == 0} ? @{/admin/vehicles} : @{/admin/vehicles/{id}/edit(id=${vehicle.id})}"
+                  th:action="${vehicleId == 0} ? @{/admin/vehicles} : @{/admin/vehicles/{id}/edit(id=${vehicleId})}"
                   th:object="${vehicle}">
 
                 <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
