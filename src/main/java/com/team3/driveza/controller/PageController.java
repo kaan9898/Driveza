@@ -57,8 +57,7 @@ public class PageController {
         var cars = vehicleService.getCars(q,lat,lon,radius,sort); // adding sorting part 
         model.addAttribute("cars", cars);
 
-        User user = userService.findByEmail(principal.getName())
-                .orElseThrow(() -> new RuntimeException("User not found"));
+        User user = userService.findByEmail(principal.getName());
         model.addAttribute("userId", user.getId());
 //        System.out.println(principal.getName());
         // active rental
