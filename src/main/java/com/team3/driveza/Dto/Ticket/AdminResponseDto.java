@@ -5,7 +5,6 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class CreateTicketRequestDto {
-    private String title;
-    private String description;
+public class AdminResponseDto {
+    private String adminResponse;
 }

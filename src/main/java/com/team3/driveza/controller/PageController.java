@@ -17,6 +17,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import java.security.Principal;
@@ -55,8 +56,7 @@ public class PageController {
         var cars = vehicleService.getCars(q,lat,lon,radius,sort); // adding sorting part 
         model.addAttribute("cars", cars);
 
-        User user = userService.findByEmail(principal.getName())
-                .orElseThrow(() -> new RuntimeException("User not found"));
+        User user = userService.findByEmail(principal.getName());
         model.addAttribute("userId", user.getId());
 //        System.out.println(principal.getName());
         // active rental
@@ -121,6 +121,37 @@ public class PageController {
         model.addAttribute("returnSuccessLon", returnLon);
 
         return "map";
+    }
+
+    @GetMapping("account/change-password")
+    public String changePasswordPage(){
+        return "change-password";
+    }
+
+    @PostMapping("account/change-password")
+    public String changePassword(@RequestParam String oldPassword,@RequestParam String newPassword, @RequestParam String confirmPassword, Authentication authentication){
+        String email = authentication.getName();
+        try {
+            userService.changePassword(email, oldPassword, newPassword, confirmPassword);
+            return "redirect:/cars?passwordUpdated";
+//            return "redirect:/account/change-password?success";
+        } catch (RuntimeException e){
+            return "redirect:/account/change-password?error=" +e.getMessage();
+        }
+    }
+
+    @GetMapping("account/edit")
+    public String editAccount(Model model, Authentication authentication){
+        String email = authentication.getName();
+        model.addAttribute("user", userService.getUserByEmail(email));
+        return "account-edit";
+    }
+
+    @PostMapping("/account/edit")
+    public String updateAccount(@RequestParam String name, @RequestParam(required = false) String dob, Authentication authentication){
+        String email = authentication.getName();
+        userService.updateProfile(email, name, dob);
+        return "redirect:/account?updated";
     }
 
 }

@@ -101,7 +101,7 @@ public class RentalController {
 //    car rent
     @PostMapping("/rentals/{vehicleId}/rent")
     public String rentFromCard(@PathVariable Long vehicleId, Principal principal){
-        User user = userService.findByEmail(principal.getName()).orElseThrow(()-> new RuntimeException("user not found"));
+        User user = userService.findByEmail(principal.getName());
 
         if(rentalService.getActiveRentalForUser(user.getId()).isPresent()) {
             return "redirect:/cars?alreadyRented";
@@ -132,4 +132,11 @@ public class RentalController {
         );
     }
 
+    @Setter
+    @Getter
+    private static class RentalForm {
+        private Long vehicleId;
+        private Long userId;
+
+    }
 }

@@ -2,6 +2,7 @@ package com.team3.driveza.service;
 
 import com.team3.driveza.Dto.User.UserDetailDto;
 import com.team3.driveza.Dto.User.UserFormDto;
+import com.team3.driveza.exception.UserNotFoundException;
 import com.team3.driveza.model.enums.Role;
 import com.team3.driveza.Dto.User.UserListDto;
 import com.team3.driveza.exception.ConflictException;
@@ -14,6 +15,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -110,7 +112,49 @@ public class UserService {
         return zonedDateTime != null ? zonedDateTime.toLocalDate() : null;
     }
 
-    public Optional<User> findByEmail(String email){
-        return userRepository.findByEmail(email);
+    //password change method
+    public void changePassword(String email, String oldPassword, String newPassword, String confirmPassword){
+        User user = userRepository.findByEmail(email).orElseThrow(() -> new RuntimeException("user not found"));
+
+//        old password checking
+        if(!passwordEncoder.matches(oldPassword, user.getPassword())){
+            throw  new RuntimeException("Old password is wrong");
+        }
+        //new password rules
+        if(newPassword == null  || newPassword.length()<6){
+            throw new RuntimeException("Password must be 6+ caractors");
+        }
+
+        //password confirm
+        if(!newPassword.equals(confirmPassword)){
+            throw new RuntimeException("Password not match");
+        }
+
+        //save new password
+        user.setPassword(passwordEncoder.encode(newPassword));
+        userRepository.save(user);
+
+
+    }
+
+    @Transactional
+    public void updateProfile(String email, String name, String dob){
+        User user = userRepository.findByEmail(email).orElseThrow(() -> new RuntimeException("User not found"));
+
+        user.setName(name.trim());
+
+        if(dob != null && !dob.isBlank()){
+            LocalDate ld = LocalDate.parse(dob);
+            ZonedDateTime zdt = ld.atStartOfDay(ZoneId.systemDefault());
+
+            user.setDob(zdt);
+        }else{
+            user.setDob(null);
+        }
+        userRepository.save(user);
+    }
+    public User findByEmail(String usernameOrEmail) {
+        return userRepository.findByEmail(usernameOrEmail)
+                .orElseThrow(() -> new UserNotFoundException(usernameOrEmail));
     }
 }

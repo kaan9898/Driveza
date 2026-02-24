@@ -55,6 +55,12 @@ public class SecurityConfig {
                     .hasAnyRole("USER", "ADMIN")
                     .requestMatchers("/admin/**", "/vehicles/**", "/models/**", "/users/**")
                     .hasRole("ADMIN")
+                    .requestMatchers(org.springframework.http.HttpMethod.POST, "/ticket")
+                    .hasAnyRole("USER", "ADMIN")
+                    .requestMatchers(org.springframework.http.HttpMethod.GET, "/ticket/me", "/ticket/me/**")
+                    .hasAnyRole("USER", "ADMIN")
+                    .requestMatchers("/ticket/admin/**")
+                    .hasRole("ADMIN")
                     .anyRequest().authenticated()
             )
             .formLogin(form -> form
