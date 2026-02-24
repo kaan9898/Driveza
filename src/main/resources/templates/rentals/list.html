@@ -1,5 +1,5 @@
 <!doctype html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" lang="">
 <head>
     <meta charset="UTF-8">
     <title>Rentals</title>
@@ -33,10 +33,10 @@
 
         <tr th:each="r : ${rentals}">
             <td th:text="${r.id}"></td>
-            <td th:text="${r.user.username}"></td>
-            <td th:text="${r.vehicle.brand + ' ' + r.vehicle.model}"></td>
-            <td th:text="${#temporals.format(r.startTime, 'yyyy-MM-dd HH:mm')}"></td>
-            <td th:text="${r.endTime != null ? #temporals.format(r.endTime, 'yyyy-MM-dd HH:mm') : 'Active'}"></td>
+            <td th:text="${r.userName}"></td>
+            <td th:text="${r.vehicleModel}">Unknown</td>
+            <td th:text="${#temporals.format(r.startDate, 'yyyy-MM-dd HH:mm')}"></td>
+            <td th:text="${r.endDate != null ? #temporals.format(r.endDate, 'yyyy-MM-dd HH:mm') : 'Active'}"></td>
             <td th:text="${r.status}"></td>
 
             <td>
