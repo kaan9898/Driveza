@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class AdminVehicleResponseDto {
+public class VehicleUserResponseDto {
     private Long id;
     private String brand;
     private String modelName;
@@ -20,4 +20,5 @@ public class AdminVehicleResponseDto {
     private double pricePerMin;
     private double latitude;
     private double longitude;
+    private Double distanceKm;
 }
