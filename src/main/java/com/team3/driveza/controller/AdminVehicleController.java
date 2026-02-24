@@ -86,4 +86,10 @@ public class AdminVehicleController {
         vehicleService.deleteVehicle(id);
         return "redirect:/admin/vehicles";
     }
+
+    @PostMapping("/delete")
+    public String deleteVehicleByParam(@RequestParam Long vehicleId) {
+        vehicleService.deleteVehicle(vehicleId);
+        return "redirect:/admin/vehicles";
+    }
 }
