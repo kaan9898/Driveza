@@ -4,15 +4,17 @@ import com.team3.driveza.model.enums.VehicleStatus;
 import com.team3.driveza.model.enums.VehicleType;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.PositiveOrZero;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.JdbcTypeCode;
-import org.hibernate.type.SqlTypes;
 import org.hibernate.validator.constraints.Range;
 
 @Entity
 @Table(name = "vehicle")
 @Data
+@Builder
+@AllArgsConstructor
 @NoArgsConstructor
 public class Vehicle {
     @Id

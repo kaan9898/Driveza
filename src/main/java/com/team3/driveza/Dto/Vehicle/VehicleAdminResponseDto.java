@@ -11,14 +11,14 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class VehicleResponseDto {
+public class VehicleAdminResponseDto {
     private Long id;
-    private String brand;
+    private Long modelId;
     private String modelName;
+    private String brand;
     private VehicleStatus status;
     private VehicleType type;
     private double pricePerMin;
     private double latitude;
     private double longitude;
-    private double distanceKm;
 }

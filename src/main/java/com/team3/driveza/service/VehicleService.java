@@ -1,10 +1,15 @@
 package com.team3.driveza.service;
 
+import com.team3.driveza.Dto.Vehicle.VehicleAdminResponseDto;
 import com.team3.driveza.exception.ConflictException;
 import com.team3.driveza.exception.ResourceNotFoundException;
+import com.team3.driveza.Dto.Vehicle.VehicleCreateDto;
+import com.team3.driveza.Dto.Vehicle.VehicleUserResponseDto;
 import com.team3.driveza.model.Vehicle;
+import com.team3.driveza.model.VehicleModel;
 import com.team3.driveza.model.enums.VehicleStatus;
 import com.team3.driveza.repository.VehicleRepository;
+import com.team3.driveza.repository.VehicleQuery;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -15,8 +20,8 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class VehicleService {
     private final VehicleRepository vehicleRepository;
+    private final VehicleModelService vehicleModelService;
 
-    // TODO: Use DTOs
     public long getVehicleCount() {
         return vehicleRepository.count();
     }
@@ -25,38 +30,36 @@ public class VehicleService {
         return vehicleRepository.countByStatus(vehicleStatus);
     }
 
-    public Page<Vehicle> getAllVehicles(Pageable pageable) {
-        return vehicleRepository.findAll(pageable);
+    public Page<VehicleAdminResponseDto> getAllVehicles(Pageable pageable) {
+        return vehicleRepository.findAll(pageable).map(this::toAdminResponseDto);
     }
 
-    public Page<Vehicle> getAvailableVehicles(Pageable pageable) {
-        return vehicleRepository.findAllByStatus(VehicleStatus.AVAILABLE, pageable);
+    public VehicleAdminResponseDto getAdminVehicleById(long id) throws ResourceNotFoundException {
+        return toAdminResponseDto(findOrThrow(id));
     }
 
-    public Vehicle getVehicleById(long id) throws ResourceNotFoundException {
-        return findOrThrow(id);
+    public void createVehicle(VehicleCreateDto newVehicle) throws RuntimeException {
+        vehicleRepository.save(Vehicle.builder()
+                .model(vehicleModelService.findOrThrow(newVehicle.getModelId()))
+                .longitude(newVehicle.getLongitude())
+                .latitude(newVehicle.getLatitude())
+                .pricePerMin(newVehicle.getPricePerMin())
+                .type(newVehicle.getType())
+                .status(newVehicle.getStatus())
+                .build());
     }
 
-    public void createVehicle(Vehicle newVehicle) throws RuntimeException {
-        Vehicle vehicle = new Vehicle();
-        vehicle.setModel(newVehicle.getModel());
-        vehicle.setLongitude(newVehicle.getLongitude());
-        vehicle.setLatitude(newVehicle.getLatitude());
-        vehicle.setPricePerMin(newVehicle.getPricePerMin());
-        vehicle.setType(newVehicle.getType());
-        vehicle.setStatus(newVehicle.getStatus());
-        vehicleRepository.save(vehicle);
-    }
-
-    public void updateVehicle(long id, Vehicle newVehicle) throws RuntimeException {
-        Vehicle vehicle = findOrThrow(id);
-        vehicle.setModel(newVehicle.getModel());
-        vehicle.setLongitude(newVehicle.getLongitude());
-        vehicle.setLatitude(newVehicle.getLatitude());
-        vehicle.setPricePerMin(newVehicle.getPricePerMin());
-        vehicle.setType(newVehicle.getType());
-        vehicle.setStatus(newVehicle.getStatus());
-        vehicleRepository.save(vehicle);
+    public void updateVehicle(long id, VehicleCreateDto newVehicle) throws ResourceNotFoundException {
+        findOrThrow(id);
+        vehicleRepository.save(Vehicle.builder()
+                .id(id)
+                .model(vehicleModelService.findOrThrow(newVehicle.getModelId()))
+                .longitude(newVehicle.getLongitude())
+                .latitude(newVehicle.getLatitude())
+                .pricePerMin(newVehicle.getPricePerMin())
+                .type(newVehicle.getType())
+                .status(newVehicle.getStatus())
+                .build());
     }
 
     public Vehicle rentById(long id) throws ConflictException {
@@ -78,17 +81,17 @@ public class VehicleService {
         vehicleRepository.save(vehicle);
     }
 
-    public void deleteVehicle(long id) throws RuntimeException {
+    public void deleteVehicle(Long id) throws ResourceNotFoundException {
         Vehicle vehicle = findOrThrow(id);
         vehicleRepository.delete(vehicle);
     }
 
-    private Vehicle findOrThrow(long id) throws ResourceNotFoundException {
+    private Vehicle findOrThrow(Long id) throws ResourceNotFoundException {
         return vehicleRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Vehicle not found. id=" + id));
     }
 
-    public Page<Vehicle> getCars(String q, Double lat, Double lon, Double radiusKm, String sortString) {
+    public Page<VehicleUserResponseDto> getVehicles(String q, Double lat, Double lon, Double radiusKm, String sortString) {
         boolean hasText = q != null && !q.isBlank();
         boolean hasLocation = lat != null && lon != null && radiusKm != null;
 
@@ -98,20 +101,87 @@ public class VehicleService {
         if (sortString.equals("priceAsc")) {
             sort = Sort.by(Sort.Direction.ASC, "pricePerMin");
         } else if (sortString.equals("distanceAsc") && hasLocation) {
-            sort = Sort.by(Sort.Direction.ASC, "distance");
+            sort = Sort.by(Sort.Direction.ASC, "distanceKm");
         } else {
             sort = Sort.by("id");
         }
 
         Pageable pageable = Pageable.unpaged(sort);
 
-        if (hasLocation && hasText) {
-            return vehicleRepository.findAllWithinRadiusAndName(lat, lon, radiusKm, VehicleStatus.AVAILABLE.name(), q.trim(), pageable);
-        } else if (hasText) {
-            return vehicleRepository.searchAvailable(q.trim(), pageable);
-        } else if (hasLocation) {
-            return vehicleRepository.findAllWithinRadius(lat, lon, radiusKm, VehicleStatus.AVAILABLE.name(), pageable);
+        if (hasLocation) {
+            Page<VehicleQuery> vehicles;
+            if (hasText) {
+                vehicles = vehicleRepository.findAllWithinRadiusAndName(lat, lon, radiusKm, VehicleStatus.AVAILABLE.name(), q.trim(), pageable);
+            } else {
+                vehicles = vehicleRepository.findAllWithinRadius(lat, lon, radiusKm, VehicleStatus.AVAILABLE.name(), pageable);
+            }
+            return vehicles.map(this::toResponseDto);
+        } else {
+            Page<Vehicle> vehicles;
+            if (hasText) {
+                vehicles = vehicleRepository.searchAvailable(q.trim(), pageable);
+            } else {
+                vehicles = vehicleRepository.findAllByStatus(VehicleStatus.AVAILABLE, pageable);
+            }
+            return vehicles.map(this::toResponseDto);
         }
-        return vehicleRepository.findAllByStatus(VehicleStatus.AVAILABLE, pageable);
+    }
+
+    private VehicleUserResponseDto toResponseDto(Vehicle vehicle) {
+        VehicleModel model = vehicle.getModel();
+        var modelName = model != null ? model.getModel() : null;
+        var brand = model != null ? model.getBrand() : null;
+        return VehicleUserResponseDto.builder()
+                .id(vehicle.getId())
+                .brand(brand)
+                .modelName(modelName)
+                .longitude(vehicle.getLongitude())
+                .latitude(vehicle.getLatitude())
+                .pricePerMin(vehicle.getPricePerMin())
+                .type(vehicle.getType())
+                .status(vehicle.getStatus())
+                .distanceKm(null)
+                .build();
+    }
+
+    private VehicleUserResponseDto toResponseDto(VehicleQuery vehicle) {
+        System.out.println(vehicle);
+        return VehicleUserResponseDto.builder()
+                .id(vehicle.getId())
+                .brand(vehicle.getBrand())
+                .modelName(vehicle.getModelName())
+                .longitude(vehicle.getLongitude())
+                .latitude(vehicle.getLatitude())
+                .pricePerMin(vehicle.getPricePerMin())
+                .type(vehicle.getType())
+                .status(vehicle.getStatus())
+                .distanceKm(vehicle.getDistanceKm())
+                .build();
+    }
+
+    private VehicleAdminResponseDto toAdminResponseDto(Vehicle vehicle) {
+        VehicleModel model =  vehicle.getModel();
+        String modelName = null, brand = null;
+        Long modelId = null;
+
+        if (model != null) {
+            modelId = model.getId();
+            brand = model.getBrand();
+            modelName = model.getModel();
+        } else {
+            System.out.println("model is null");
+        }
+
+        return VehicleAdminResponseDto.builder()
+                .id(vehicle.getId())
+                .modelId(modelId)
+                .brand(brand)
+                .modelName(modelName)
+                .pricePerMin(vehicle.getPricePerMin())
+                .type(vehicle.getType())
+                .status(vehicle.getStatus())
+                .latitude(vehicle.getLatitude())
+                .longitude(vehicle.getLongitude())
+                .build();
     }
 }
