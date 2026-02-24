@@ -1,6 +1,7 @@
 package com.team3.driveza.service;
 
 
+import com.team3.driveza.exception.ResourceNotFoundException;
 import com.team3.driveza.model.VehicleModel;
 import com.team3.driveza.repository.VehicleModelRepository;
 import lombok.RequiredArgsConstructor;
@@ -18,7 +19,7 @@ public class VehicleModelService {
         return vehicleModelRepository.findAll();
     }
 
-    public VehicleModel getModelById(long id) throws RuntimeException {
+    public VehicleModel getModelById(long id) throws ResourceNotFoundException {
         return findOrThrow(id);
     }
 
@@ -29,7 +30,7 @@ public class VehicleModelService {
         vehicleModelRepository.save(vehicleModel);
     }
 
-    public void updateModel(long id, VehicleModel newVehicleModel) throws RuntimeException {
+    public void updateModel(long id, VehicleModel newVehicleModel) throws ResourceNotFoundException {
         VehicleModel vehicleModel = findOrThrow(id);
         vehicleModel.setModel(newVehicleModel.getModel());
         vehicleModel.setBrand(newVehicleModel.getBrand());
@@ -41,9 +42,9 @@ public class VehicleModelService {
         vehicleModelRepository.delete(vehicleModel);
     }
 
-    private VehicleModel findOrThrow(long id) throws RuntimeException {
+    public VehicleModel findOrThrow(Long id) throws ResourceNotFoundException {
         return vehicleModelRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("This vehicle model does not exist."));
+                .orElseThrow(() -> new ResourceNotFoundException("This vehicle model does not exist."));
     }
 
     public VehicleModel findOrCreate(String brand, String model){

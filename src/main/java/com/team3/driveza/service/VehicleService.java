@@ -78,17 +78,17 @@ public class VehicleService {
         vehicleRepository.save(vehicle);
     }
 
-    public void deleteVehicle(long id) throws RuntimeException {
+    public void deleteVehicle(Long id) throws ResourceNotFoundException {
         Vehicle vehicle = findOrThrow(id);
         vehicleRepository.delete(vehicle);
     }
 
-    private Vehicle findOrThrow(long id) throws ResourceNotFoundException {
+    private Vehicle findOrThrow(Long id) throws ResourceNotFoundException {
         return vehicleRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Vehicle not found. id=" + id));
     }
 
-    public Page<Vehicle> getCars(String q, Double lat, Double lon, Double radiusKm, String sortString) {
+    public Page<Vehicle> getVehicles(String q, Double lat, Double lon, Double radiusKm, String sortString) {
         boolean hasText = q != null && !q.isBlank();
         boolean hasLocation = lat != null && lon != null && radiusKm != null;
 
@@ -98,7 +98,7 @@ public class VehicleService {
         if (sortString.equals("priceAsc")) {
             sort = Sort.by(Sort.Direction.ASC, "pricePerMin");
         } else if (sortString.equals("distanceAsc") && hasLocation) {
-            sort = Sort.by(Sort.Direction.ASC, "distance");
+            sort = Sort.by(Sort.Direction.ASC, "distanceKm");
         } else {
             sort = Sort.by("id");
         }

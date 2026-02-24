@@ -53,7 +53,10 @@ public class PageController {
             @RequestParam(required = false) Double lat,
             @RequestParam(required = false) Double lon,
             Principal principal, Model model) {
-        var cars = vehicleService.getCars(q,lat,lon,radius,sort); // adding sorting part 
+        if (principal == null) {
+            return "redirect:/";
+        }
+        var cars = vehicleService.getVehicles(q,lat,lon,radius,sort); // adding sorting part
         model.addAttribute("cars", cars);
 
         User user = userService.findByEmail(principal.getName());
@@ -75,7 +78,7 @@ public class PageController {
         return "account";
     }
 
-//loading map to ui and showing available vehicle location point in map
+    //loading map to ui and showing available vehicle location point in map
     @GetMapping("/map")
     public String map(@RequestParam(required = false) Double lat,
                       @RequestParam(required = false) Double lon,
@@ -91,7 +94,7 @@ public class PageController {
         if (lat == null || lon == null) {
             vehicleList = vehicleService.getAvailableVehicles(Pageable.unpaged()).toList();
         } else {
-            vehicleList = vehicleService.getCars(null, lat, lon, radius, null).toList();
+            vehicleList = vehicleService.getVehicles(null, lat, lon, radius, null).toList();
             if (vehicleList.isEmpty()) {
                 vehicleList = vehicleService.getAvailableVehicles(Pageable.unpaged()).toList();
             }
@@ -123,12 +126,12 @@ public class PageController {
         return "map";
     }
 
-    @GetMapping("account/change-password")
+    @GetMapping("/account/change-password")
     public String changePasswordPage(){
         return "change-password";
     }
 
-    @PostMapping("account/change-password")
+    @PostMapping("/account/change-password")
     public String changePassword(@RequestParam String oldPassword,@RequestParam String newPassword, @RequestParam String confirmPassword, Authentication authentication){
         String email = authentication.getName();
         try {
@@ -140,7 +143,7 @@ public class PageController {
         }
     }
 
-    @GetMapping("account/edit")
+    @GetMapping("/account/edit")
     public String editAccount(Model model, Authentication authentication){
         String email = authentication.getName();
         model.addAttribute("user", userService.getUserByEmail(email));
