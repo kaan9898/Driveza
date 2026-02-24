@@ -113,4 +113,29 @@ public class UserService {
     public Optional<User> findByEmail(String email){
         return userRepository.findByEmail(email);
     }
+
+    //password change method
+    public void changePassword(String email, String oldPassword, String newPassword, String confirmPassword){
+        User user = userRepository.findByEmail(email).orElseThrow(() -> new RuntimeException("user not found"));
+
+//        old password checking
+        if(!passwordEncoder.matches(oldPassword, user.getPassword())){
+            throw  new RuntimeException("Old password is wrong");
+        }
+        //new password rules
+        if(newPassword == null  || newPassword.length()<6){
+            throw new RuntimeException("Password must be 6+ caractors");
+        }
+
+        //password confirm
+        if(!newPassword.equals(confirmPassword)){
+            throw new RuntimeException("Password not match");
+        }
+
+        //save new password
+        user.setPassword(passwordEncoder.encode(newPassword));
+        userRepository.save(user);
+
+
+    }
 }

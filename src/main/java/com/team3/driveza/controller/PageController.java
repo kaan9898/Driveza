@@ -13,6 +13,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import java.security.Principal;
@@ -102,5 +103,24 @@ public class PageController {
 //        System.out.println("nearby vehicle" + vehicleService.getNearbyVehicles(lat, lon, radious).size());
 //        return "map";
     }
+
+    @GetMapping("account/change-password")
+    public String changePasswordPage(){
+        return "change-password";
+    }
+
+    @PostMapping("account/change-password")
+    public String changePassword(@RequestParam String oldPassword,@RequestParam String newPassword, @RequestParam String confirmPassword, Authentication authentication){
+        String email = authentication.getName();
+        try {
+            userService.changePassword(email, oldPassword, newPassword, confirmPassword);
+            return "redirect:/cars?passwordUpdated";
+//            return "redirect:/account/change-password?success";
+        } catch (RuntimeException e){
+            return "redirect:/account/change-password?error=" +e.getMessage();
+        }
+    }
+
+
 
 }
