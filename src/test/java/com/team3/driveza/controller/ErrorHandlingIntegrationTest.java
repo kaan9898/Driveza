@@ -70,7 +70,8 @@ class ErrorHandlingIntegrationTest {
     @Test
     @WithMockUser(roles = "ADMIN")
     void missingVehicleRendersErrorPage() throws Exception {
-        // should go through ControllerAdvice and show the shared 404 error page when vehicle is gone
+        // Arrange: keep the repository empty so vehicle/1 cannot be found.
+        // Act & Assert: requesting the ID should trigger ResourceNotFoundException and render our shared error view.
         mockMvc.perform(get("/vehicles/1"))
                 .andExpect(status().isNotFound())
                 .andExpect(view().name("error/error"))
@@ -80,7 +81,8 @@ class ErrorHandlingIntegrationTest {
     @Test
     @WithMockUser
     void rentalReturnWithoutLatitudeReturnsBadRequest() throws Exception {
-        // leaving out latitude turns into MissingServletRequestParameterException -> 400 page
+        // Arrange: omit the latitude parameter to trigger MissingServletRequestParameterException.
+        // Act & Assert: we should land on the error page with status 400.
         mockMvc.perform(post("/rentals/1/return")
                         .param("longitude", "23.0")
                         .param("userId", "1")
@@ -93,7 +95,7 @@ class ErrorHandlingIntegrationTest {
     @Test
     @WithMockUser
     void rentingUnavailableVehicleShowsConflictPage() throws Exception {
-        // renting a vehicle already RETNED lets the ConflictException path show the 409 view
+        // Arrange: create a vehicle that is already marked as RENTED and a test user.
         VehicleModel model = new VehicleModel();
         model.setBrand("Test");
         model.setModel("X");
@@ -116,6 +118,7 @@ class ErrorHandlingIntegrationTest {
         user.setDob(ZonedDateTime.now().minusYears(25));
         user = userRepository.save(user);
 
+        // Act & Assert: renting the same vehicle again should hit ConflictException and show 409.
         mockMvc.perform(post("/rentals/rent")
                         .param("vehicleId", String.valueOf(vehicle.getId()))
                         .param("userId", String.valueOf(user.getId()))
@@ -127,7 +130,7 @@ class ErrorHandlingIntegrationTest {
 
     @Test
     void forbiddenAccessUsesErrorView() throws Exception {
-        // security forwards unauthorized access to /403, which now renders the shared error template
+        // Act & Assert: a non-admin user trying /admin/vehicles is forbidden and should be forwarded to /403.
         mockMvc.perform(get("/admin/vehicles").with(SecurityMockMvcRequestPostProcessors.user("customer").roles("USER")))
                 .andExpect(status().isForbidden())
                 .andExpect(forwardedUrl("/403"));
