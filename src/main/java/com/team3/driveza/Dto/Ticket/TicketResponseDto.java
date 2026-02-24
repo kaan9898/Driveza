@@ -1,16 +1,19 @@
 package com.team3.driveza.Dto.Ticket;
 
-import java.util.Date;
+import com.team3.driveza.model.enums.TicketStatus;
+import lombok.Builder;
+import lombok.Getter;
 
+import java.time.LocalDateTime;
+
+@Getter
+@Builder
 public class TicketResponseDto {
-    private String id;
-    private enum statusEnum {
-        OPEN,
-        CLOSED
-    }
-    private statusEnum status;
+    private String token;
+    private TicketStatus status;
     private String title;
     private String description;
     private String adminResponse;
-    private Date createdAt;
+    private LocalDateTime createdAt;
+    private LocalDateTime closedAt;
 }
