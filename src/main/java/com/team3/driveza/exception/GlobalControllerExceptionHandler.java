@@ -25,15 +25,14 @@ public class GlobalControllerExceptionHandler {
     private static final String ERROR_ATTR = "error";
     private final ErrorResponseFactory errorResponseFactory;
 
-    // This advice intercepts exceptions thrown by any @Controller and prepares the shared error page.
+    // This controller advice catches problems thrown inside any @Controller so we can reuse the same error view.
 
     @ExceptionHandler(BindException.class)
     public String handleBindException(BindException ex,
                                       HttpServletRequest request,
                                       HttpServletResponse response,
                                       Model model) {
-        // Happens when Thymeleaf binding can't obtain user input into the form object.
-        // We collect each field error so the UI can show the user what to fix.
+        // When Spring can't bind form data to the DTO, we gather which fields failed.
         List<String> details = ex.getFieldErrors().stream()
                 .map(fe -> fe.getField() + ": " + fe.getDefaultMessage())
                 .collect(Collectors.toList());
@@ -45,7 +44,7 @@ public class GlobalControllerExceptionHandler {
                                        HttpServletRequest request,
                                        HttpServletResponse response,
                                        Model model) {
-        // This fires when @Valid validation annotations fail on controller method arguments.
+        // @Valid on controller arguments also triggers this: treat it like any other validation failure.
         List<String> details = ex.getBindingResult().getFieldErrors().stream()
                 .map(fe -> fe.getField() + ": " + fe.getDefaultMessage())
                 .collect(Collectors.toList());
@@ -56,7 +55,7 @@ public class GlobalControllerExceptionHandler {
                                     HttpServletResponse response,
                                     Model model,
                                     List<String> details) {
-        // Shared helper for any validation-type failure so we return 400 and the same error template.
+        // Shared helper so every validation error yields 400 and a consistent error payload.
         HttpStatus status = HttpStatus.BAD_REQUEST;
         response.setStatus(status.value());
         model.addAttribute(ERROR_ATTR, errorResponseFactory.build(status, "Validation failed.", request, details));
@@ -68,7 +67,7 @@ public class GlobalControllerExceptionHandler {
                                          HttpServletRequest request,
                                          HttpServletResponse response,
                                          Model model) {
-        // When a required request parameter is missing, explain that in the error page with 400.
+        // Skip parameter? We still want to tell the user which request value is absent.
         HttpStatus status = HttpStatus.BAD_REQUEST;
         response.setStatus(status.value());
         model.addAttribute(ERROR_ATTR, errorResponseFactory.build(status, ex.getMessage(), request, Collections.emptyList()));
@@ -80,7 +79,7 @@ public class GlobalControllerExceptionHandler {
                                             HttpServletRequest request,
                                             HttpServletResponse response,
                                             Model model) {
-        // If we manually throw ConstraintViolationException (e.g. in service-layer validation), treat it like other bad requests.
+        // Any thrown ConstraintViolationException (often from services) maps to the same 400 experience.
         HttpStatus status = HttpStatus.BAD_REQUEST;
         response.setStatus(status.value());
         List<String> details = ex.getConstraintViolations().stream()
@@ -95,7 +94,7 @@ public class GlobalControllerExceptionHandler {
                                  HttpServletRequest request,
                                  HttpServletResponse response,
                                  Model model) {
-        // Any time a controller asks for an entity and it isn't found we throw ResourceNotFoundException, so this turns that into 404 + friendly view.
+        // Missing entity? We map ResourceNotFoundException to 404 and explain which resource was missing.
         HttpStatus status = HttpStatus.NOT_FOUND;
         response.setStatus(status.value());
         model.addAttribute(ERROR_ATTR, errorResponseFactory.build(status, ex.getMessage(), request, Collections.emptyList()));
@@ -107,7 +106,7 @@ public class GlobalControllerExceptionHandler {
                                  HttpServletRequest request,
                                  HttpServletResponse response,
                                  Model model) {
-        // Business rules like "vehicle already rented" or "email taken" should render 409 so the UI can explain why the request failed.
+        // Business rules such as "already rented" land here and render 409 so templates can show a clear message.
         HttpStatus status = HttpStatus.CONFLICT;
         response.setStatus(status.value());
         model.addAttribute(ERROR_ATTR, errorResponseFactory.build(status, ex.getMessage(), request, Collections.emptyList()));
@@ -119,7 +118,7 @@ public class GlobalControllerExceptionHandler {
                                HttpServletRequest request,
                                HttpServletResponse response,
                                Model model) {
-        // When Spring Security decides the current user is forbidden, show the error page with status 403.
+        // Spring Security forwards to this when the current user lacks permissions; return 403 and a short reason.
         HttpStatus status = HttpStatus.FORBIDDEN;
         response.setStatus(status.value());
         model.addAttribute(ERROR_ATTR, errorResponseFactory.build(status, "Access denied.", request, Collections.singletonList(ex.getMessage())));
@@ -131,7 +130,7 @@ public class GlobalControllerExceptionHandler {
                                         HttpServletRequest request,
                                         HttpServletResponse response,
                                         Model model) {
-        // Fall back to 400 for other validation-type problems where an IllegalArgumentException is thrown.
+        // Other illegal arguments become 400 so the UI always sees the same layout.
         HttpStatus status = HttpStatus.BAD_REQUEST;
         response.setStatus(status.value());
         model.addAttribute(ERROR_ATTR, errorResponseFactory.build(status, ex.getMessage(), request, Collections.emptyList()));

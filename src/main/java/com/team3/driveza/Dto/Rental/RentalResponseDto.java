@@ -1,16 +1,22 @@
 package com.team3.driveza.Dto.Rental;
 
-import java.util.Date;
+import lombok.Data;
 
+import java.time.ZonedDateTime;
+
+@Data
 public class RentalResponseDto {
-    private int id;
-    private int carId;
-    private String model;
-    private Date startDate;
-    private Date endDate;
-    private enum statusEnum {
-        ACTIVE, INACTIVE
+    public enum Status {
+        ACTIVE, COMPLETED
     }
-    private statusEnum status;
+
+    private Long id;
+    private Long vehicleId;
+    private String vehicleModel;
+    private String vehicleType;
+    private String userName;
+    private ZonedDateTime startDate;
+    private ZonedDateTime endDate;
+    private Status status;
     private double pricePerMin;
 }

@@ -1,8 +1,12 @@
 package com.team3.driveza.controller;
 
 
+import com.team3.driveza.Dto.Rental.RentalResponseDto;
+import com.team3.driveza.exception.ResourceNotFoundException;
+import com.team3.driveza.model.Rental;
 import com.team3.driveza.model.User;
 import com.team3.driveza.model.Vehicle;
+import com.team3.driveza.model.enums.RentalStatus;
 import com.team3.driveza.service.RentalService;
 import com.team3.driveza.service.UserService;
 import com.team3.driveza.service.VehicleService;
@@ -41,11 +45,6 @@ public class PageController {
         return isAdmin ? "redirect:/admin/dashboard" : "redirect:/cars";
     }
 
-    @GetMapping("/403")
-    public String accessDenied() {
-        return "403";
-    }
-
     @GetMapping("/cars")
     public String cars(
             @RequestParam(required = false) String q,
@@ -61,7 +60,10 @@ public class PageController {
         model.addAttribute("userId", user.getId());
 //        System.out.println(principal.getName());
         // active rental
-        model.addAttribute("activeRental", rentalService.getActiveRentalForUser(user.getId()).orElse(null));
+        model.addAttribute("activeRental",
+                rentalService.getActiveRentalForUser(user.getId())
+                        .map(rentalService::mapToDto)
+                        .orElse(null));
 
 
         return "cars"; }
@@ -75,32 +77,50 @@ public class PageController {
 
 //loading map to ui and showing available vehicle location point in map
     @GetMapping("/map")
-    public String map(@RequestParam(required = false) Double lat, @RequestParam(required = false) Double lon,
-    @RequestParam(required = false) Double radius,
-            Model model ){
+    public String map(@RequestParam(required = false) Double lat,
+                      @RequestParam(required = false) Double lon,
+                      @RequestParam(required = false) Double radius,
+                      @RequestParam(required = false) Long returnRentalId,
+                      @RequestParam(required = false) Double returnLat,
+                      @RequestParam(required = false) Double returnLon,
+                      @RequestParam(required = false) Boolean returnSuccess,
+                      Model model,
+                      Principal principal) {
 
         List<Vehicle> vehicleList;
         if (lat == null || lon == null) {
-
-        vehicleList =vehicleService.getAvailableVehicles(Pageable.unpaged()).toList();
-        }else{
+            vehicleList = vehicleService.getAvailableVehicles(Pageable.unpaged()).toList();
+        } else {
             vehicleList = vehicleService.getCars(null, lat, lon, radius, null).toList();
-
-            if(vehicleList.isEmpty()){
+            if (vehicleList.isEmpty()) {
                 vehicleList = vehicleService.getAvailableVehicles(Pageable.unpaged()).toList();
             }
         }
-        System.out.println("MAP vehicle count : "+ vehicleList.size());
+
         model.addAttribute("vehicles", vehicleList);
         model.addAttribute("lat", lat);
         model.addAttribute("lon", lon);
         model.addAttribute("radius", radius);
-//        model.addAttribute("cars", vehicleService.getAvailableVehicles());
+
+        RentalResponseDto returningRental = null;
+        if (returnRentalId != null && principal != null) {
+            try {
+                Rental rental = rentalService.getRentalById(returnRentalId);
+                if (rental.getUser() != null
+                        && rental.getStatus() == RentalStatus.ACTIVE
+                        && principal.getName().equalsIgnoreCase(rental.getUser().getEmail())) {
+                    returningRental = rentalService.mapToDto(rental);
+                }
+            } catch (ResourceNotFoundException ignored) {
+            }
+        }
+
+        model.addAttribute("returningRental", returningRental);
+        model.addAttribute("returnSuccess", Boolean.TRUE.equals(returnSuccess));
+        model.addAttribute("returnSuccessLat", returnLat);
+        model.addAttribute("returnSuccessLon", returnLon);
+
         return "map";
-//        }
-//         System.out.println("available vehicle" + vehicleService.getAvailableVehicles().size());
-//        System.out.println("nearby vehicle" + vehicleService.getNearbyVehicles(lat, lon, radious).size());
-//        return "map";
     }
 
     @GetMapping("account/change-password")

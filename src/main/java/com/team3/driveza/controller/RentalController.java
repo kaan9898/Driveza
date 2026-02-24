@@ -1,12 +1,14 @@
 package com.team3.driveza.controller;
 
+import com.team3.driveza.Dto.Rental.RentRequestDto;
+import com.team3.driveza.Dto.Rental.ReturnRequestDto;
+import com.team3.driveza.Dto.Rental.RentalResponseDto;
 import com.team3.driveza.model.Rental;
 import com.team3.driveza.model.User;
 import com.team3.driveza.service.RentalService;
 import com.team3.driveza.service.UserService;
-import lombok.Getter;
-import lombok.Setter;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -19,6 +21,8 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.security.Principal;
 import java.util.List;
+
+import jakarta.validation.Valid;
 
 /**
  * Rental endpoints: server-rendered pages plus JSON API paths when needed.
@@ -38,41 +42,48 @@ public class RentalController {
     // Display the current user rentals on a Thymeleaf page.
     @GetMapping("/rentals")
     public String listRentals(@RequestParam(defaultValue = "1") Long userId, Model model) {
-        model.addAttribute("rentals", rentalService.getRentalsByUser(userId));
+        List<RentalResponseDto> rentals = rentalService.mapToDtos(rentalService.getRentalsByUser(userId));
+        model.addAttribute("rentals", rentals);
         return "rentals/list";
     }
 
     // Render a form that lets a user rent a vehicle.
     @GetMapping("/rentals/new")
     public String showRentForm(Model model) {
-        model.addAttribute("rentalForm", new RentalForm());
+        model.addAttribute("rentRequest", new RentRequestDto());
         return "rentals/form";
     }
 
     // Process the rent form and redirect back to the rental list.
     @PostMapping("/rentals/rent")
-    public String rentVehicle(@ModelAttribute RentalForm form) {
-        rentalService.rentVehicle(form.getVehicleId(), form.getUserId());
-        return "redirect:/rentals?userId=" + form.getUserId();
+    public String rentVehicle(@Valid @ModelAttribute("rentRequest") RentRequestDto rentRequest) {
+        rentalService.rentVehicle(rentRequest.getVehicleId(), rentRequest.getUserId());
+        return "redirect:/rentals?userId=" + rentRequest.getUserId();
     }
 
     // Render the detail page for a specific rental.
     @GetMapping("/rentals/{id}")
     public String rentalDetail(@PathVariable Long id, Model model) {
-        model.addAttribute("rental", rentalService.getRentalById(id));
+        model.addAttribute("rental", rentalService.mapToDto(rentalService.getRentalById(id)));
         return "rentals/detail";
     }
 
     // Handle return action triggered from the UI.
     @PostMapping("/rentals/{rentalId}/return")
     public String returnVehicleForm(@PathVariable Long rentalId,
-                                    @RequestParam Double latitude,
-                                    @RequestParam Double longitude,
-                                    @RequestParam Long userId,
-                                    java.security.Principal principal) {
-        rentalService.returnVehicle(rentalId, latitude, longitude);
-//        return "redirect:/cars?success";
-        return "redirect:/rentals?userId=" + userId;
+                                    @Valid @ModelAttribute ReturnRequestDto returnRequest,
+                                    Principal principal) {
+        Rental rental = rentalService.getRentalById(rentalId);
+        if (rental.getUser() == null || principal == null ||
+                !principal.getName().equalsIgnoreCase(rental.getUser().getEmail())) {
+            throw new AccessDeniedException("You can only return your own rental.");
+        }
+
+        rentalService.returnVehicle(rentalId, returnRequest.getLatitude(), returnRequest.getLongitude());
+
+        return "redirect:/map?returnSuccess=true" +
+                "&returnLat=" + returnRequest.getLatitude() +
+                "&returnLon=" + returnRequest.getLongitude();
     }
 
     // API endpoint: rent a vehicle via path parameters.

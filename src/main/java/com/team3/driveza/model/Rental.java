@@ -19,8 +19,8 @@ public class Rental {
     private ZonedDateTime endTime;
     @Enumerated(EnumType.STRING)
     private RentalStatus status;
-    @OneToOne(cascade = CascadeType.DETACH)
+    @ManyToOne(cascade = CascadeType.DETACH)
     private User user;
-    @OneToOne(cascade = CascadeType.DETACH)
+    @ManyToOne(cascade = CascadeType.DETACH)
     private Vehicle vehicle;
 }
