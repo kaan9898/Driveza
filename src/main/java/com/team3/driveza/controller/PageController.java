@@ -90,15 +90,7 @@ public class PageController {
                       Model model,
                       Principal principal) {
 
-        List<Vehicle> vehicleList;
-        if (lat == null || lon == null) {
-            vehicleList = vehicleService.getAvailableVehicles(Pageable.unpaged()).toList();
-        } else {
-            vehicleList = vehicleService.getVehicles(null, lat, lon, radius, null).toList();
-            if (vehicleList.isEmpty()) {
-                vehicleList = vehicleService.getAvailableVehicles(Pageable.unpaged()).toList();
-            }
-        }
+        List<Vehicle> vehicleList = vehicleList = vehicleService.getVehicles(null, lat, lon, radius, null).toList();;
 
         model.addAttribute("vehicles", vehicleList);
         model.addAttribute("lat", lat);
