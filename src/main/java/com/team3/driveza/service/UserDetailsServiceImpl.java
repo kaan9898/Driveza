@@ -16,12 +16,6 @@ public class UserDetailsServiceImpl implements UserDetailsService, UserDetailsPa
 
     private final UserRepository userRepository;
     @Override
-    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found: " + email));
-        return new UserDetailsImpl(user);
-    }
-    @Override
     @Transactional
     public UserDetails updatePassword(UserDetails userDetails, String newEncodedPassword) {
         User user = userRepository.findByEmail(userDetails.getUsername())
@@ -31,5 +25,16 @@ public class UserDetailsServiceImpl implements UserDetailsService, UserDetailsPa
         userRepository.save(user);
 
         return new UserDetailsImpl(user);
+    }
+    @Override
+    public UserDetails loadUserByUsername(String email) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found: " + email));
+
+        return org.springframework.security.core.userdetails.User
+                .withUsername(user.getEmail())
+                .password(user.getPassword())
+                .roles(user.getRole().name())
+                .build();
     }
 }
