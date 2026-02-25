@@ -2,22 +2,24 @@ package com.team3.driveza.service;
 
 import com.team3.driveza.Dto.User.UserDetailDto;
 import com.team3.driveza.Dto.User.UserFormDto;
-import com.team3.driveza.exception.UserNotFoundException;
-import com.team3.driveza.model.enums.Role;
 import com.team3.driveza.Dto.User.UserListDto;
 import com.team3.driveza.exception.ConflictException;
 import com.team3.driveza.exception.ResourceNotFoundException;
+import com.team3.driveza.exception.UserNotFoundException;
 import com.team3.driveza.model.User;
+import com.team3.driveza.model.enums.Role;
 import com.team3.driveza.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
-import java.util.List;
-import java.util.stream.Collectors;
+
 
 @Service
 @RequiredArgsConstructor
@@ -26,10 +28,8 @@ public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
-    public List<UserListDto> getAllUsers() {
-        return userRepository.findAll().stream()
-                .map(this::toListDto)
-                .collect(Collectors.toList());
+    public Page<UserListDto> getAllUsers(Pageable pageable) {
+        return userRepository.findAll(pageable).map(this::toListDto);
     }
 
     public UserDetailDto getUserById(Long id) {
