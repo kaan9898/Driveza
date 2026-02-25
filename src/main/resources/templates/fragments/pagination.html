@@ -12,7 +12,7 @@
        th:attr="data-pjax=${pjax} ? 'true' : null">
         Previous
     </a>
-    <a class="btn btn--disabled" th:if="${prevHref == null}">Previous</a>
+    <a class="btn btn--disabled btn--ghost" th:if="${prevHref == null}">Previous</a>
 
     <span class="pill">
         Page <b th:text="${(currentPage != null ? currentPage : 0) + 1}">1</b>
@@ -25,7 +25,7 @@
        th:attr="data-pjax=${pjax} ? 'true' : null">
         Next
     </a>
-    <a class="btn btn--disabled" th:if="${nextHref == null}">Next</a>
+    <a class="btn btn--disabled btn--ghost" th:if="${nextHref == null}">Next</a>
 </div>
 
 </body>
