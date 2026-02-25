@@ -103,7 +103,6 @@ public class UserService {
                 .email(user.getEmail())
                 .role(user.getRole())
                 .dob(toLocalDate(user.getDob()))
-                .createdAt(user.getDob())
                 .build();
     }
 
