@@ -25,13 +25,13 @@ public class AdminVehicleController {
     // Admin list of all vehicles, including rented/unavailable.
     @GetMapping
     public String listAdminVehicles(@RequestParam(required = false) Integer page, Model model) {
-        if (page == null || page < 0 ) {
+        if (page == null || page < 0) {
             page = 0;
         }
         var vehiclePage = vehicleService.getAllVehicles(PageRequest.of(page, 10));
         model.addAttribute("vehicles", vehiclePage);
         model.addAttribute("nextPageNumber", vehiclePage.hasNext() ? vehiclePage.getNumber() + 1 : -1);
-        model.addAttribute("prevPageNumber", vehiclePage.previousOrFirstPageable().getPageNumber());
+        model.addAttribute("prevPageNumber", vehiclePage.hasPrevious() ? vehiclePage.getNumber() - 1 : -1);
         return "admin/vehicles/list";
     }
 

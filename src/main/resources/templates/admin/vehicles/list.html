@@ -194,8 +194,8 @@
 
     <section class="pageHead">
         <!-- i'm sorry for this :^( -->
-        <a class="btn" th:if="${nextPageNumber != 1}" th:href="@{/admin/vehicles?(page=${prevPageNumber})}">Previous</a>
-        <a class="btn btn--disabled" th:if="${nextPageNumber == 1}">Previous</a>
+        <a class="btn" th:if="${prevPageNumber != -1}" th:href="@{/admin/vehicles?(page=${prevPageNumber})}">Previous</a>
+        <a class="btn btn--disabled" th:if="${prevPageNumber == -1}">Previous</a>
         <a class="btn" th:if="${nextPageNumber != -1}" th:href="@{/admin/vehicles?(page=${nextPageNumber})}">Next</a>
         <a class="btn btn--disabled" th:if="${nextPageNumber == -1}">Next</a>
     </section>

@@ -64,8 +64,8 @@ public class PageController {
         var cars = vehicleService.getVehicles(q, lat, lon, radius, sort, PageRequest.of(page, 6)); // adding sorting part
         model.addAttribute("cars", cars);
 
-        model.addAttribute("nextPageNumber", cars.hasNext() ? cars.getNumber()+1 : -1);
-        model.addAttribute("prevPageNumber", cars.previousOrFirstPageable().getPageNumber());
+        model.addAttribute("nextPageNumber", cars.hasNext() ? cars.getNumber() + 1 : -1);
+        model.addAttribute("prevPageNumber", cars.hasPrevious() ? cars.getNumber() - 1 : -1);
 
         User user = userService.findByEmail(principal.getName());
         model.addAttribute("userId", user.getId());

@@ -292,7 +292,7 @@
     </section>
     <section class="pageHead">
         <!-- i'm sorry for this :^( -->
-        <a class="btn" th:if="${nextPageNumber != 1}" th:href="@{/cars?(
+        <a class="btn" th:if="${prevPageNumber != -1}" th:href="@{/cars?(
         page=${prevPageNumber},
         q=${param.q},
         sort=${param.sort},
@@ -300,7 +300,7 @@
         lat=${param.lat},
         lon=${param.lon},
         )}">Previous</a>
-        <a class="btn btn--disabled" th:if="${nextPageNumber == 1}">Previous</a>
+        <a class="btn btn--disabled" th:if="${prevPageNumber == -1}">Previous</a>
         <a class="btn" th:if="${nextPageNumber != -1}" th:href="@{/cars?(
         page=${nextPageNumber},
         q=${param.q},
