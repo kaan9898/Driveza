@@ -199,6 +199,65 @@
                     <p class="adminHero__sub">Click a row to edit or delete. Add new vehicles to the fleet.</p>
                 </div>
 
+        <div>
+            <a class="btn" th:href="@{/admin/vehicles/new}">+ Add Vehicle</a>
+        </div>
+    </section>
+
+    <div id="adminVehiclesResults" data-pjax-container>
+    <section class="card pad">
+        <table class="table" style="width:100%">
+            <thead>
+            <tr>
+                <th>#</th>
+                <th>Brand</th>
+                <th>Model</th>
+                <th>Type</th>
+                <th>Status</th>
+                <th>Price/min</th>
+                <th>Lat</th>
+                <th>Lon</th>
+            </tr>
+            </thead>
+
+            <tbody>
+            <tr th:if="${#lists.isEmpty(vehicles)}">
+                <td colspan="8" class="muted">No vehicles found.</td>
+            </tr>
+
+            <tr class="clickRow"
+                th:each="v, stat : ${vehicles}"
+                th:attr="
+            data-id=${v.id},
+            data-modelid=${v.modelId != null ? v.modelId : 0},
+            data-brand=${v.brand != null ? v.brand : ''},
+            data-modelname=${v.modelName != null ? v.modelName : ''},
+            data-type=${v.type},
+            data-status=${v.status},
+            data-price=${v.pricePerMin},
+            data-lat=${v.latitude},
+            data-lon=${v.longitude}
+          "
+                onclick="openVehicleModal(this)">
+                <td th:text="${stat.count}">1</td>
+
+                <td th:text="${v.brand != null ? v.brand : '—'}">Toyota</td>
+                <td th:text="${v.modelName != null ? v.modelName : '—'}">Prius</td>
+
+                <td th:text="${v.type}">CAR</td>
+                <td th:text="${v.status}">AVAILABLE</td>
+                <td th:text="${v.pricePerMin}">0.25</td>
+                <td th:text="${v.latitude}">56.9</td>
+                <td th:text="${v.longitude}">24.1</td>
+            </tr>
+            </tbody>
+        </table>
+    </section>
+
+    <div th:replace="fragments/pagination :: pager(${prevHref}, ${nextHref}, ${currentPage}, ${totalPages}, true)"></div>
+    </div>
+
+</main>
                 <div class="pill">
 <!--                    <span>🚗</span>-->
 <!--                    <span th:text="'Showing: ' + ${#lists.size(vehicles)}">Showing: 0</span>-->
@@ -296,6 +355,8 @@
 
     </main>
 </div>
+
+<script th:src="@{/js/pjax-pagination.js}"></script>
 
 <!-- ✅ Modal -->
 <div id="vehicleModal" class="modalBackdrop" onclick="backdropClose(event)">

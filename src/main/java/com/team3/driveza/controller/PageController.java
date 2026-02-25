@@ -19,6 +19,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import java.security.Principal;
 import java.util.List;
@@ -64,8 +65,10 @@ public class PageController {
         var cars = vehicleService.getVehicles(q, lat, lon, radius, sort, PageRequest.of(page, 6)); // adding sorting part
         model.addAttribute("cars", cars);
 
-        model.addAttribute("nextPageNumber", cars.hasNext() ? cars.getNumber() + 1 : -1);
-        model.addAttribute("prevPageNumber", cars.hasPrevious() ? cars.getNumber() - 1 : -1);
+        model.addAttribute("currentPage", cars.getNumber());
+        model.addAttribute("totalPages", Math.max(1, cars.getTotalPages()));
+        model.addAttribute("prevHref", cars.hasPrevious() ? buildCarsHref(cars.getNumber() - 1, q, sort, radius, lat, lon) : null);
+        model.addAttribute("nextHref", cars.hasNext() ? buildCarsHref(cars.getNumber() + 1, q, sort, radius, lat, lon) : null);
 
         User user = userService.findByEmail(principal.getName());
         model.addAttribute("userId", user.getId());
@@ -77,6 +80,19 @@ public class PageController {
 
 
         return "cars";
+    }
+
+    private String buildCarsHref(int page, String q, String sort, Double radius, Double lat, Double lon) {
+        UriComponentsBuilder b = UriComponentsBuilder.fromPath("/cars")
+                .queryParam("page", page);
+
+        if (q != null && !q.isBlank()) b.queryParam("q", q);
+        if (sort != null && !sort.isBlank()) b.queryParam("sort", sort);
+        if (radius != null) b.queryParam("radius", radius);
+        if (lat != null) b.queryParam("lat", lat);
+        if (lon != null) b.queryParam("lon", lon);
+
+        return b.build().toUriString();
     }
 
     @GetMapping("/account")
