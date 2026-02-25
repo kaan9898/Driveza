@@ -29,29 +29,31 @@ public interface VehicleRepository extends JpaRepository<Vehicle, Long> {
     // Radius filter (native): spherical law of cosines
     @Query(value = """
                     select * from (
-                        select *, price_per_min as pricePerMin, acos(
+                        select v.*, vm.id as modelId, vm.brand as brand, vm.model as modelName, v.price_per_min as pricePerMin, acos(
                             sin(radians(v.latitude)) * sin(radians(:lat))
                             + cos(radians(v.latitude)) * cos(radians(:lat))
                             * cos(radians(:lon) - radians(v.longitude))
-                        ) * 6371.0 as distance
+                        ) * 6371.0 as distanceKm
                         from vehicle v
+                        join vehicle_model vm
+                        on v.model_id=vm.id
                         where v.status=:status
                     ) as g
-                    where g.distance<:radius
+                    where g.distanceKm<:radius
             """, nativeQuery = true)
-    Page<Vehicle> findAllWithinRadius(@Param("lat") double lat,
-                                      @Param("lon") double lon,
-                                      @Param("radius") double radius,
-                                      @Param("status") String status,
-                                      Pageable pageable);
+    Page<VehicleQuery> findAllWithinRadius(@Param("lat") double lat,
+                                           @Param("lon") double lon,
+                                           @Param("radius") double radius,
+                                           @Param("status") String status,
+                                           Pageable pageable);
 
     @Query(value = """
                     select * from (
-                        select v.*, v.price_per_min as pricePerMin, acos(
+                        select v.*, vm.id as modelId, vm.brand as brand, vm.model as modelName, v.price_per_min as pricePerMin, acos(
                             sin(radians(v.latitude)) * sin(radians(:lat))
                             + cos(radians(v.latitude)) * cos(radians(:lat))
                             * cos(radians(:lon) - radians(v.longitude))
-                        ) * 6371.0 as distance
+                        ) * 6371.0 as distanceKm
                         from vehicle v
                         join vehicle_model vm
                         on v.model_id=vm.id
@@ -59,14 +61,14 @@ public interface VehicleRepository extends JpaRepository<Vehicle, Long> {
                           and ( lower(vm.brand) like lower(concat('%', :q, '%'))
                              or lower(vm.model) like lower(concat('%', :q, '%')))
                     ) as g
-                    where g.distance<:radius
+                    where g.distanceKm<:radius
             """, nativeQuery = true)
-    Page<Vehicle> findAllWithinRadiusAndName(@Param("lat") double lat,
-                                             @Param("lon") double lon,
-                                             @Param("radius") double radius,
-                                             @Param("status") String status,
-                                             @Param("q") String q,
-                                             Pageable pageable
+    Page<VehicleQuery> findAllWithinRadiusAndName(@Param("lat") double lat,
+                                                  @Param("lon") double lon,
+                                                  @Param("radius") double radius,
+                                                  @Param("status") String status,
+                                                  @Param("q") String q,
+                                                  Pageable pageable
     );
 
     long count();

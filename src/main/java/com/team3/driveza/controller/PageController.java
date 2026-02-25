@@ -1,13 +1,17 @@
 package com.team3.driveza.controller;
 
 
+import com.team3.driveza.Dto.Rental.RentalResponseDto;
+import com.team3.driveza.Dto.Vehicle.VehicleUserResponseDto;
+import com.team3.driveza.exception.ResourceNotFoundException;
+import com.team3.driveza.model.Rental;
 import com.team3.driveza.model.User;
-import com.team3.driveza.model.Vehicle;
+import com.team3.driveza.model.enums.RentalStatus;
 import com.team3.driveza.service.RentalService;
 import com.team3.driveza.service.UserService;
 import com.team3.driveza.service.VehicleService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
@@ -41,31 +45,39 @@ public class PageController {
         return isAdmin ? "redirect:/admin/dashboard" : "redirect:/cars";
     }
 
-    @GetMapping("/403")
-    public String accessDenied() {
-        return "403";
-    }
-
     @GetMapping("/cars")
     public String cars(
+            @RequestParam(required = false) Integer page,
             @RequestParam(required = false) String q,
             @RequestParam(required = false) String sort,
             @RequestParam(required = false) Double radius,
             @RequestParam(required = false) Double lat,
             @RequestParam(required = false) Double lon,
             Principal principal, Model model) {
-        var cars = vehicleService.getCars(q,lat,lon,radius,sort); // adding sorting part 
+        if (principal == null) {
+            return "redirect:/";
+        }
+        if (page == null || page < 0) {
+            page = 0;
+        }
+
+        var cars = vehicleService.getVehicles(q, lat, lon, radius, sort, PageRequest.of(page, 6)); // adding sorting part
         model.addAttribute("cars", cars);
 
-        User user = userService.findByEmail(principal.getName())
-                .orElseThrow(() -> new RuntimeException("User not found"));
+        model.addAttribute("nextPageNumber", cars.hasNext() ? cars.getNumber() + 1 : -1);
+        model.addAttribute("prevPageNumber", cars.hasPrevious() ? cars.getNumber() - 1 : -1);
+
+        User user = userService.findByEmail(principal.getName());
         model.addAttribute("userId", user.getId());
-//        System.out.println(principal.getName());
         // active rental
-        model.addAttribute("activeRental", rentalService.getActiveRentalForUser(user.getId()).orElse(null));
+        model.addAttribute("activeRental",
+                rentalService.getActiveRentalForUser(user.getId())
+                        .map(rentalService::mapToDto)
+                        .orElse(null));
 
 
-        return "cars"; }
+        return "cars";
+    }
 
     @GetMapping("/account")
     public String account(Model model, Authentication authentication) {
@@ -74,62 +86,72 @@ public class PageController {
         return "account";
     }
 
-//loading map to ui and showing available vehicle location point in map
+    //loading map to ui and showing available vehicle location point in map
     @GetMapping("/map")
-    public String map(@RequestParam(required = false) Double lat, @RequestParam(required = false) Double lon,
-    @RequestParam(required = false) Double radius,
-            Model model ){
+    public String map(@RequestParam(required = false) Double lat,
+                      @RequestParam(required = false) Double lon,
+                      @RequestParam(required = false) Double radius,
+                      @RequestParam(required = false) Long returnRentalId,
+                      @RequestParam(required = false) Double returnLat,
+                      @RequestParam(required = false) Double returnLon,
+                      @RequestParam(required = false) Boolean returnSuccess,
+                      Model model,
+                      Principal principal) {
 
-        List<Vehicle> vehicleList;
-        if (lat == null || lon == null) {
+        List<VehicleUserResponseDto> vehicleList = vehicleService.getVehicles(null, lat, lon, radius, null, PageRequest.ofSize(300)).toList();
 
-        vehicleList =vehicleService.getAvailableVehicles(Pageable.unpaged()).toList();
-        }else{
-            vehicleList = vehicleService.getCars(null, lat, lon, radius, null).toList();
-
-            if(vehicleList.isEmpty()){
-                vehicleList = vehicleService.getAvailableVehicles(Pageable.unpaged()).toList();
-            }
-        }
-        System.out.println("MAP vehicle count : "+ vehicleList.size());
         model.addAttribute("vehicles", vehicleList);
         model.addAttribute("lat", lat);
         model.addAttribute("lon", lon);
         model.addAttribute("radius", radius);
-//        model.addAttribute("cars", vehicleService.getAvailableVehicles());
+
+        RentalResponseDto returningRental = null;
+        if (returnRentalId != null && principal != null) {
+            try {
+                Rental rental = rentalService.getRentalById(returnRentalId);
+                if (rental.getUser() != null
+                        && rental.getStatus() == RentalStatus.ACTIVE
+                        && principal.getName().equalsIgnoreCase(rental.getUser().getEmail())) {
+                    returningRental = rentalService.mapToDto(rental);
+                }
+            } catch (ResourceNotFoundException ignored) {
+            }
+        }
+
+        model.addAttribute("returningRental", returningRental);
+        model.addAttribute("returnSuccess", Boolean.TRUE.equals(returnSuccess));
+        model.addAttribute("returnSuccessLat", returnLat);
+        model.addAttribute("returnSuccessLon", returnLon);
+
         return "map";
-//        }
-//         System.out.println("available vehicle" + vehicleService.getAvailableVehicles().size());
-//        System.out.println("nearby vehicle" + vehicleService.getNearbyVehicles(lat, lon, radious).size());
-//        return "map";
     }
 
-    @GetMapping("account/change-password")
-    public String changePasswordPage(){
+    @GetMapping("/account/change-password")
+    public String changePasswordPage() {
         return "change-password";
     }
 
-    @PostMapping("account/change-password")
-    public String changePassword(@RequestParam String oldPassword,@RequestParam String newPassword, @RequestParam String confirmPassword, Authentication authentication){
+    @PostMapping("/account/change-password")
+    public String changePassword(@RequestParam String oldPassword, @RequestParam String newPassword, @RequestParam String confirmPassword, Authentication authentication) {
         String email = authentication.getName();
         try {
             userService.changePassword(email, oldPassword, newPassword, confirmPassword);
             return "redirect:/cars?passwordUpdated";
 //            return "redirect:/account/change-password?success";
-        } catch (RuntimeException e){
-            return "redirect:/account/change-password?error=" +e.getMessage();
+        } catch (RuntimeException e) {
+            return "redirect:/account/change-password?error=" + e.getMessage();
         }
     }
 
-    @GetMapping("account/edit")
-    public String editAccount(Model model, Authentication authentication){
+    @GetMapping("/account/edit")
+    public String editAccount(Model model, Authentication authentication) {
         String email = authentication.getName();
         model.addAttribute("user", userService.getUserByEmail(email));
         return "account-edit";
     }
 
     @PostMapping("/account/edit")
-    public String updateAccount(@RequestParam String name, @RequestParam(required = false) String dob, Authentication authentication){
+    public String updateAccount(@RequestParam String name, @RequestParam(required = false) String dob, Authentication authentication) {
         String email = authentication.getName();
         userService.updateProfile(email, name, dob);
         return "redirect:/account?updated";

@@ -2,17 +2,11 @@ package com.team3.driveza.controller;
 
 import com.team3.driveza.Dto.User.UserDetailDto;
 import com.team3.driveza.Dto.User.UserFormDto;
-import com.team3.driveza.Dto.User.UserListDto;
 import com.team3.driveza.service.UserService;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-
-import java.util.List;
+import org.springframework.web.bind.annotation.*;
 
 /**
  * User account management pages supported by Thymeleaf views.
@@ -29,9 +23,14 @@ public class UserController {
 
     // Display the list page with all users.
     @GetMapping
-    public String listUsers(Model model) {
-        List<UserListDto> users = userService.getAllUsers();
+    public String listUsers(@RequestParam(required = false) Integer page, Model model) {
+        if (page == null || page < 0) {
+            page = 0;
+        }
+        var users = userService.getAllUsers(PageRequest.of(page, 20));
         model.addAttribute("users", users);
+        model.addAttribute("nextPageNumber", users.hasNext() ? users.getNumber() + 1 : -1);
+        model.addAttribute("prevPageNumber", users.hasPrevious() ? users.getNumber() - 1 : -1);
         return "users/list";
     }
 

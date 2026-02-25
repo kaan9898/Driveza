@@ -14,9 +14,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class VehicleRequestDto {
-    private Long id;
-
+public class VehicleCreateDto {
     @NotNull(message = "Model selection is required.")
     private Long modelId;
 

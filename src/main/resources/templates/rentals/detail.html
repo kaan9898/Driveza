@@ -12,27 +12,27 @@
     <h1>Rental #<span th:text="${rental.id}"></span></h1>
 
     <p><strong>User:</strong>
-        <span th:text="${rental.user.username}"></span>
+        <span th:text="${rental.userName}"></span>
     </p>
 
     <p><strong>Vehicle:</strong>
-        <span th:text="${rental.vehicle.brand + ' ' + rental.vehicle.model}"></span>
+        <span th:text="${rental.vehicleModel}"></span>
+    </p>
+
+    <p><strong>Vehicle type:</strong>
+        <span th:text="${rental.vehicleType}"></span>
+    </p>
+
+    <p><strong>Price/min:</strong>
+        <span th:text="${rental.pricePerMin}"></span>
     </p>
 
     <p><strong>Start Time:</strong>
-        <span th:text="${#temporals.format(rental.startTime, 'yyyy-MM-dd HH:mm')}"></span>
+        <span th:text="${#temporals.format(rental.startDate, 'yyyy-MM-dd HH:mm')}"></span>
     </p>
 
     <p><strong>End Time:</strong>
-        <span th:text="${rental.endTime != null ? #temporals.format(rental.endTime, 'yyyy-MM-dd HH:mm') : 'Still Active'}"></span>
-    </p>
-
-    <p><strong>Pickup Location:</strong>
-        <span th:text="${rental.pickupLocation}"></span>
-    </p>
-
-    <p><strong>Drop Location:</strong>
-        <span th:text="${rental.dropLocation != null ? rental.dropLocation : 'Not returned yet'}"></span>
+        <span th:text="${rental.endDate != null ? #temporals.format(rental.endDate, 'yyyy-MM-dd HH:mm') : 'Still Active'}"></span>
     </p>
 
     <p><strong>Status:</strong>

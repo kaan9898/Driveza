@@ -32,26 +32,35 @@ public class SecurityConfig {
     provider.setPasswordEncoder(passwordEncoder);
     return provider;
   }
+
   @Bean
   public AuthenticationManager authenticationManager(AuthenticationConfiguration authConfig) throws Exception {
     return authConfig.getAuthenticationManager();
   }
 
   @Bean
-  public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
     http
             .authenticationProvider(authenticationProvider())
             .authorizeHttpRequests(auth -> auth
                     .requestMatchers("/css/**", "/js/**", "/images/**", "/webjars/**", "/favicon.ico", "/error")
                     .permitAll()
+                    .requestMatchers("/login", "/register", "/oauth2/**", "/login/oauth2/**")
+                    .permitAll()
                     .requestMatchers("/", "/login", "/register", "/cars", "/cars/**", "/car-details", "/car-details/**", "/403")
                     .permitAll()
                     .requestMatchers("/oauth2/**", "/login/oauth2/**")
                     .permitAll()
+                    .requestMatchers("/map", "/map/**", "/account", "/account/**", "/car-details/**", "/rentals/**")
+                    .hasAnyRole("USER", "ADMIN")
                     .requestMatchers("/admin/**", "/vehicles/**", "/models/**", "/users/**")
                     .hasRole("ADMIN")
-                    .requestMatchers("/account", "/account/**", "/rentals/**")
+                    .requestMatchers(org.springframework.http.HttpMethod.POST, "/ticket")
                     .hasAnyRole("USER", "ADMIN")
+                    .requestMatchers(org.springframework.http.HttpMethod.GET, "/ticket/me", "/ticket/me/**")
+                    .hasAnyRole("USER", "ADMIN")
+                    .requestMatchers("/ticket/admin/**")
+                    .hasRole("ADMIN")
                     .anyRequest().authenticated()
             )
             .formLogin(form -> form
