@@ -17,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 
 
@@ -78,7 +79,7 @@ public class UserService {
         user.setRole(form.getRole() != null ? form.getRole() : Role.USER);
 
         if (form.getDob() != null) {
-            user.setDob(form.getDob().atStartOfDay(ZoneId.systemDefault()));
+            user.setDob(form.getDob().atStartOfDay(ZoneOffset.UTC));
         }
 
         if (requirePassword) {
