@@ -37,7 +37,7 @@ public class AuthService {
     }
 
     public AuthResponseDto login(LoginRequestDto request) {
-        User user = userService.getUserByEmail(request.getEmail());
+        var user = userService.getAvailableUserEntityByEmail(request.getEmail());
 
         if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
             throw new RuntimeException("Invalid password");

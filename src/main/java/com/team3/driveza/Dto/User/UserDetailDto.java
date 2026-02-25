@@ -7,7 +7,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
-import java.time.ZonedDateTime;
 
 @Data
 @Builder
@@ -19,4 +18,5 @@ public class UserDetailDto {
     private String email;
     private Role role;
     private LocalDate dob;
+    private Boolean disabled;
 }

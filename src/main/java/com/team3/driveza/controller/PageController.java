@@ -5,7 +5,6 @@ import com.team3.driveza.Dto.Rental.RentalResponseDto;
 import com.team3.driveza.Dto.Vehicle.VehicleUserResponseDto;
 import com.team3.driveza.exception.ResourceNotFoundException;
 import com.team3.driveza.model.Rental;
-import com.team3.driveza.model.User;
 import com.team3.driveza.model.enums.RentalStatus;
 import com.team3.driveza.service.RentalService;
 import com.team3.driveza.service.UserService;
@@ -72,7 +71,7 @@ public class PageController {
         model.addAttribute("prevHref", cars.hasPrevious() ? buildCarsHref(cars.getNumber() - 1, params) : null);
         model.addAttribute("nextHref", cars.hasNext() ? buildCarsHref(cars.getNumber() + 1, params) : null);
 
-        User user = userService.findByEmail(principal.getName());
+        var user = userService.getUserByEmail(principal.getName());
         model.addAttribute("userId", user.getId());
         // active rental
         model.addAttribute("activeRental",

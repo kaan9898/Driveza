@@ -33,4 +33,6 @@ public class UserFormDto {
 
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
     private LocalDate dob;
+
+    private Boolean disabled;
 }
