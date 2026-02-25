@@ -76,29 +76,10 @@
         }
     </style>
 </head>
-<body>
 
-<div class="container">
+<body class="adminBg">
+<div class="adminOverlay"></div>
 
-<<<<<<< Updated upstream
-    <h1>User List</h1>
-
-    <table class="table">
-
-        <thead>
-        <tr>
-            <th>ID</th>
-            <th>Username</th>
-            <th>Email</th>
-            <th>Role</th>
-            <th>Status</th>
-            <th>Created</th>
-            <th>Actions</th>
-        </tr>
-        </thead>
-
-        <tbody>
-=======
 <div class="adminContent">
     <div th:replace="admin/header :: adminHeader('/users')"></div>
 
@@ -136,53 +117,9 @@
                     <th>Actions</th>
                 </tr>
                 </thead>
->>>>>>> Stashed changes
 
-        <tr th:if="${#lists.isEmpty(users)}">
-            <td colspan="7">No users found</td>
-        </tr>
+                <tbody>
 
-<<<<<<< Updated upstream
-        <tr th:each="u : ${users}">
-            <td th:text="${u.id}"></td>
-            <td th:text="${u.username}"></td>
-            <td th:text="${u.email}"></td>
-            <td th:text="${u.role}"></td>
-
-            <td th:text="${u.active ? 'ACTIVE' : 'BLOCKED'}"></td>
-
-            <td th:text="${#temporals.format(u.createdAt, 'yyyy-MM-dd HH:mm')}"></td>
-
-            <td>
-                <a th:href="@{'/users/' + ${u.id}}">View</a>
-                <a th:href="@{'/users/' + ${u.id} + '/edit'}">Edit</a>
-
-                <form th:action="@{'/users/' + ${u.id} + '/delete'}"
-                      method="post">
-                    <input type="hidden"
-                           th:name="${_csrf.parameterName}"
-                           th:value="${_csrf.token}" />
-                    <button type="submit">Delete</button>
-                </form>
-            </td>
-        </tr>
-
-        </tbody>
-    </table>
-
-    <!-- Pagination -->
-    <div th:if="${totalPages > 1}">
-        <a th:if="${currentPage > 0}"
-           th:href="@{'/users?page=' + ${currentPage - 1}}">Prev</a>
-
-        Page <span th:text="${currentPage + 1}"></span>
-        of <span th:text="${totalPages}"></span>
-
-        <a th:if="${currentPage < totalPages - 1}"
-           th:href="@{'/users?page=' + ${currentPage + 1}}">Next</a>
-    </div>
-
-=======
                 <!-- Empty state -->
                 <tr th:if="${#lists.isEmpty(users)}">
                     <td colspan="6" style="text-align:center; padding:20px;">
@@ -263,7 +200,6 @@
         </div>
 
     </main>
->>>>>>> Stashed changes
 </div>
 
 </body>

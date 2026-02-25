@@ -125,27 +125,6 @@
 
 <body>
 
-<<<<<<< Updated upstream
-<header class="topbar">
-  <div class="topbar__left">
-    <a class="brand" th:href="@{/cars}">
-      <img class="brand__logo" th:src="@{/images/logo.svg}" alt="Driveza"/>
-      <span class="brand__name">Driveza</span>
-    </a>
-  </div>
-
-  <nav class="topbar__nav">
-    <a class="nav__link" th:href="@{/cars}">Cars</a>
-    <a class="nav__link nav__link--active" th:href="@{/account}">Account</a>
-  </nav>
-
-  <div class="topbar__right">
-    <form th:action="@{/logout}" method="post" style="display:inline;">
-      <button class="btn btn--ghost" type="submit">Logout</button>
-    </form>
-  </div>
-</header>
-=======
 <!--<header class="topbar fadeUp">-->
 <!--  <div class="topbar__left">-->
 <!--    <a class="brand" th:href="@{/cars}">-->
@@ -166,7 +145,6 @@
 <!--  </div>-->
 <!--</header>-->
 <div th:replace="header :: userHeader('/account')"></div>
->>>>>>> Stashed changes
 
 <main class="container">
 
