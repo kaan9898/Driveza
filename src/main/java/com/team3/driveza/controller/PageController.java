@@ -11,6 +11,7 @@ import com.team3.driveza.service.RentalService;
 import com.team3.driveza.service.UserService;
 import com.team3.driveza.service.VehicleService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
@@ -46,6 +47,7 @@ public class PageController {
 
     @GetMapping("/cars")
     public String cars(
+            @RequestParam(required = false) Integer page,
             @RequestParam(required = false) String q,
             @RequestParam(required = false) String sort,
             @RequestParam(required = false) Double radius,
@@ -55,8 +57,15 @@ public class PageController {
         if (principal == null) {
             return "redirect:/";
         }
-        var cars = vehicleService.getVehicles(q, lat, lon, radius, sort); // adding sorting part
+        if (page == null || page < 0) {
+            page = 0;
+        }
+
+        var cars = vehicleService.getVehicles(q, lat, lon, radius, sort, PageRequest.of(page, 6)); // adding sorting part
         model.addAttribute("cars", cars);
+
+        model.addAttribute("nextPageNumber", cars.hasNext() ? cars.getNumber()+1 : -1);
+        model.addAttribute("prevPageNumber", cars.previousOrFirstPageable().getPageNumber());
 
         User user = userService.findByEmail(principal.getName());
         model.addAttribute("userId", user.getId());
@@ -89,7 +98,7 @@ public class PageController {
                       Model model,
                       Principal principal) {
 
-        List<VehicleUserResponseDto> vehicleList = vehicleService.getVehicles(null, lat, lon, radius, null).toList();
+        List<VehicleUserResponseDto> vehicleList = vehicleService.getVehicles(null, lat, lon, radius, null, PageRequest.ofSize(300)).toList();
 
         model.addAttribute("vehicles", vehicleList);
         model.addAttribute("lat", lat);

@@ -12,6 +12,7 @@ import com.team3.driveza.repository.VehicleRepository;
 import com.team3.driveza.repository.VehicleQuery;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
@@ -91,7 +92,7 @@ public class VehicleService {
                 .orElseThrow(() -> new ResourceNotFoundException("Vehicle not found. id=" + id));
     }
 
-    public Page<VehicleUserResponseDto> getVehicles(String q, Double lat, Double lon, Double radiusKm, String sortString) {
+    public Page<VehicleUserResponseDto> getVehicles(String q, Double lat, Double lon, Double radiusKm, String sortString, PageRequest pageRequest) {
         boolean hasText = q != null && !q.isBlank();
         boolean hasLocation = lat != null && lon != null && radiusKm != null;
 
@@ -106,22 +107,22 @@ public class VehicleService {
             sort = Sort.by("id");
         }
 
-        Pageable pageable = Pageable.unpaged(sort);
+        pageRequest = pageRequest.withSort(sort);
 
         if (hasLocation) {
             Page<VehicleQuery> vehicles;
             if (hasText) {
-                vehicles = vehicleRepository.findAllWithinRadiusAndName(lat, lon, radiusKm, VehicleStatus.AVAILABLE.name(), q.trim(), pageable);
+                vehicles = vehicleRepository.findAllWithinRadiusAndName(lat, lon, radiusKm, VehicleStatus.AVAILABLE.name(), q.trim(), pageRequest);
             } else {
-                vehicles = vehicleRepository.findAllWithinRadius(lat, lon, radiusKm, VehicleStatus.AVAILABLE.name(), pageable);
+                vehicles = vehicleRepository.findAllWithinRadius(lat, lon, radiusKm, VehicleStatus.AVAILABLE.name(), pageRequest);
             }
             return vehicles.map(this::toResponseDto);
         } else {
             Page<Vehicle> vehicles;
             if (hasText) {
-                vehicles = vehicleRepository.searchAvailable(q.trim(), pageable);
+                vehicles = vehicleRepository.searchAvailable(q.trim(), pageRequest);
             } else {
-                vehicles = vehicleRepository.findAllByStatus(VehicleStatus.AVAILABLE, pageable);
+                vehicles = vehicleRepository.findAllByStatus(VehicleStatus.AVAILABLE, pageRequest);
             }
             return vehicles.map(this::toResponseDto);
         }
