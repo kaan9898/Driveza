@@ -5,53 +5,132 @@
     <meta name="viewport" content="width=device-width, initial-scale=1"/>
     <title>Driveza | Admin Vehicles</title>
 
-    <link rel="stylesheet" th:href="@{/css/driveza-app.css}">
+    <link rel="stylesheet" th:href="@{/css/driveza-app.css}"/>
+
+    <!-- Page-only upgrade (does NOT modify global CSS) -->
     <style>
-        /* ✅ Next-level background (no blur) */
-        body {
-            min-height: 100vh;
-            margin: 0;
-            background: url('/images/user-bg.jpg') no-repeat center center fixed;
+        .adminShell{ max-width:1120px; margin:0 auto; }
+
+        /* Hero (same style as Users) */
+        .adminHero{
+            position: relative;
+            overflow: hidden;
+            border-radius: 18px;
+            padding: 22px 24px;
+            margin: 14px 0 14px;
+            background: #0b1220;
+        }
+        .adminHero::before{
+            content:"";
+            position:absolute; inset:0;
+            background-image: url("/images/user-bg.jpg"); /* change if you want vehicles-bg */
             background-size: cover;
+            background-position: center;
+            opacity: .14;
+            pointer-events:none;
+        }
+        .adminHero::after{
+            content:"";
+            position:absolute; inset:0;
+            background:
+                    radial-gradient(900px 360px at 20% 0%, rgba(255,255,255,.10), transparent 60%),
+                    linear-gradient(180deg, rgba(0,0,0,.20), rgba(0,0,0,.58));
+            pointer-events:none;
+        }
+        .adminHero__content{
             position: relative;
-            overflow-x: hidden;
+            display:flex;
+            justify-content: space-between;
+            align-items:flex-end;
+            gap: 14px;
+            flex-wrap: wrap;
+        }
+        .adminHero__title{
+            margin:0;
+            font-size: 30px;
+            font-weight: 900;
+            letter-spacing: -0.5px;
+            color:#fff;
+        }
+        .adminHero__sub{
+            margin:6px 0 0;
+            color: rgba(255,255,255,.78);
+            font-size: 14px;
+        }
+        .pill{
+            display:inline-flex;
+            align-items:center;
+            gap:6px;
+            padding: 6px 10px;
+            border-radius: 999px;
+            font-size: 12px;
+            font-weight: 800;
+            background: rgba(255,255,255,.10);
+            color:#fff;
         }
 
-        /* ✅ Dark overlay for readability (NO blur) */
-        body::before {
-            content: "";
-            position: fixed;
-            inset: 0;
-            background: rgba(0, 0, 0, 0.55);
-            z-index: 0;
-            pointer-events: none;
+        /* Tools row */
+        .adminTools{
+            display:flex;
+            gap: 12px;
+            align-items:center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            margin: 0 0 14px;
+        }
+        .adminTools__left{
+            display:flex;
+            gap: 10px;
+            align-items:center;
+            flex-wrap: wrap;
+        }
+        .adminTools__right{
+            display:flex;
+            gap: 10px;
+            align-items:center;
+            flex-wrap: wrap;
         }
 
-        /* ✅ Keep everything above overlay */
-        header, main, .modalBackdrop {
-            position: relative;
+        /* Table polish */
+        .tableWrap{
+            overflow:auto;
+            border-radius: 14px;
+        }
+        .tableModern thead th{
+            position: sticky;
+            top: 0;
+            background: rgba(255,255,255,.06);
+            backdrop-filter: blur(8px);
             z-index: 1;
+            font-weight: 700;
+            text-transform: uppercase;
+            font-size: 12px;
+            letter-spacing: .5px;
         }
-
-        /* ✅ Smooth entrance animation for page */
-        header.topbar, main.container {
-            animation: fadeUp .35s ease-out;
-        }
-
-        @keyframes fadeUp {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
+        .tableModern td{ vertical-align: middle; }
 
         /* Clickable row */
-        .clickRow { cursor: pointer; }
-        .clickRow:hover {
+        .clickRow{ cursor: pointer; transition: .15s; }
+        .clickRow:hover{
             transform: translateY(-2px);
-            transition: .15s;
             background: rgba(255,255,255,.04);
         }
 
-        /* Modal */
+        /* Status badge */
+        .statusBadge{
+            padding:4px 10px;
+            border-radius: 999px;
+            font-size: 12px;
+            font-weight: 800;
+            display:inline-flex;
+            align-items:center;
+            gap:6px;
+        }
+        .stAvail{ background:#2ecc7120; color:#2ecc71; }
+        .stRent{ background:#ffb02020; color:#ffb020; }
+        .stOos { background:#ff4d4d20; color:#ff4d4d; }
+
+        /* Modal (keep your existing behavior) */
         .modalBackdrop{
             position: fixed; inset: 0;
             background: rgba(0,0,0,.65);
@@ -62,11 +141,7 @@
             animation: fadeIn .2s ease-out;
         }
         .modalBackdrop.show{ display:flex; }
-
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
         .modalBox{
             width: min(820px, 100%);
@@ -75,11 +150,7 @@
             border-radius: 14px;
             animation: pop .18s ease-out;
         }
-
-        @keyframes pop {
-            from { transform: scale(.97); opacity: .7; }
-            to { transform: scale(1); opacity: 1; }
-        }
+        @keyframes pop { from { transform: scale(.97); opacity: .7; } to { transform: scale(1); opacity: 1; } }
 
         .modalHeader{
             display:flex;
@@ -87,7 +158,6 @@
             justify-content: space-between;
             gap: 12px;
         }
-
         .modalClose{
             border: none;
             background: transparent;
@@ -101,24 +171,33 @@
             grid-template-columns: repeat(2, minmax(0,1fr));
             gap: 14px;
         }
-
         @media (max-width: 720px){
             .twoCol{ grid-template-columns: 1fr; }
+        }
+
+        .fadeUp{ animation: fadeUp .55s ease-out both; }
+        @keyframes fadeUp{
+            from{ opacity:0; transform: translateY(10px); }
+            to{ opacity:1; transform: translateY(0); }
         }
     </style>
 </head>
 
-<body>
+<body class="adminBg">
+<div class="adminOverlay"></div>
 
-<div th:replace="admin/header :: adminHeader('/admin/vehicles')"></div>
+<div class="adminContent">
+    <div th:replace="admin/header :: adminHeader('/admin/vehicles')"></div>
 
-<main class="container">
+    <main class="container adminShell">
 
-    <section class="pageHead card pad">
-        <div>
-            <h1 class="pageTitle">Vehicles</h1>
-            <p class="pageSub">Click a row to edit or delete</p>
-        </div>
+        <!-- HERO -->
+        <section class="adminHero fadeUp">
+            <div class="adminHero__content">
+                <div>
+                    <h1 class="adminHero__title">Vehicles</h1>
+                    <p class="adminHero__sub">Click a row to edit or delete. Add new vehicles to the fleet.</p>
+                </div>
 
         <div>
             <a class="btn" th:href="@{/admin/vehicles/new}">+ Add Vehicle</a>
@@ -179,6 +258,103 @@
     </div>
 
 </main>
+                <div class="pill">
+<!--                    <span>🚗</span>-->
+<!--                    <span th:text="'Showing: ' + ${#lists.size(vehicles)}">Showing: 0</span>-->
+                </div>
+            </div>
+        </section>
+
+        <!-- Tools row -->
+        <section class="adminTools fadeUp">
+<!--          -->
+
+            <div class="adminTools__right">
+                <a class="btn" th:href="@{/admin/vehicles/new}">+ Add Vehicle</a>
+            </div>
+        </section>
+
+        <!-- TABLE -->
+        <section class="card pad fadeUp">
+            <div class="tableWrap">
+                <table class="table tableModern" style="width:100%">
+                    <thead>
+                    <tr>
+                        <th style="width:70px;">#</th>
+                        <th>Brand</th>
+                        <th>Model</th>
+                        <th style="width:140px;">Type</th>
+                        <th style="width:140px;">Status</th>
+                        <th style="width:120px;">Price/min</th>
+                        <th style="width:140px;">Lat</th>
+                        <th style="width:140px;">Lon</th>
+                    </tr>
+                    </thead>
+
+                    <tbody>
+                    <tr th:if="${#lists.isEmpty(vehicles)}">
+                        <td colspan="8" class="muted" style="text-align:center; padding:20px;">
+                            No vehicles found.
+                        </td>
+                    </tr>
+
+                    <tr class="clickRow"
+                        th:each="v, stat : ${vehicles}"
+                        th:attr="
+                            data-id=${v.id},
+                            data-modelid=${v.modelId != null ? v.modelId : 0},
+                            data-brand=${v.brand != null ? v.brand : ''},
+                            data-modelname=${v.modelName != null ? v.modelName : ''},
+                            data-type=${v.type},
+                            data-status=${v.status},
+                            data-price=${v.pricePerMin},
+                            data-lat=${v.latitude},
+                            data-lon=${v.longitude}
+                        "
+                        onclick="openVehicleModal(this)">
+
+                        <td th:text="${stat.count}">1</td>
+                        <td th:text="${v.brand != null ? v.brand : '—'}">Toyota</td>
+                        <td th:text="${v.modelName != null ? v.modelName : '—'}">Prius</td>
+                        <td th:text="${v.type}">CAR</td>
+
+                        <td>
+                            <span class="statusBadge"
+                                  th:classappend="${v.status.name() == 'AVAILABLE'} ? ' stAvail' :
+                                                 (${v.status.name() == 'RENTED'} ? ' stRent' : ' stOos')"
+                                  th:text="${v.status}">
+                                AVAILABLE
+                            </span>
+                        </td>
+
+                        <td th:text="${v.pricePerMin}">0.25</td>
+                        <td th:text="${v.latitude}">56.9</td>
+                        <td th:text="${v.longitude}">24.1</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Pagination -->
+        <section class="pageHead" style="margin-top:16px;">
+            <a class="btn btn--ghost"
+               th:if="${prevPageNumber != -1}"
+               th:href="@{/admin/vehicles?(page=${prevPageNumber}, q=${param.q})}">
+                Previous
+            </a>
+            <span class="btn btn--disabled" th:if="${prevPageNumber == -1}">Previous</span>
+
+            <a class="btn btn--ghost"
+               th:if="${nextPageNumber != -1}"
+               th:href="@{/admin/vehicles?(page=${nextPageNumber}, q=${param.q})}">
+                Next
+            </a>
+            <span class="btn btn--disabled" th:if="${nextPageNumber == -1}">Next</span>
+        </section>
+
+    </main>
+</div>
 
 <script th:src="@{/js/pjax-pagination.js}"></script>
 
@@ -198,11 +374,9 @@
 
         <!-- ✅ Edit form (NOT nested) -->
         <form id="editForm" method="post">
-            <!-- ✅ CSRF -->
             <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
 
             <div class="twoCol">
-
                 <div class="field">
                     <label class="label">Brand</label>
                     <input class="input" id="brand" type="text" readonly>
@@ -213,7 +387,6 @@
                     <input class="input" id="modelName" type="text" readonly>
                 </div>
 
-                <!-- ✅ IMPORTANT: keep model relation -->
                 <input type="hidden" id="modelId" name="modelId">
 
                 <div class="field">
@@ -248,7 +421,6 @@
                     <label class="label">Longitude</label>
                     <input class="input" id="longitude" name="longitude" type="number" step="0.000001" required>
                 </div>
-
             </div>
 
             <div style="display:flex; gap:10px; margin-top:16px; flex-wrap: wrap;">
@@ -257,7 +429,7 @@
             </div>
         </form>
 
-        <!-- ✅ Delete form (separate) -->
+        <!-- ✅ Delete form -->
         <form id="deleteForm" th:action="@{/admin/vehicles/delete}" method="post" style="margin-top:10px;">
             <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
             <input type="hidden" name="vehicleId" id="deleteVehicleId"/>
