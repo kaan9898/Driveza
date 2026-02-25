@@ -63,16 +63,13 @@
         </section>
 
         <!-- Pagination -->
-        <div th:if="${totalPages > 1}">
-            <a th:if="${currentPage > 0}"
-               th:href="@{'/users?page=' + ${currentPage - 1}}">Prev</a>
-
-            Page <span th:text="${currentPage + 1}"></span>
-            of <span th:text="${totalPages}"></span>
-
-            <a th:if="${currentPage < totalPages - 1}"
-               th:href="@{'/users?page=' + ${currentPage + 1}}">Next</a>
-        </div>
+        <section class="pageHead">
+            <!-- i'm sorry for this :^( -->
+            <a class="btn" th:if="${prevPageNumber != -1}" th:href="@{/users?(page=${prevPageNumber})}">Previous</a>
+            <a class="btn btn--disabled" th:if="${prevPageNumber == -1}">Previous</a>
+            <a class="btn" th:if="${nextPageNumber != -1}" th:href="@{/users?(page=${nextPageNumber})}">Next</a>
+            <a class="btn btn--disabled" th:if="${nextPageNumber == -1}">Next</a>
+        </section>
     </main>
 </div>
 
