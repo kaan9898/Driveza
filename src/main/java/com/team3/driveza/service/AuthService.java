@@ -5,6 +5,7 @@ import com.team3.driveza.Dto.Auth.LoginRequestDto;
 import com.team3.driveza.Dto.Auth.RegisterRequestDto;
 import com.team3.driveza.Dto.User.UserFormDto;
 import com.team3.driveza.model.User;
+import com.team3.driveza.model.enums.Role;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -23,10 +24,13 @@ public class AuthService {
         } catch (RuntimeException e) {
         }
 
-        UserFormDto form = new UserFormDto();
-        form.setName(request.getName());
-        form.setEmail(request.getEmail());
-        form.setPassword(request.getPassword());
+        UserFormDto form = UserFormDto.builder()
+                .name(request.getName())
+                .email(request.getEmail())
+                .password(request.getPassword())
+                .role(Role.USER)
+                .dob(request.getDob())
+                .build();
 
         User created = userService.createUser(form);
         return toResponse(created, "Registration successful.");
