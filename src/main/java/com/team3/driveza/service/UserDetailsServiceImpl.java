@@ -20,17 +20,14 @@ public class UserDetailsServiceImpl implements UserDetailsService, UserDetailsPa
     public UserDetails updatePassword(UserDetails userDetails, String newEncodedPassword) {
         User user = userRepository.findByEmail(userDetails.getUsername())
                 .orElseThrow(() -> new UsernameNotFoundException("User not found: " + userDetails.getUsername()));
-
         user.setPassword(newEncodedPassword);
         userRepository.save(user);
-
         return new UserDetailsImpl(user);
     }
     @Override
     public UserDetails loadUserByUsername(String email) {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found: " + email));
-
         return org.springframework.security.core.userdetails.User
                 .withUsername(user.getEmail())
                 .password(user.getPassword())

@@ -120,7 +120,7 @@ public class UserService {
         }
         //new password rules
         if(newPassword == null  || newPassword.length()<6){
-            throw new RuntimeException("Password must be 6+ caractors");
+            throw new RuntimeException("Password must be 6+ characters");
         }
 
         //password confirm
