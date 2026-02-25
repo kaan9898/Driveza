@@ -272,12 +272,9 @@
             </section>
             <div th:replace="fragments/pagination :: pager(${prevHref}, ${nextHref}, ${currentPage}, ${totalPages}, true)"></div>
         </div>
+        <script th:src="@{/js/pjax-pagination.js}"></script>
     </main>
 </div>
-
-
-<!--  Modal -->
-<script th:src="@{/js/pjax-pagination.js}"></script>
 
 <!-- ✅ Modal -->
 <div id="vehicleModal" class="modalBackdrop" onclick="backdropClose(event)">
