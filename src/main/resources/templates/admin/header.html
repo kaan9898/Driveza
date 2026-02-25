@@ -2,22 +2,60 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <body>
 
-<header th:fragment="adminHeader(currentPath)"  class="topbar topbar--enter">
+<header th:fragment="adminHeader(currentPath)" class="topbar topbar--enter fadeUp">
     <div class="topbar__left">
         <a class="brand" th:href="@{/admin/dashboard}">
             <img class="brand__logo" th:src="@{/images/logo.svg}" alt="Driveza"/>
-            <span class="brand__name">Driveza Admin</span>
+<!--            <span class="brand__name">Driveza Admin</span>-->
         </a>
     </div>
 
     <nav class="topbar__nav">
-        <a class="nav__link" th:classappend="${currentPath == '/admin/dashboard'} ? 'nav__link--active'" th:href="@{/admin/dashboard}">Dashboard</a>
-        <a class="nav__link" th:classappend="${currentPath == '/admin/vehicles'} ? 'nav__link--active'" th:href="@{/admin/vehicles}">Vehicles</a>
-        <a class="nav__link" th:classappend="${currentPath == '/users'} ? 'nav__link--active'" th:href="@{/users}">Users</a>
+        <a class="nav__link"
+           th:classappend="${currentPath == '/admin/dashboard'} ? 'nav__link--active'"
+           th:href="@{/admin/dashboard}">
+            Dashboard
+        </a>
+
+        <a class="nav__link"
+           th:classappend="${currentPath == '/admin/vehicles'} ? 'nav__link--active'"
+           th:href="@{/admin/vehicles}">
+            Vehicles
+        </a>
+
+        <a class="nav__link"
+           th:classappend="${currentPath == '/users'} ? 'nav__link--active'"
+           th:href="@{/users}">
+            Users
+        </a>
+
+        <!-- Optional: tickets/support admin list (only if you have a page) -->
+        <!--
+        <a class="nav__link"
+           th:classappend="${currentPath == '/admin/tickets'} ? 'nav__link--active'"
+           th:href="@{/admin/tickets}">
+            Tickets
+        </a>
+        -->
     </nav>
 
-    <div class="topbar__right">
-        <form th:action="@{/logout}" method="post">
+    <div class="topbar__right" style="display:flex; align-items:center; gap:10px;">
+
+        <!-- Small admin pill -->
+        <span class="badge badge--ok" style="white-space:nowrap;">
+            Admin
+        </span>
+
+        <!-- Support button (user asked: near logout) -->
+        <a class="btn btn--ghost"
+           th:href="@{/support}"
+           th:classappend="${currentPath == '/support'} ? 'btn--active'">
+            Support
+        </a>
+
+        <!-- Logout with CSRF -->
+        <form th:action="@{/logout}" method="post" style="display:inline;">
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
             <button class="btn btn--ghost" type="submit">Logout</button>
         </form>
     </div>
