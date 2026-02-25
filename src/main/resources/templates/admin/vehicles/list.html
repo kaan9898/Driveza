@@ -18,23 +18,23 @@
             border-radius: 18px;
             padding: 22px 24px;
             margin: 14px 0 14px;
-            background: #0b1220;
+            /*background: #0b1220;*/
         }
         .adminHero::before{
             content:"";
             position:absolute; inset:0;
-            background-image: url("/images/user-bg.jpg"); /* change if you want vehicles-bg */
+            /*background-image: url("/images/user-bg.jpg"); !* change if you want vehicles-bg *!*/
             background-size: cover;
             background-position: center;
-            opacity: .14;
+            /*opacity: .14;*/
             pointer-events:none;
         }
         .adminHero::after{
             content:"";
             position:absolute; inset:0;
-            background:
-                    radial-gradient(900px 360px at 20% 0%, rgba(255,255,255,.10), transparent 60%),
-                    linear-gradient(180deg, rgba(0,0,0,.20), rgba(0,0,0,.58));
+            /*background:*/
+            /*        radial-gradient(900px 360px at 20% 0%, rgba(255,255,255,.10), transparent 60%),*/
+            /*        linear-gradient(180deg, rgba(0,0,0,.20), rgba(0,0,0,.58));*/
             pointer-events:none;
         }
         .adminHero__content{
@@ -50,11 +50,11 @@
             font-size: 30px;
             font-weight: 900;
             letter-spacing: -0.5px;
-            color:#fff;
+            /*color:#fff;*/
         }
         .adminHero__sub{
             margin:6px 0 0;
-            color: rgba(255,255,255,.78);
+            /*color: rgba(255,255,255,.78);*/
             font-size: 14px;
         }
         .pill{
@@ -297,7 +297,7 @@
     </main>
 </div>
 
-<!-- ✅ Modal -->
+<!--  Modal -->
 <div id="vehicleModal" class="modalBackdrop" onclick="backdropClose(event)">
     <div class="modalBox card pad" onclick="event.stopPropagation()">
 
@@ -311,7 +311,7 @@
 
         <hr style="opacity:.2; margin:14px 0;"/>
 
-        <!-- ✅ Edit form (NOT nested) -->
+        <!-- Edit form (NOT nested) -->
         <form id="editForm" method="post">
             <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
 
