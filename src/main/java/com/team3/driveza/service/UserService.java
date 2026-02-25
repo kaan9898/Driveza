@@ -36,12 +36,12 @@ public class UserService {
         return toDetailDto(findOrThrow(id));
     }
 
-    public User getUserByEmail(String email) {
+    public User getUserByEmail(String email) throws ResourceNotFoundException {
         return userRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("User not found with email: " + email));
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with email: " + email));
     }
     @Transactional
-    public User createUser(UserFormDto form) {
+    public User createUser(UserFormDto form) throws ConflictException {
         if (userRepository.existsByEmail(form.getEmail())) {
             throw new ConflictException("Email already in use.");
         }
@@ -50,7 +50,7 @@ public class UserService {
     }
 
     @Transactional
-    public void updateUser(Long id, UserFormDto form) {
+    public void updateUser(Long id, UserFormDto form) throws ConflictException {
         User user = findOrThrow(id);
         if (!user.getEmail().equals(form.getEmail()) && userRepository.existsByEmail(form.getEmail())) {
             throw new ConflictException("Email already in use.");
@@ -73,10 +73,12 @@ public class UserService {
             user.setDob(form.getDob().atStartOfDay(ZoneId.systemDefault()));
         }
 
-        if (form.getPassword() != null && !form.getPassword().isEmpty()) {
-            user.setPassword(passwordEncoder.encode(form.getPassword()));
-        } else if (requirePassword) {
-            throw new IllegalArgumentException("Password is required.");
+        if (requirePassword) {
+            if (form.getPassword() != null && !form.getPassword().isEmpty()) {
+                user.setPassword(passwordEncoder.encode(form.getPassword()));
+            } else {
+                throw new IllegalArgumentException("Password is required.");
+            }
         }
 
         return user;
@@ -151,6 +153,7 @@ public class UserService {
         }
         userRepository.save(user);
     }
+
     public User findByEmail(String usernameOrEmail) {
         return userRepository.findByEmail(usernameOrEmail)
                 .orElseThrow(() -> new UserNotFoundException(usernameOrEmail));
