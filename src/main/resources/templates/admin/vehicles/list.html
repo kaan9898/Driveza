@@ -187,7 +187,7 @@
 <div class="adminOverlay"></div>
 
 <div class="adminContent">
-    <div th:replace="admin/header :: adminHeader('/admin/vehicles')"></div>
+    <div th:replace="~{admin/header :: adminHeader('/admin/vehicles')}"></div>
 
     <main class="container adminShell">
 
@@ -270,7 +270,7 @@
                     </table>
                 </div>
             </section>
-            <div th:replace="fragments/pagination :: pager(${prevHref}, ${nextHref}, ${currentPage}, ${totalPages}, true)"></div>
+            <div th:replace="~{fragments/pagination :: pager(${prevHref}, ${nextHref}, ${currentPage}, ${totalPages}, true)} "></div>
         </div>
         <script th:src="@{/js/pjax-pagination.js}"></script>
     </main>
