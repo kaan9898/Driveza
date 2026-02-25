@@ -1,23 +1,30 @@
 package com.team3.driveza.controller;
 
 import com.team3.driveza.Dto.Rental.RentRequestDto;
-import com.team3.driveza.Dto.Rental.RentalResponseDto;
 import com.team3.driveza.Dto.Rental.ReturnRequestDto;
+import com.team3.driveza.Dto.Rental.RentalResponseDto;
 import com.team3.driveza.model.Rental;
 import com.team3.driveza.model.User;
 import com.team3.driveza.service.RentalService;
 import com.team3.driveza.service.UserService;
-import jakarta.validation.Valid;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.security.Principal;
 import java.util.List;
+
+import jakarta.validation.Valid;
 
 /**
  * Rental endpoints: server-rendered pages plus JSON API paths when needed.
@@ -76,14 +83,11 @@ public class RentalController {
 
         rentalService.returnVehicle(rentalId, returnRequest.getLatitude(), returnRequest.getLongitude());
 
-        return "redirect:/map?returnSuccess=true" +
-                "&returnLat=" + returnRequest.getLatitude() +
-                "&returnLon=" + returnRequest.getLongitude();
+        return "redirect:/map?returnSuccess=true" + "&returnLat=" + returnRequest.getLatitude() + "&returnLon=" + returnRequest.getLongitude();
     }
 
     // API endpoint: rent a vehicle via path parameters.
     @PostMapping("/api/rentals/rent/{vehicleId}/user/{userId}")
-    @ResponseBody
     public ResponseEntity<Rental> rentVehicle(
             @PathVariable Long vehicleId,
             @PathVariable Long userId) {
@@ -93,12 +97,12 @@ public class RentalController {
     }
 
 
-    //    car rent
+//    car rent
     @PostMapping("/rentals/{vehicleId}/rent")
-    public String rentFromCard(@PathVariable Long vehicleId, Principal principal) {
+    public String rentFromCard(@PathVariable Long vehicleId, Principal principal){
         User user = userService.findByEmail(principal.getName());
 
-        if (rentalService.getActiveRentalForUser(user.getId()).isPresent()) {
+        if(rentalService.getActiveRentalForUser(user.getId()).isPresent()) {
             return "redirect:/cars?alreadyRented";
         }
         rentalService.rentVehicle(vehicleId, user.getId());
@@ -108,7 +112,6 @@ public class RentalController {
 
     // API endpoint: return a vehicle by ID.
     @PutMapping("/api/rentals/return/{rentalId}")
-    @ResponseBody
     public ResponseEntity<Rental> returnVehicle(
             @PathVariable Long rentalId,
             @RequestParam Double latitude,
@@ -120,7 +123,6 @@ public class RentalController {
 
     // API endpoint: retrieve rentals for a user.
     @GetMapping("/api/rentals/user/{userId}")
-    @ResponseBody
     public ResponseEntity<List<Rental>> getUserRentals(@PathVariable Long userId) {
         return ResponseEntity.ok(
                 rentalService.getRentalsByUser(userId)
