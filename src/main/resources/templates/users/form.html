@@ -2,8 +2,91 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>User Form</title>
-    <link rel="stylesheet" th:href="@{/css/driveza-app.css}">
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <title>Driveza Admin | Edit User</title>
+    <link rel="stylesheet" th:href="@{/css/driveza-app.css}"/>
+
+    <!-- Page-only UI upgrade (no global CSS change) -->
+    <style>
+        .adminShell{ max-width: 980px; margin: 0 auto; }
+
+        /* Hero */
+        .adminHero{
+            position: relative;
+            overflow: hidden;
+            border-radius: 18px;
+            padding: 22px 24px;
+            margin: 14px 0 16px;
+            /*background: #0b1220;*/
+        }
+        .adminHero::before{
+            content:"";
+            position:absolute; inset:0;
+            /*background-image: url("/images/user-bg.jpg");*/
+            background-size: cover;
+            background-position: center;
+            /*opacity: .16;*/
+            pointer-events:none;
+        }
+        .adminHero::after{
+            content:"";
+            position:absolute; inset:0;
+            /*background:*/
+            /*        radial-gradient(900px 350px at 20% 0%, rgba(255,255,255,.10), transparent 60%),*/
+            /*        linear-gradient(180deg, rgba(0,0,0,.20), rgba(0,0,0,.55));*/
+            pointer-events:none;
+        }
+        .adminHero__content{
+            position: relative;
+            display:flex;
+            align-items:flex-end;
+            justify-content: space-between;
+            gap: 14px;
+            flex-wrap: wrap;
+        }
+        .adminHero__title{
+            margin:0;
+            font-size: 30px;
+            font-weight: 900;
+            letter-spacing: -0.5px;
+            /*color: #fff;*/
+        }
+        .adminHero__sub{
+            margin:6px 0 0;
+            /*color: rgba(255,255,255,.78);*/
+            font-size: 14px;
+        }
+
+        /* Form grid */
+        .formGrid{
+            display:grid;
+            grid-template-columns: repeat(2, minmax(0,1fr));
+            gap: 14px;
+        }
+        @media (max-width: 780px){
+            .formGrid{ grid-template-columns: 1fr; }
+        }
+
+        .formActions{
+            display:flex;
+            gap: 10px;
+            margin-top: 16px;
+            flex-wrap: wrap;
+            justify-content: flex-end;
+        }
+
+        .helpText{
+            margin-top: 6px;
+            font-size: 12px;
+            opacity: .75;
+        }
+
+        .fadeUp{ animation: fadeUp .55s ease-out both; }
+        @keyframes fadeUp{
+            from{ opacity:0; transform: translateY(10px); }
+            to{ opacity:1; transform: translateY(0); }
+        }
+    </style>
 </head>
 
 <body class="adminBg">
@@ -11,56 +94,85 @@
 
 <div class="adminContent">
     <div th:replace="admin/header :: adminHeader('/users')"></div>
-    <main class="container">
-        <section class="pageHead card pad">
-            <div>
-                <h1 class="pageTitle">Edit user</h1>
-                <p class="pageSub">Editing a user account</p>
+
+    <main class="container adminShell">
+
+        <!-- HERO -->
+        <section class="adminHero fadeUp">
+            <div class="adminHero__content">
+                <div>
+                    <h1 class="adminHero__title">Edit User</h1>
+                    <p class="adminHero__sub">Update user details, role, and (optionally) password.</p>
+                </div>
+
+                <span class="badge badge--ok" style="white-space:nowrap;">
+                    ID: <b th:text="${user.id}">0</b>
+                </span>
             </div>
         </section>
 
-        <section class="card pad">
+        <!-- FORM CARD -->
+        <section class="card pad fadeUp">
+
             <form th:action="@{${formAction}}"
                   th:object="${user}"
                   method="post">
 
+                <!-- CSRF -->
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+
+                <!-- Keep ID -->
                 <input type="hidden" th:field="*{id}"/>
 
+                <div class="formGrid">
 
-                <div class="field">
-                    <label class="label" for="name" >Full name</label>
-                    <input class="input" id="name" type="text" th:field="*{name}" required/>
+                    <div class="field">
+                        <label class="label" for="name">Full name</label>
+                        <input class="input" id="name" type="text" th:field="*{name}" required/>
+                    </div>
+
+                    <div class="field">
+                        <label class="label" for="email">Email</label>
+                        <input class="input" id="email" type="email" th:field="*{email}" required/>
+                    </div>
+
+                    <div class="field">
+                        <label class="label" for="role">Role</label>
+                        <select id="role" class="select" th:field="*{role}">
+                            <option th:each="r : ${T(com.team3.driveza.model.enums.Role).values()}"
+                                    th:value="${r}"
+                                    th:text="${r}">
+                            </option>
+                        </select>
+                        <div class="helpText">Be careful when promoting users to ADMIN.</div>
+                    </div>
+
+                    <div class="field">
+                        <label class="label" for="date">Date of birth</label>
+                        <input class="input" id="date" type="date" th:field="*{dob}"/>
+                        <div class="helpText">Optional.</div>
+                    </div>
+
+                    <!-- Password (full-width on grid) -->
+                    <div class="field" style="grid-column: 1 / -1;">
+                        <label class="label" for="password">Password</label>
+                        <input class="input" id="password" type="password"
+                               th:field="*{password}"
+                               placeholder="Leave empty to keep current"/>
+                        <div class="helpText">If empty, current password stays unchanged.</div>
+                    </div>
+
                 </div>
 
-                <div class="field">
-                    <label class="label" for="email">Email</label>
-                    <input class="input" id="email" type="email" th:field="*{email}" required/>
+                <div class="formActions">
+                    <a class="btn btn--ghost" th:href="@{/users}">Cancel</a>
+                    <button class="btn" type="submit">Save User</button>
                 </div>
-
-                <div class="field">
-                    <label class="label" for="role">Role</label>
-                    <select id="role" class="select" th:field="*{role}">
-                        <option th:each="r : ${T(com.team3.driveza.model.enums.Role).values()}"
-                                th:value="${r}"
-                                th:text="${r}">
-                        </option>
-                    </select>
-                </div>
-
-                <div class="field">
-                    <label class="label" for="date">Date of birth</label>
-                    <input class="input" id="date" type="date" th:field="*{dob}"/>
-                </div>
-
-                <div class="field">
-                    <label class="label" for="password">Password</label>
-                    <input class="input" id="password" type="password" th:field="*{password}" placeholder="Leave empty to keep current"/>
-                </div>
-
-                <button class="btn" type="submit">Save User</button>
 
             </form>
+
         </section>
+
     </main>
 </div>
 
