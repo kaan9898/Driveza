@@ -267,6 +267,7 @@
         </script>
     </section>
 
+    <div id="carsResults" data-pjax-container>
     <!-- Cars Grid -->
     <section class="grid" style="margin-top:16px;">
 
@@ -367,8 +368,12 @@
         )}">Next</a>
         <a class="btn btn--disabled" th:if="${nextPageNumber == -1}">Next</a>
     </section>
+    <div th:replace="fragments/pagination :: pager(${prevHref}, ${nextHref}, ${currentPage}, ${totalPages}, true)"></div>
+    </div>
 
 </main>
+
+<script th:src="@{/js/pjax-pagination.js}"></script>
 
 </body>
 </html>

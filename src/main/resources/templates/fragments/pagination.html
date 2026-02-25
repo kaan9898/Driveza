@@ -1,0 +1,33 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org" lang="">
+<body>
+
+<div th:fragment="pager(prevHref, nextHref, currentPage, totalPages, pjax)"
+     class="pageHead"
+     th:if="${totalPages != null and totalPages > 1}">
+
+    <a class="btn"
+       th:if="${prevHref != null}"
+       th:href="${prevHref}"
+       th:attr="data-pjax=${pjax} ? 'true' : null">
+        Previous
+    </a>
+    <a class="btn btn--disabled btn--ghost" th:if="${prevHref == null}">Previous</a>
+
+    <span class="pill">
+        Page <b th:text="${(currentPage != null ? currentPage : 0) + 1}">1</b>
+        of <b th:text="${totalPages}">1</b>
+    </span>
+
+    <a class="btn"
+       th:if="${nextHref != null}"
+       th:href="${nextHref}"
+       th:attr="data-pjax=${pjax} ? 'true' : null">
+        Next
+    </a>
+    <a class="btn btn--disabled btn--ghost" th:if="${nextHref == null}">Next</a>
+</div>
+
+</body>
+</html>
+
