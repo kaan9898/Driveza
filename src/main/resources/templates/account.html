@@ -6,29 +6,164 @@
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <title>Driveza | Account</title>
   <link rel="stylesheet" th:href="@{/css/driveza-app.css}"/>
+
+  <!-- Page-only upgrade (no global CSS edits) -->
+  <style>
+    .fadeUp { animation: fadeUp .55s ease-out both; }
+    @keyframes fadeUp { from{opacity:0; transform:translateY(10px)} to{opacity:1; transform:translateY(0)} }
+
+    .pageHero{
+      position:relative;
+      overflow:hidden;
+      border-radius:16px;
+      padding:22px;
+      margin-bottom:16px;
+      background:#0b1220;
+    }
+    .pageHero::before{
+      content:"";
+      position:absolute; inset:0;
+      /*background-image:url("/images/user-bg.jpg");*/
+      background-size:cover;
+      background-position:center;
+      /*opacity:0;*/
+      filter:saturate(1.05) contrast(1.05);
+    }
+    .pageHero::after{
+      content:"";
+      position:absolute; inset:0;
+      background: radial-gradient(1200px 420px at 10% 0%, rgba(255,255,255,.10), transparent 60%),
+      linear-gradient(180deg, rgba(0,0,0,.25), rgba(0,0,0,.55));
+    }
+    .pageHero__content{
+      position:relative;
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap:16px;
+      flex-wrap:wrap;
+    }
+    .heroTitle{ margin:0 0 6px 0; }
+    .heroSub{ margin:0; opacity:.88; }
+
+    .profileCard{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:16px;
+      flex-wrap:wrap;
+    }
+    .profileLeft{
+      display:flex;
+      align-items:center;
+      gap:14px;
+      min-width:260px;
+    }
+    .avatar{
+      width:54px;height:54px;
+      border-radius:16px;
+      display:flex;align-items:center;justify-content:center;
+      font-weight:900;
+      background: rgba(255,255,255,.10);
+      border: 1px solid rgba(255,255,255,.12);
+      box-shadow: 0 10px 22px rgba(0,0,0,.12);
+    }
+    .profileName{ font-weight:900; font-size:18px; margin:0; }
+    .profileEmail{ opacity:.8; margin:0; font-size:13px; }
+
+    .quickActions{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      align-items:center;
+      justify-content:flex-end;
+    }
+
+    .grid2{
+      display:grid;
+      grid-template-columns: 1.2fr .8fr;
+      gap:16px;
+    }
+    @media (max-width: 920px){
+      .grid2{ grid-template-columns: 1fr; }
+    }
+
+    .infoRow{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      padding:10px 0;
+      border-bottom: 1px solid rgba(255,255,255,.08);
+    }
+    .infoRow:last-child{ border-bottom:0; padding-bottom:0; }
+    .muted2{ opacity:.75; font-size:13px; }
+
+    .chip{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding:8px 10px;
+      border-radius:999px;
+      background: rgba(255,255,255,.08);
+      border:1px solid rgba(255,255,255,.10);
+      font-size:12px;
+      white-space:nowrap;
+    }
+
+    .hoverLift{
+      transition: transform .15s ease, box-shadow .15s ease;
+    }
+    .hoverLift:hover{
+      transform: translateY(-2px);
+      box-shadow: 0 10px 26px rgba(0,0,0,.14);
+    }
+
+    .sectionTitle{ margin:0 0 10px 0; font-weight:900; }
+    .divider{ opacity:.15; margin:14px 0; }
+  </style>
 </head>
 
 <body>
 
+<!--<header class="topbar fadeUp">-->
+<!--  <div class="topbar__left">-->
+<!--    <a class="brand" th:href="@{/cars}">-->
+<!--      <img class="brand__logo" th:src="@{/images/logo.svg}" alt="Driveza"/>-->
+<!--      <span class="brand__name">Driveza</span>-->
+<!--    </a>-->
+<!--  </div>-->
+
+<!--  <nav class="topbar__nav">-->
+<!--    <a class="nav__link" th:href="@{/cars}">Cars</a>-->
+<!--    <a class="nav__link nav__link&#45;&#45;active" th:href="@{/account}">Account</a>-->
+<!--  </nav>-->
+
+<!--  <div class="topbar__right">-->
+<!--    <form th:action="@{/logout}" method="post" style="display:inline;">-->
+<!--      <button class="btn btn&#45;&#45;ghost" type="submit">Logout</button>-->
+<!--    </form>-->
+<!--  </div>-->
+<!--</header>-->
 <div th:replace="header :: userHeader('/account')"></div>
 
 <main class="container">
 
-  <section class="pageHead">
-    <div>
-      <h1 class="pageTitle">My Account</h1>
-      <p class="pageSub">Manage your profile and security settings.</p>
-    </div>
+  <!-- HERO -->
+  <section class="pageHero fadeUp">
+    <div class="pageHero__content">
+      <div>
+        <h1 class="pageTitle heroTitle">My Account</h1>
+        <p class="pageSub heroSub">Manage your profile & security settings.</p>
+      </div>
 
-    <!-- Role badge -->
-    <div>
-            <span class="badge"
-                  th:classappend="${user.role.name() == 'ADMIN'} ? ' badge--warn' : ' badge--ok'"
-                  th:text="${user.role}">USER</span>
+      <div class="chip">
+        <span>Role</span>
+        <b th:text="${user.role}">USER</b>
+      </div>
     </div>
   </section>
 
-  <!-- Alerts (optional) -->
+  <!-- Alerts -->
   <div class="alert alert--info" th:if="${param.updated}">
     Profile updated successfully.
   </div>
@@ -36,81 +171,85 @@
     Something went wrong. Please try again.
   </div>
 
-  <!-- Profile summary card -->
-  <section class="card pad" style="margin-bottom:16px;">
-    <div style="display:flex; gap:16px; align-items:center; justify-content:space-between; flex-wrap:wrap;">
-      <div style="display:flex; gap:14px; align-items:center;">
-        <div style="width:54px;height:54px;border-radius:14px;background:rgba(255,255,255,.08);
-                            display:flex;align-items:center;justify-content:center;font-size:22px;">
-          👤
-        </div>
+  <!-- Profile summary -->
+  <section class="card pad hoverLift fadeUp" style="margin-bottom:16px;">
+    <div class="profileCard">
+      <div class="profileLeft">
+        <div class="avatar"
+             th:text="${user.name != null && user.name.length() > 0 ? user.name.substring(0,1).toUpperCase() : 'U'}">U</div>
         <div>
-          <div style="font-weight:800; font-size:18px;" th:text="${user.name}">User Name</div>
-          <div class="muted" th:text="${user.email}">user@email.com</div>
+          <p class="profileName" th:text="${user.name}">User Name</p>
+          <p class="profileEmail" th:text="${user.email}">user@email.com</p>
         </div>
       </div>
 
-      <!-- Edit button (go to /account/edit later if you want) -->
-      <a class="btn btn--ghost" th:href="@{/account/edit}">Edit Profile</a>
+      <div class="quickActions">
+        <a class="btn btn--ghost" th:href="@{/cars}">Back to Cars</a>
+        <a class="btn" th:href="@{/account/edit}">Edit Profile</a>
+      </div>
     </div>
   </section>
 
-  <!-- Details + Security in two cards -->
-  <section class="grid" style="grid-template-columns:1.2fr .8fr; gap:16px;">
-    <!-- Account details -->
-    <section class="card pad">
-      <h2 style="margin:0 0 12px 0;">Account Details</h2>
+  <!-- Main grid -->
+  <section class="grid2 fadeUp">
 
-      <div class="field">
-        <label class="label">Full Name</label>
-        <input class="input" type="text" th:value="${user.name}" readonly/>
+    <!-- Details -->
+    <section class="card pad hoverLift">
+      <h2 class="sectionTitle">Account Details</h2>
+
+      <div class="infoRow">
+        <div class="muted2">Full Name</div>
+        <b th:text="${user.name}">Chamith</b>
       </div>
 
-      <div class="field">
-        <label class="label">Email</label>
-        <input class="input" type="email" th:value="${user.email}" readonly/>
+      <div class="infoRow">
+        <div class="muted2">Email</div>
+        <b th:text="${user.email}">mail</b>
       </div>
 
-      <div class="field">
-        <label class="label">Date of Birth</label>
-        <input class="input" type="text"
-               th:value="${user.dob != null ? #temporals.format(user.dob, 'yyyy-MM-dd') : 'Not set'}"
-               readonly/>
+      <div class="infoRow">
+        <div class="muted2">Date of Birth</div>
+        <b th:text="${user.dob != null ? #temporals.format(user.dob, 'yyyy-MM-dd') : 'Not set'}">1999-05-02</b>
       </div>
 
-      <div class="field">
-        <label class="label">Role</label>
-        <input class="input" type="text" th:value="${user.role}" readonly/>
+      <div class="infoRow">
+        <div class="muted2">Role</div>
+        <b th:text="${user.role}">USER</b>
       </div>
 
-      <div style="display:flex; gap:10px; margin-top:12px; flex-wrap:wrap;">
-<!--        <a class="btn" th:href="@{/account/edit}">Edit</a>-->
-        <a class="btn btn--ghost" th:href="@{/cars}">Back to Cars</a>
+      <hr class="divider"/>
+
+      <div style="display:flex; gap:10px; flex-wrap:wrap;">
+        <a class="btn" th:href="@{/account/edit}">Edit</a>
+        <a class="btn btn--ghost" th:href="@{/cars}">Browse Cars</a>
       </div>
     </section>
 
     <!-- Security -->
-    <section class="card pad">
-      <h2 style="margin:0 0 12px 0;">Security</h2>
+    <section class="card pad hoverLift">
+      <h2 class="sectionTitle">Security</h2>
 
-      <div class="field">
-        <label class="label">Password</label>
-        <input class="input" type="password" value="********" readonly/>
-        <div class="muted" style="margin-top:6px;">For security, password is hidden.</div>
+      <div class="infoRow">
+        <div class="muted2">Password</div>
+        <b>••••••••</b>
       </div>
 
-      <div style="display:flex; gap:10px; margin-top:12px; flex-wrap:wrap;">
-        <!-- later connect to /account/change-password -->
+      <div class="muted2" style="margin-top:8px;">
+        For security, your password is hidden.
+      </div>
+
+      <div style="display:flex; gap:10px; margin-top:14px; flex-wrap:wrap;">
         <a class="btn btn--ghost" th:href="@{/account/change-password}">Change Password</a>
       </div>
 
-      <hr style="opacity:.15; margin:16px 0;"/>
+      <hr class="divider"/>
 
-      <div class="muted">
+      <div class="muted2">
         Logged in as:
         <b sec:authentication="name">email</b>
       </div>
     </section>
+
   </section>
 
 </main>
