@@ -132,7 +132,7 @@
 
 <body>
 
-<div th:replace="header :: userHeader('/cars')"></div>
+<div th:replace="~{header :: userHeader('/cars')}"></div>
 
 <main class="container pageShell">
 
@@ -347,7 +347,7 @@
     </section>
 
     </section>
-    <div th:replace="fragments/pagination :: pager(${prevHref}, ${nextHref}, ${currentPage}, ${totalPages}, true)"></div>
+    <div th:replace="~{fragments/pagination :: pager(${prevHref}, ${nextHref}, ${currentPage}, ${totalPages}, true)}"></div>
     </div>
     <script th:src="@{/js/pjax-pagination.js}"></script>
 </main>
