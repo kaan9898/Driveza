@@ -10,6 +10,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.util.UriComponentsBuilder;
 
 /**
  * Admin UI for managing vehicles via server-rendered templates.
@@ -30,9 +31,18 @@ public class AdminVehicleController {
         }
         var vehiclePage = vehicleService.getAllVehicles(PageRequest.of(page, 10));
         model.addAttribute("vehicles", vehiclePage);
-        model.addAttribute("nextPageNumber", vehiclePage.hasNext() ? vehiclePage.getNumber() + 1 : -1);
-        model.addAttribute("prevPageNumber", vehiclePage.hasPrevious() ? vehiclePage.getNumber() - 1 : -1);
+        model.addAttribute("currentPage", vehiclePage.getNumber());
+        model.addAttribute("totalPages", Math.max(1, vehiclePage.getTotalPages()));
+        model.addAttribute("prevHref", vehiclePage.hasPrevious() ? buildListHref(vehiclePage.getNumber() - 1) : null);
+        model.addAttribute("nextHref", vehiclePage.hasNext() ? buildListHref(vehiclePage.getNumber() + 1) : null);
         return "admin/vehicles/list";
+    }
+
+    private String buildListHref(int page) {
+        return UriComponentsBuilder.fromPath("/admin/vehicles")
+                .queryParam("page", page)
+                .build()
+                .toUriString();
     }
 
     // Show admin form to add a new vehicle.
