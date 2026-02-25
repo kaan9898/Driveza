@@ -6,7 +6,7 @@ import com.team3.driveza.service.VehicleModelService;
 import com.team3.driveza.service.VehicleService;
 import com.team3.driveza.service.VpicService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -24,8 +24,14 @@ public class AdminVehicleController {
 
     // Admin list of all vehicles, including rented/unavailable.
     @GetMapping
-    public String listAdminVehicles(Model model) {
-        model.addAttribute("vehicles", vehicleService.getAllVehicles(Pageable.unpaged()));
+    public String listAdminVehicles(@RequestParam(required = false) Integer page, Model model) {
+        if (page == null || page < 0) {
+            page = 0;
+        }
+        var vehiclePage = vehicleService.getAllVehicles(PageRequest.of(page, 10));
+        model.addAttribute("vehicles", vehiclePage);
+        model.addAttribute("nextPageNumber", vehiclePage.hasNext() ? vehiclePage.getNumber() + 1 : -1);
+        model.addAttribute("prevPageNumber", vehiclePage.hasPrevious() ? vehiclePage.getNumber() - 1 : -1);
         return "admin/vehicles/list";
     }
 
@@ -47,13 +53,6 @@ public class AdminVehicleController {
 
         vehicleService.createVehicle(vehicle);
         return "redirect:/admin/vehicles";
-    }
-
-    // Detail view for a specific admin vehicle.
-    @GetMapping("/{id}")
-    public String vehicleDetail(@PathVariable Long id, Model model) {
-        model.addAttribute("vehicle", vehicleService.getAdminVehicleById(id));
-        return "admin/vehicles/detail";
     }
 
     // Show edit form pre-filled with vehicle data.

@@ -17,7 +17,6 @@ import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -156,5 +155,13 @@ public class UserService {
     public User findByEmail(String usernameOrEmail) {
         return userRepository.findByEmail(usernameOrEmail)
                 .orElseThrow(() -> new UserNotFoundException(usernameOrEmail));
+    }
+
+    public long getUserCount() {
+        return userRepository.count();
+    }
+
+    public long getUserCountByRole(Role role) {
+        return userRepository.countByRole(role);
     }
 }
