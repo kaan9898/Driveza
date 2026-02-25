@@ -19,5 +19,4 @@ public class UserDetailDto {
     private String email;
     private Role role;
     private LocalDate dob;
-    private ZonedDateTime createdAt;
 }

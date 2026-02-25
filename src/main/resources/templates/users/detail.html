@@ -15,12 +15,6 @@
     <p><strong>Username:</strong> <span th:text="${user.username}"></span></p>
     <p><strong>Email:</strong> <span th:text="${user.email}"></span></p>
     <p><strong>Role:</strong> <span th:text="${user.role}"></span></p>
-    <p><strong>Status:</strong>
-        <span th:text="${user.active ? 'ACTIVE' : 'BLOCKED'}"></span>
-    </p>
-    <p><strong>Created At:</strong>
-        <span th:text="${#temporals.format(user.createdAt, 'yyyy-MM-dd HH:mm')}"></span>
-    </p>
 
 </div>
 

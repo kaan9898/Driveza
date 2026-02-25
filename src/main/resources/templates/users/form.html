@@ -5,42 +5,63 @@
     <title>User Form</title>
     <link rel="stylesheet" th:href="@{/css/driveza-app.css}">
 </head>
-<body>
 
-<div class="container">
+<body class="adminBg">
+<div class="adminOverlay"></div>
 
-    <h1>User Form</h1>
+<div class="adminContent">
+    <div th:replace="admin/header :: adminHeader('/users')"></div>
+    <main class="container">
+        <section class="pageHead card pad">
+            <div>
+                <h1 class="pageTitle">Edit user</h1>
+                <p class="pageSub">Editing a user account</p>
+            </div>
+        </section>
 
-    <form th:action="@{${formAction}}"
-          th:object="${user}"
-          method="post">
+        <section class="card pad">
+            <form th:action="@{${formAction}}"
+                  th:object="${user}"
+                  method="post">
 
-        <input type="hidden" th:field="*{id}" />
+                <input type="hidden" th:field="*{id}"/>
 
-        <label>Username</label>
-        <input type="text" th:field="*{name}" required />
 
-        <label>Email</label>
-        <input type="email" th:field="*{email}" required />
+                <div class="field">
+                    <label class="label" for="name" >Full name</label>
+                    <input class="input" id="name" type="text" th:field="*{name}" required/>
+                </div>
 
-        <label>Role</label>
-        <select th:field="*{role}">
-            <option th:each="r : ${T(com.team3.driveza.model.Role).values()}"
-                    th:value="${r}"
-                    th:text="${r}">
-            </option>
-        </select>
+                <div class="field">
+                    <label class="label" for="email">Email</label>
+                    <input class="input" id="email" type="email" th:field="*{email}" required/>
+                </div>
 
-        <label>Date of birth</label>
-        <input type="date" th:field="*{dob}" />
+                <div class="field">
+                    <label class="label" for="role">Role</label>
+                    <select id="role" class="select" th:field="*{role}">
+                        <option th:each="r : ${T(com.team3.driveza.model.enums.Role).values()}"
+                                th:value="${r}"
+                                th:text="${r}">
+                        </option>
+                    </select>
+                </div>
 
-        <label>Password</label>
-        <input type="password" th:field="*{password}" placeholder="Leave empty to keep current" />
+                <div class="field">
+                    <label class="label" for="date">Date of birth</label>
+                    <input class="input" id="date" type="date" th:field="*{dob}"/>
+                </div>
 
-        <button type="submit">Save User</button>
+                <div class="field">
+                    <label class="label" for="password">Password</label>
+                    <input class="input" id="password" type="password" th:field="*{password}" placeholder="Leave empty to keep current"/>
+                </div>
 
-    </form>
+                <button class="btn" type="submit">Save User</button>
 
+            </form>
+        </section>
+    </main>
 </div>
 
 </body>
