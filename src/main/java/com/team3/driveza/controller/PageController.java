@@ -23,6 +23,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import java.security.Principal;
 import java.util.List;
+import java.util.Map;
 
 @Controller
 @RequiredArgsConstructor
@@ -48,6 +49,7 @@ public class PageController {
 
     @GetMapping("/cars")
     public String cars(
+            @RequestParam Map<String, String> params,
             @RequestParam(required = false) Integer page,
             @RequestParam(required = false) String q,
             @RequestParam(required = false) String sort,
@@ -67,8 +69,8 @@ public class PageController {
 
         model.addAttribute("currentPage", cars.getNumber());
         model.addAttribute("totalPages", Math.max(1, cars.getTotalPages()));
-        model.addAttribute("prevHref", cars.hasPrevious() ? buildCarsHref(cars.getNumber() - 1, q, sort, radius, lat, lon) : null);
-        model.addAttribute("nextHref", cars.hasNext() ? buildCarsHref(cars.getNumber() + 1, q, sort, radius, lat, lon) : null);
+        model.addAttribute("prevHref", cars.hasPrevious() ? buildCarsHref(cars.getNumber() - 1, params) : null);
+        model.addAttribute("nextHref", cars.hasNext() ? buildCarsHref(cars.getNumber() + 1, params) : null);
 
         User user = userService.findByEmail(principal.getName());
         model.addAttribute("userId", user.getId());
@@ -82,15 +84,11 @@ public class PageController {
         return "cars";
     }
 
-    private String buildCarsHref(int page, String q, String sort, Double radius, Double lat, Double lon) {
-        UriComponentsBuilder b = UriComponentsBuilder.fromPath("/cars")
-                .queryParam("page", page);
-
-        if (q != null && !q.isBlank()) b.queryParam("q", q);
-        if (sort != null && !sort.isBlank()) b.queryParam("sort", sort);
-        if (radius != null) b.queryParam("radius", radius);
-        if (lat != null) b.queryParam("lat", lat);
-        if (lon != null) b.queryParam("lon", lon);
+    private String buildCarsHref(int page, Map<String, String> params) {
+        UriComponentsBuilder b = UriComponentsBuilder.fromPath("/cars");
+        params.put("page", String.valueOf(page));
+        params.forEach(b::queryParam);
+        // apply after iteration to replace
 
         return b.build().toUriString();
     }
