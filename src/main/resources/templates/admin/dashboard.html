@@ -4,99 +4,277 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1"/>
     <title>Driveza | Admin Dashboard</title>
-    <link rel="stylesheet" th:href="@{/css/driveza-app.css}">
+    <link rel="stylesheet" th:href="@{/css/driveza-app.css}"/>
+
+    <!-- Page-only upgrade (does NOT modify global CSS) -->
+    <style>
+        .adminShell{
+            max-width: 1120px;
+            margin: 0 auto;
+        }
+
+        /* Hero */
+        .adminHero{
+            position: relative;
+            overflow: hidden;
+            border-radius: 18px;
+            padding: 22px 24px;
+            margin: 14px 0 14px;
+            background: #0b1220;
+        }
+        .adminHero::before{
+            content:"";
+            position:absolute; inset:0;
+            background-image: url("/images/user-bg.jpg"); /* change to /images/admin-bg.jpg if you have */
+            background-size: cover;
+            background-position: center;
+            opacity: .16;
+            pointer-events:none;
+        }
+        .adminHero::after{
+            content:"";
+            position:absolute; inset:0;
+            background:
+                    radial-gradient(900px 360px at 20% 0%, rgba(255,255,255,.10), transparent 60%),
+                    linear-gradient(180deg, rgba(0,0,0,.20), rgba(0,0,0,.58));
+            pointer-events:none;
+        }
+        .adminHero__content{
+            position: relative;
+            display:flex;
+            align-items:flex-end;
+            justify-content: space-between;
+            gap: 14px;
+            flex-wrap: wrap;
+        }
+        .adminHero__title{
+            margin:0;
+            font-size: 30px;
+            font-weight: 900;
+            letter-spacing: -0.5px;
+            color:#fff;
+        }
+        .adminHero__sub{
+            margin:6px 0 0;
+            color: rgba(255,255,255,.78);
+            font-size: 14px;
+        }
+
+        /* Quick actions */
+        .quickActions{
+            display:flex;
+            gap:10px;
+            flex-wrap: wrap;
+        }
+        .quickActions .btn{
+            white-space: nowrap;
+        }
+
+        /* Cards grid */
+        .kpiGrid{
+            display:grid;
+            grid-template-columns: repeat(12, 1fr);
+            gap: 12px;
+            margin-top: 14px;
+        }
+        .kpiCard{
+            grid-column: span 3;
+            border-radius: 16px;
+        }
+        @media (max-width: 980px){
+            .kpiCard{ grid-column: span 6; }
+        }
+        @media (max-width: 560px){
+            .kpiCard{ grid-column: span 12; }
+        }
+
+        .kpiTop{
+            display:flex;
+            align-items:center;
+            justify-content: space-between;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+        .kpiLabel{
+            font-weight: 800;
+            letter-spacing: .2px;
+        }
+        .kpiIcon{
+            width: 34px;
+            height: 34px;
+            border-radius: 12px;
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            font-size: 16px;
+            background: rgba(255,255,255,.08);
+        }
+
+        .kpiValue{
+            display:flex;
+            align-items: baseline;
+            gap: 8px;
+            margin: 6px 0 6px;
+        }
+        .kpiValue .big{
+            font-size: 30px;
+            font-weight: 900;
+            letter-spacing: -0.5px;
+        }
+        .kpiValue .slash{
+            opacity: .65;
+            font-weight: 800;
+        }
+        .kpiHint{
+            opacity: .75;
+            font-size: 13px;
+        }
+
+        /* Optional “insight” strip */
+        .insightStrip{
+            display:flex;
+            gap: 10px;
+            align-items:center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            margin-top: 12px;
+        }
+        .pill{
+            display:inline-flex;
+            align-items:center;
+            gap: 8px;
+            padding: 8px 12px;
+            border-radius: 999px;
+            font-size: 12px;
+            font-weight: 800;
+            background: rgba(255,255,255,.08);
+        }
+
+        /* Animation */
+        .fadeUp{ animation: fadeUp .55s ease-out both; }
+        @keyframes fadeUp{
+            from{ opacity:0; transform: translateY(10px); }
+            to{ opacity:1; transform: translateY(0); }
+        }
+    </style>
 </head>
 
 <body class="adminBg">
 
-<!-- Background Overlay -->
 <div class="adminOverlay"></div>
 
-<!-- Main Content Wrapper -->
 <div class="adminContent">
-
+    <!-- Admin Header -->
     <div th:replace="admin/header :: adminHeader('/admin/dashboard')"></div>
 
-    <main class="container">
+    <main class="container adminShell">
 
-        <!-- Page Header -->
-        <section class="pageHead pageHead--enter card pad">
-            <div>
-                <h1 class="pageTitle">Admin Dashboard</h1>
-                <p class="pageSub">Live statistics from PostgreSQL database</p>
+        <!-- HERO -->
+        <section class="adminHero fadeUp">
+            <div class="adminHero__content">
+                <div>
+                    <h1 class="adminHero__title">Admin Dashboard</h1>
+                    <p class="adminHero__sub">Live statistics from PostgreSQL database</p>
+                </div>
+
+<!--                <div class="quickActions">-->
+<!--                    <a class="btn btn&#45;&#45;ghost" th:href="@{/admin/vehicles}">Manage Vehicles</a>-->
+<!--                    <a class="btn btn&#45;&#45;ghost" th:href="@{/users}">Manage Users</a>-->
+<!--                </div>-->
             </div>
         </section>
 
-        <!-- Dashboard Stats Grid -->
-        <section class="grid adminStatsGrid">
+        <!-- KPI GRID -->
+        <section class="kpiGrid fadeUp">
 
-            <!-- Available / Total Vehicles -->
-            <div class="card pad statCard">
-                <div class="muted">Available Vehicles</div>
-
-                <div class="statNumber">
-                    <span class="count"
-                          th:attr="data-value=${availableVehicles}">0</span>
-                    <span class="muted">/</span>
-                    <span class="count"
-                          th:attr="data-value=${totalVehicles}">0</span>
+            <!-- Available Vehicles -->
+            <div class="card pad kpiCard">
+                <div class="kpiTop">
+                    <div class="kpiLabel">Available Vehicles</div>
+                    <div class="kpiIcon">✅</div>
                 </div>
 
-                <div class="statHint">Available out of total fleet</div>
-            </div>
-
-            <!-- Rented / Total Vehicles -->
-            <div class="card pad statCard">
-                <div class="muted">Rented Vehicles</div>
-
-                <div class="statNumber">
-                    <span class="count"
-                          th:attr="data-value=${rentedVehicles}">0</span>
-                    <span class="muted">/</span>
-                    <span class="count"
-                          th:attr="data-value=${totalVehicles}">0</span>
+                <div class="kpiValue">
+                    <span class="count big" th:attr="data-value=${availableVehicles}">0</span>
+                    <span class="slash">/</span>
+                    <span class="count" th:attr="data-value=${totalVehicles}">0</span>
                 </div>
 
-                <div class="statHint">Rented out of total fleet</div>
+                <div class="kpiHint">Available out of total fleet</div>
             </div>
 
-            <!-- Normal Users / Total Users -->
-            <div class="card pad statCard">
-                <div class="muted">Normal Users</div>
-
-                <div class="statNumber">
-                    <span class="count"
-                          th:attr="data-value=${normalUsers}">0</span>
-                    <span class="muted">/</span>
-                    <span class="count"
-                          th:attr="data-value=${totalUsers}">0</span>
+            <!-- Rented Vehicles -->
+            <div class="card pad kpiCard">
+                <div class="kpiTop">
+                    <div class="kpiLabel">Rented Vehicles</div>
+                    <div class="kpiIcon">🔑</div>
                 </div>
 
-                <div class="statHint">Customers out of total users</div>
-            </div>
-
-            <!-- Admin Users / Total Users -->
-            <div class="card pad statCard">
-                <div class="muted">Admins</div>
-
-                <div class="statNumber">
-                    <span class="count"
-                          th:attr="data-value=${adminUsers}">0</span>
-                    <span class="muted">/</span>
-                    <span class="count"
-                          th:attr="data-value=${totalUsers}">0</span>
+                <div class="kpiValue">
+                    <span class="count big" th:attr="data-value=${rentedVehicles}">0</span>
+                    <span class="slash">/</span>
+                    <span class="count" th:attr="data-value=${totalVehicles}">0</span>
                 </div>
 
-                <div class="statHint">Admins out of total users</div>
+                <div class="kpiHint">Rented out of total fleet</div>
             </div>
 
+            <!-- Normal Users -->
+            <div class="card pad kpiCard">
+                <div class="kpiTop">
+                    <div class="kpiLabel">Users</div>
+                    <div class="kpiIcon">👤</div>
+                </div>
+
+                <div class="kpiValue">
+                    <span class="count big" th:attr="data-value=${normalUsers}">0</span>
+                    <span class="slash">/</span>
+                    <span class="count" th:attr="data-value=${totalUsers}">0</span>
+                </div>
+
+                <div class="kpiHint">Customers out of total users</div>
+            </div>
+
+            <!-- Admin Users -->
+            <div class="card pad kpiCard">
+                <div class="kpiTop">
+                    <div class="kpiLabel">Admins</div>
+                    <div class="kpiIcon">🛡️</div>
+                </div>
+
+                <div class="kpiValue">
+                    <span class="count big" th:attr="data-value=${adminUsers}">0</span>
+                    <span class="slash">/</span>
+                    <span class="count" th:attr="data-value=${totalUsers}">0</span>
+                </div>
+
+                <div class="kpiHint">Admins out of total users</div>
+            </div>
+
+        </section>
+
+        <!-- Insight strip (optional, safe even if values are null) -->
+        <section class="insightStrip fadeUp">
+            <span class="pill">
+                Fleet: <b><span class="count" th:attr="data-value=${totalVehicles}">0</span></b> vehicles
+            </span>
+
+            <span class="pill">
+                Users: <b><span class="count" th:attr="data-value=${totalUsers}">0</span></b> total
+            </span>
+
+            <span class="pill">
+                Utilization:
+                <b>
+                    <span th:text="${totalVehicles != null and totalVehicles > 0 ? ( (rentedVehicles * 100) / totalVehicles ) : 0}">0</span>%
+                </b>
+            </span>
         </section>
 
     </main>
-
 </div>
 
-<!-- Count-Up Animation Script -->
+<!-- Count-Up Animation Script (kept) -->
 <script>
     document.addEventListener("DOMContentLoaded", () => {
         const nums = document.querySelectorAll(".count");
