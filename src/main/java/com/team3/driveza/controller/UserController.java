@@ -28,9 +28,13 @@ public class UserController {
             page = 0;
         }
         var users = userService.getAllUsers(PageRequest.of(page, 20));
+        if (page != 0 && users.isEmpty()) {
+            return "redirect:/users";
+        }
         model.addAttribute("users", users);
-        model.addAttribute("nextPageNumber", users.hasNext() ? users.getNumber() + 1 : -1);
-        model.addAttribute("prevPageNumber", users.hasPrevious() ? users.getNumber() - 1 : -1);
+        model.addAttribute("userCount", userService.getUserCount());
+        model.addAttribute("totalPages", users.getTotalPages());
+        model.addAttribute("currentPage", users.getNumber());
         return "users/list";
     }
 
