@@ -47,4 +47,9 @@ public class TicketController {
     public TicketResponseDto close(@PathVariable String token) {
         return ticketService.closeTicket(token);
     }
+
+    @GetMapping("/admin")
+    public List<TicketResponseDto> getAllTicketsForAdmin(){
+        return ticketService.getAllTickets();
+    }
 }

@@ -1,0 +1,189 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>Driveza Admin | Support</title>
+  <link rel="stylesheet" th:href="@{/css/driveza-app.css}">
+
+  <!-- CSRF -->
+  <meta name="_csrf" th:content="${_csrf.token}"/>
+  <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
+</head>
+
+<body class="adminBg">
+
+<div class="adminOverlay"></div>
+<div class="adminContent">
+
+  <!-- Admin Header -->
+  <div th:replace="admin/header :: adminHeader('/admin/support')"></div>
+
+  <main class="container">
+
+    <!-- Page Header -->
+    <section class="pageHead card pad">
+      <div>
+        <h1 class="pageTitle">Support Tickets</h1>
+        <p class="pageSub">Manage and respond to user tickets</p>
+      </div>
+    </section>
+
+    <!-- Ticket List -->
+    <section class="card pad">
+      <h3>All Tickets</h3>
+
+      <div id="ticketList" style="margin-top:20px;">
+        Loading...
+      </div>
+    </section>
+
+  </main>
+
+</div>
+
+<script>
+
+  window.addEventListener("DOMContentLoaded", loadAllTickets);
+
+  async function loadAllTickets() {
+
+    const container = document.getElementById("ticketList");
+    container.innerHTML = "Loading...";
+
+    try {
+      const response = await fetch("/ticket/admin");
+
+      if (!response.ok) {
+        container.innerHTML = "Failed to load tickets.";
+        return;
+      }
+
+      const tickets = await response.json();
+
+      if (tickets.length === 0) {
+        container.innerHTML = "<div class='muted'>No tickets found.</div>";
+        return;
+      }
+
+      container.innerHTML = tickets.map(t => `
+            <div class="card pad" style="margin-top:15px;">
+
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <div>
+                        <b>${t.title}</b>
+                        <div class="mutedSmall">Created: ${formatDate(t.createdAt)}</div>
+                    </div>
+
+                    <span class="badge ${t.status === 'OPEN' ? 'badge--ok' : 'badge--danger'}">
+                        ${t.status}
+                    </span>
+                </div>
+
+                <div style="margin-top:10px;">
+                    <b>User Message:</b>
+                    <div class="muted">${t.description}</div>
+                </div>
+
+                ${t.adminResponse ? `
+                    <div style="margin-top:10px;">
+                        <b>Admin Response:</b>
+                        <div>${t.adminResponse}</div>
+                    </div>
+                ` : `
+                    <div style="margin-top:10px;">
+                        <textarea class="input" id="response-${t.token}"
+                                  placeholder="Write admin response..."></textarea>
+                        <div style="margin-top:10px; display:flex; gap:10px;">
+                            <button class="btn"
+                                onclick="sendResponse('${t.token}')">
+                                Send Response
+                            </button>
+
+                            <button class="btn btn--danger"
+                                onclick="closeTicket('${t.token}')">
+                                Close Ticket
+                            </button>
+                        </div>
+                    </div>
+                `}
+
+                <div class="mutedSmall" style="margin-top:10px;">
+                    Token: ${t.token}
+                </div>
+
+                ${t.closedAt ? `
+                    <div class="mutedSmall">
+                        Closed at: ${formatDate(t.closedAt)}
+                    </div>
+                ` : ""}
+
+            </div>
+        `).join("");
+
+    } catch (error) {
+      container.innerHTML = "Error: " + error;
+    }
+  }
+
+
+  async function sendResponse(token) {
+
+    const textarea = document.getElementById("response-" + token);
+    const responseText = textarea.value;
+
+    if (!responseText) {
+      alert("Please write a response first.");
+      return;
+    }
+
+    const csrfToken = document.querySelector("meta[name='_csrf']").getAttribute("content");
+    const csrfHeader = document.querySelector("meta[name='_csrf_header']").getAttribute("content");
+
+    const response = await fetch("/ticket/admin/" + token + "/response", {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        [csrfHeader]: csrfToken
+      },
+      body: JSON.stringify({
+        adminResponse: responseText
+      })
+    });
+
+    if (response.ok) {
+      loadAllTickets();
+    } else {
+      alert("Failed to send response.");
+    }
+  }
+
+
+  async function closeTicket(token) {
+
+    const csrfToken = document.querySelector("meta[name='_csrf']").getAttribute("content");
+    const csrfHeader = document.querySelector("meta[name='_csrf_header']").getAttribute("content");
+
+    const response = await fetch("/ticket/admin/" + token + "/close", {
+      method: "PUT",
+      headers: {
+        [csrfHeader]: csrfToken
+      }
+    });
+
+    if (response.ok) {
+      loadAllTickets();
+    } else {
+      alert("Failed to close ticket.");
+    }
+  }
+
+
+  function formatDate(dateString) {
+    if (!dateString) return "";
+    return new Date(dateString).toLocaleString();
+  }
+
+</script>
+
+</body>
+</html>

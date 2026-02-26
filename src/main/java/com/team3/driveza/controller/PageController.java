@@ -171,4 +171,15 @@ public class PageController {
         return "redirect:/account?updated";
     }
 
+
+    @GetMapping("/support")
+    public String supportPage(){
+        return "support";
+    }
+
+    @GetMapping("/admin/support")
+    public String adminSupportPage() {
+        return "admin/support";
+    }
+
 }
