@@ -138,9 +138,6 @@
                     <h1 class="adminHero__title">User Management</h1>
                     <p class="adminHero__sub">View, edit, and manage registered users.</p>
                 </div>
-                <div class="pill">
-<!--                    <span>👥</span>-->
-<!--                    <span th:text="'Total: ' + ${userCount}">Total: 0</span>-->
                 <div>
                     <span class="badge badge--ok"
                           th:text="'Total: ' + ${userCount}">
@@ -151,163 +148,74 @@
         </section>
 
         <!-- TABLE -->
-        <section class="card pad fadeUp">
-            <div class="tableWrap">
-                <table class="table tableModern">
+        <div data-pjax-container>
+            <section class="card pad fadeUp">
+                <div class="tableWrap">
+                    <table class="table tableModern">
 
-                    <thead>
-                    <tr>
-                        <th style="width:70px;">ID</th>
-                        <th>User</th>
-                        <th>Email</th>
-                        <th style="width:120px;">Role</th>
-                        <th style="width:140px;">DOB</th>
-                        <th style="width:220px;">Actions</th>
-                    </tr>
-                    </thead>
+                        <thead>
+                        <tr>
+                            <th style="width:70px;">ID</th>
+                            <th>User</th>
+                            <th>Email</th>
+                            <th style="width:120px;">Role</th>
+                            <th style="width:140px;">DOB</th>
+                            <th style="width:220px;">Actions</th>
+                        </tr>
+                        </thead>
 
-                    <tbody>
-                    <tr th:if="${#lists.isEmpty(users)}">
-                        <td colspan="6" style="text-align:center; padding:20px;">
-                            No users found.
-                        </td>
-                    </tr>
+                        <tbody>
+                        <tr th:if="${#lists.isEmpty(users)}">
+                            <td colspan="6" style="text-align:center; padding:20px;">
+                                No users found.
+                            </td>
+                        </tr>
 
-                    <tr th:each="u : ${users}">
-                        <td th:text="${u.id}">1</td>
+                        <tr th:each="u : ${users}">
+                            <td th:text="${u.id}">1</td>
 
-                        <td>
-                            <div style="font-weight:700;" th:text="${u.name}">Name</div>
-                        </td>
+                            <td>
+                                <div style="font-weight:700;" th:text="${u.name}">Name</div>
+                            </td>
 
-                        <td th:text="${u.email}">email</td>
+                            <td th:text="${u.email}">email</td>
 
-                        <td>
+                            <td>
                             <span class="roleBadge"
                                   th:classappend="${u.role.name() == 'ADMIN'} ? ' roleAdmin' : ' roleUser'"
                                   th:text="${u.role}">USER</span>
-                        </td>
+                            </td>
 
-                        <td th:text="${u.dob != null ? #temporals.format(u.dob, 'yyyy-MM-dd') : '—'}">—</td>
+                            <td th:text="${u.dob != null ? #temporals.format(u.dob, 'yyyy-MM-dd') : '—'}">—</td>
 
-                        <td>
-                            <div class="actionGroup">
-                                <a class="btn btn--small"
-                                   th:href="@{'/users/' + ${u.id} + '/edit'}">Edit</a>
+                            <td>
+                                <div class="actionGroup">
+                                    <a class="btn btn--small"
+                                       th:href="@{'/users/' + ${u.id} + '/edit'}">Edit</a>
 
-                                <form th:action="@{'/users/' + ${u.id} + '/delete'}"
-                                      method="post" style="display:inline;">
-                                    <input type="hidden"
-                                           th:name="${_csrf.parameterName}"
-                                           th:value="${_csrf.token}"/>
-                                    <button class="btn btn--ghost btn--small"
-                                            type="submit"
-                                            onclick="return confirm('Delete this user?');">
-                                        Delete
-                                    </button>
-                                </form>
-                            </div>
-                        </td>
-                    </tr>
+                                    <form th:action="@{'/users/' + ${u.id} + '/delete'}"
+                                          method="post" style="display:inline;">
+                                        <input type="hidden"
+                                               th:name="${_csrf.parameterName}"
+                                               th:value="${_csrf.token}"/>
+                                        <button class="btn btn--ghost btn--small"
+                                                type="submit"
+                                                onclick="return confirm('Delete this user?');">
+                                            Delete
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
 
-                    </tbody>
-                </table>
-            </div>
-        </section>
-
-        <!-- Pagination -->
-        <section class="pageHead" th:if="${totalPages > 1}" style="margin-top:16px;">
-            <a class="btn btn--ghost"
-        <!-- TABLE CARD -->
-        <section class="card pad">
-            <table class="table tableModern">
-
-                <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>User</th>
-                    <th>Email</th>
-                    <th>Role</th>
-                    <th>DOB</th>
-                    <th>Actions</th>
-                </tr>
-                </thead>
-
-                <tbody>
-                <!-- Empty state -->
-                <tr th:if="${#lists.isEmpty(users)}">
-                    <td colspan="6" style="text-align:center; padding:20px;">
-                        No users found.
-                    </td>
-                </tr>
-
-                <!-- Users -->
-                <tr th:each="u : ${users}">
-                    <td th:text="${u.id}"></td>
-
-                    <td>
-                        <div style="font-weight:600;" th:text="${u.name}"></div>
-                    </td>
-
-                    <td th:text="${u.email}"></td>
-
-                    <td>
-                        <span class="roleBadge"
-                              th:classappend="${u.role.name() == 'ADMIN'} ? ' roleAdmin' : ' roleUser'"
-                              th:text="${u.role}">
-                            USER
-                        </span>
-                    </td>
-
-                    <td th:text="${u.dob != null ? #temporals.format(u.dob, 'yyyy-MM-dd') : '—'}"></td>
-
-                    <td>
-                        <div class="actionGroup">
-
-                            <a class="btn btn--small"
-                               th:href="@{'/users/' + ${u.id} + '/edit'}">
-                                Edit
-                            </a>
-
-                            <form th:action="@{'/users/' + ${u.id} + '/delete'}"
-                                  method="post"
-                                  style="display:inline;">
-                                <input type="hidden"
-                                       th:name="${_csrf.parameterName}"
-                                       th:value="${_csrf.token}"/>
-                                <button class="btn btn--ghost btn--small"
-                                        type="submit"
-                                        onclick="return confirm('Delete this user?');">
-                                    Delete
-                                </button>
-                            </form>
-
-                        </div>
-                </tbody>
-            </table>
-        </section>
-
-        <!-- PAGINATION -->
-        <div class="pageHead" th:if="${totalPages > 1}" style="margin-top:16px;">
-
-            <a class="btn"
-               th:if="${currentPage > 0}"
-               th:href="@{'/users?page=' + ${currentPage - 1} + '&q=' + ${param.q}}">
-                Previous
-            </a>
-
-            <span class="muted">
-                Page <b th:text="${currentPage + 1}">1</b>
-                of <b th:text="${totalPages}">1</b>
-            </span>
-
-            <a class="btn btn--ghost"
-               th:if="${currentPage < totalPages - 1}"
-               th:href="@{'/users?page=' + ${currentPage + 1} + '&q=' + ${param.q}}">
-                Next
-            </a>
-        </section>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+            <!-- Pagination -->
+            <div th:replace="~{fragments/pagination :: pager(${prevHref}, ${nextHref}, ${currentPage}, ${totalPages}, true)} "></div>
         </div>
+        <script th:src="@{/js/pjax-pagination.js}"></script>
     </main>
 </div>
 
