@@ -160,6 +160,7 @@
                             <th>Email</th>
                             <th style="width:120px;">Role</th>
                             <th style="width:140px;">DOB</th>
+                            <th>Disabled</th>
                             <th style="width:220px;">Actions</th>
                         </tr>
                         </thead>
@@ -188,20 +189,34 @@
 
                             <td th:text="${u.dob != null ? #temporals.format(u.dob, 'yyyy-MM-dd') : '—'}">—</td>
 
+                            <td th:text="${u.disabled}">Disabled</td>
+
                             <td>
                                 <div class="actionGroup">
                                     <a class="btn btn--small"
                                        th:href="@{'/users/' + ${u.id} + '/edit'}">Edit</a>
 
-                                    <form th:action="@{'/users/' + ${u.id} + '/delete'}"
+                                    <form th:if="${!u.disabled}" th:action="@{'/users/' + ${u.id} + '/disable'}"
+                                      method="post" style="display:inline;">
+                                    <input type="hidden"
+                                           th:name="${_csrf.parameterName}"
+                                           th:value="${_csrf.token}"/>
+                                    <button class="btn btn--ghost btn--small"
+                                            type="submit"
+                                            onclick="return confirm('Disable this user account?');">
+                                       Disable
+                                    </button>
+                                </form>
+
+                                <form th:if="${u.disabled}" th:action="@{'/users/' + ${u.id} + '/enable'}"
                                           method="post" style="display:inline;">
                                         <input type="hidden"
                                                th:name="${_csrf.parameterName}"
                                                th:value="${_csrf.token}"/>
                                         <button class="btn btn--ghost btn--small"
                                                 type="submit"
-                                                onclick="return confirm('Delete this user?');">
-                                            Delete
+                                                onclick="return confirm('Enable this user account?');">
+                                            Enable
                                         </button>
                                     </form>
                                 </div>

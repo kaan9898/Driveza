@@ -6,7 +6,6 @@ import com.team3.driveza.Dto.Ticket.TicketResponseDto;
 import com.team3.driveza.config.TicketTokenGenerator;
 import com.team3.driveza.exception.TicketNotFoundException;
 import com.team3.driveza.model.Ticket;
-import com.team3.driveza.model.User;
 import com.team3.driveza.model.enums.TicketStatus;
 import com.team3.driveza.repository.TicketRepository;
 import org.springframework.stereotype.Service;
@@ -37,7 +36,7 @@ public class TicketService {
     @Transactional
     public TicketResponseDto createTicket(String principalName, CreateTicketRequestDto dto) {
 
-        User user = userService.findByEmail(principalName);
+        var user = userService.getUserEntityByEmail(principalName);
 
         Ticket ticket = Ticket.builder()
                 .ticketToken(createUniqueToken())
@@ -54,7 +53,7 @@ public class TicketService {
     @Transactional(readOnly = true)
     public List<TicketResponseDto> getMyTickets(String principalName) {
 
-        User user = userService.findByEmail(principalName);
+        var user = userService.getUserEntityByEmail(principalName);
 
         return ticketRepository.findAllByUser(user)
                 .stream()
@@ -65,7 +64,7 @@ public class TicketService {
     @Transactional(readOnly = true)
     public TicketResponseDto getMyTicketByToken(String principalName, String token) {
 
-        User user = userService.findByEmail(principalName);
+        var user = userService.getUserEntityByEmail(principalName);
 
         Ticket ticket = ticketRepository.findByTicketTokenAndUser(token, user)
                 .orElseThrow(() -> new TicketNotFoundException(token));

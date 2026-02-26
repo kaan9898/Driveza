@@ -61,6 +61,7 @@ public class StartupDataSeeder implements ApplicationRunner {
         User user = userRepository.findByEmail(email).orElseGet(User::new);
         user.setEmail(email);
         user.setRole(role);
+        user.setDisabled(false);
 
         if (user.getName() == null || user.getName().isBlank()) {
             user.setName(randomUsername(role));

@@ -18,4 +18,5 @@ public class UserListDto {
     private String email;
     private Role role;
     private LocalDate dob;
+    private Boolean disabled;
 }

@@ -5,7 +5,6 @@ import com.team3.driveza.Dto.User.UserFormDto;
 import com.team3.driveza.Dto.User.UserListDto;
 import com.team3.driveza.exception.ConflictException;
 import com.team3.driveza.exception.ResourceNotFoundException;
-import com.team3.driveza.exception.UserNotFoundException;
 import com.team3.driveza.model.User;
 import com.team3.driveza.model.enums.Role;
 import com.team3.driveza.repository.UserRepository;
@@ -18,13 +17,13 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 
 
 @Service
 @RequiredArgsConstructor
 public class UserService {
-
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
@@ -36,12 +35,22 @@ public class UserService {
         return toDetailDto(findOrThrow(id));
     }
 
-    public User getUserByEmail(String email) {
+    public User getUserEntityByEmail(String email) throws ResourceNotFoundException {
         return userRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("User not found with email: " + email));
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with email: " + email));
     }
+
+    public UserDetailDto getUserByEmail(String email) throws ResourceNotFoundException {
+        return toDetailDto(getUserEntityByEmail(email));
+    }
+
+    public User getAvailableUserEntityByEmail(String email) throws ResourceNotFoundException {
+        return userRepository.findByEmailAndDisabledFalse(email)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with email: " + email));
+    }
+
     @Transactional
-    public User createUser(UserFormDto form) {
+    public User createUser(UserFormDto form) throws ConflictException {
         if (userRepository.existsByEmail(form.getEmail())) {
             throw new ConflictException("Email already in use.");
         }
@@ -50,7 +59,7 @@ public class UserService {
     }
 
     @Transactional
-    public void updateUser(Long id, UserFormDto form) {
+    public void updateUser(Long id, UserFormDto form) throws ConflictException {
         User user = findOrThrow(id);
         if (!user.getEmail().equals(form.getEmail()) && userRepository.existsByEmail(form.getEmail())) {
             throw new ConflictException("Email already in use.");
@@ -60,8 +69,17 @@ public class UserService {
     }
 
     @Transactional
-    public void deleteUser(Long id) {
-        userRepository.delete(findOrThrow(id));
+    public void disableUser(Long id) {
+        var user = findOrThrow(id);
+        user.setDisabled(true);
+        userRepository.save(user);
+    }
+
+    @Transactional
+    public void enableUser(Long id) {
+        var user = findOrThrow(id);
+        user.setDisabled(true);
+        userRepository.save(user);
     }
 
     private User mapFormToEntity(UserFormDto form, User user, boolean requirePassword) {
@@ -70,17 +88,20 @@ public class UserService {
         user.setRole(form.getRole() != null ? form.getRole() : Role.USER);
 
         if (form.getDob() != null) {
-            user.setDob(form.getDob().atStartOfDay(ZoneId.systemDefault()));
+            user.setDob(form.getDob().atStartOfDay(ZoneOffset.UTC));
         }
 
-        if (form.getPassword() != null && !form.getPassword().isEmpty()) {
-            user.setPassword(passwordEncoder.encode(form.getPassword()));
-        } else if (requirePassword) {
-            throw new IllegalArgumentException("Password is required.");
+        if (requirePassword) {
+            if (form.getPassword() != null && !form.getPassword().isEmpty()) {
+                user.setPassword(passwordEncoder.encode(form.getPassword()));
+            } else {
+                throw new IllegalArgumentException("Password is required.");
+            }
         }
 
         return user;
     }
+
     public User findOrThrow(Long id) {
         return userRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found. id=" + id));
@@ -93,6 +114,7 @@ public class UserService {
                 .email(user.getEmail())
                 .role(user.getRole())
                 .dob(toLocalDate(user.getDob()))
+                .disabled(user.getDisabled())
                 .build();
     }
 
@@ -103,6 +125,7 @@ public class UserService {
                 .email(user.getEmail())
                 .role(user.getRole())
                 .dob(toLocalDate(user.getDob()))
+                .disabled(user.getDisabled())
                 .build();
     }
 
@@ -111,20 +134,20 @@ public class UserService {
     }
 
     //password change method
-    public void changePassword(String email, String oldPassword, String newPassword, String confirmPassword){
+    public void changePassword(String email, String oldPassword, String newPassword, String confirmPassword) {
         User user = userRepository.findByEmail(email).orElseThrow(() -> new RuntimeException("user not found"));
 
 //        old password checking
-        if(!passwordEncoder.matches(oldPassword, user.getPassword())){
-            throw  new RuntimeException("Old password is wrong");
+        if (!passwordEncoder.matches(oldPassword, user.getPassword())) {
+            throw new RuntimeException("Old password is wrong");
         }
         //new password rules
-        if(newPassword == null  || newPassword.length()<6){
+        if (newPassword == null || newPassword.length() < 6) {
             throw new RuntimeException("Password must be 6+ characters");
         }
 
         //password confirm
-        if(!newPassword.equals(confirmPassword)){
+        if (!newPassword.equals(confirmPassword)) {
             throw new RuntimeException("Password not match");
         }
 
@@ -136,24 +159,20 @@ public class UserService {
     }
 
     @Transactional
-    public void updateProfile(String email, String name, String dob){
-        User user = userRepository.findByEmail(email).orElseThrow(() -> new RuntimeException("User not found"));
+    public void updateProfile(String email, String name, String dob) {
+        User user = userRepository.findByEmail(email).orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
         user.setName(name.trim());
 
-        if(dob != null && !dob.isBlank()){
+        if (dob != null && !dob.isBlank()) {
             LocalDate ld = LocalDate.parse(dob);
             ZonedDateTime zdt = ld.atStartOfDay(ZoneId.systemDefault());
 
             user.setDob(zdt);
-        }else{
+        } else {
             user.setDob(null);
         }
         userRepository.save(user);
-    }
-    public User findByEmail(String usernameOrEmail) {
-        return userRepository.findByEmail(usernameOrEmail)
-                .orElseThrow(() -> new UserNotFoundException(usernameOrEmail));
     }
 
     public long getUserCount() {

@@ -1,45 +1,33 @@
 package com.team3.driveza.controller;
 
 import com.team3.driveza.Dto.Rental.RentRequestDto;
-import com.team3.driveza.Dto.Rental.ReturnRequestDto;
 import com.team3.driveza.Dto.Rental.RentalResponseDto;
+import com.team3.driveza.Dto.Rental.ReturnRequestDto;
 import com.team3.driveza.model.Rental;
-import com.team3.driveza.model.User;
 import com.team3.driveza.service.RentalService;
 import com.team3.driveza.service.UserService;
+import jakarta.validation.Valid;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
 import java.util.List;
-
-import jakarta.validation.Valid;
 
 /**
  * Rental endpoints: server-rendered pages plus JSON API paths when needed.
  * Accessible to authenticated users.
  */
 @Controller
+@RequiredArgsConstructor
 public class RentalController {
-
     private final RentalService rentalService;
     private final UserService userService;
-
-    public RentalController(RentalService rentalService, UserService userService) {
-        this.rentalService = rentalService;
-        this.userService = userService;
-    }
 
     // Display the current user rentals on a Thymeleaf page.
     @GetMapping("/rentals")
@@ -97,12 +85,12 @@ public class RentalController {
     }
 
 
-//    car rent
+    //    car rent
     @PostMapping("/rentals/{vehicleId}/rent")
-    public String rentFromCard(@PathVariable Long vehicleId, Principal principal){
-        User user = userService.findByEmail(principal.getName());
+    public String rentFromCard(@PathVariable Long vehicleId, Principal principal) {
+        var user = userService.getUserByEmail(principal.getName());
 
-        if(rentalService.getActiveRentalForUser(user.getId()).isPresent()) {
+        if (rentalService.getActiveRentalForUser(user.getId()).isPresent()) {
             return "redirect:/cars?alreadyRented";
         }
         rentalService.rentVehicle(vehicleId, user.getId());
