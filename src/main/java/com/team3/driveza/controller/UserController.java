@@ -90,7 +90,7 @@ public class UserController {
     }
 
     // Delete action triggered by the detail/form views.
-    @PostMapping("/{id}/delete")
+    @PostMapping("/{id}/disable")
     public String disableUser(@PathVariable Long id) {
         userService.disableUser(id);
         return "redirect:/users";
