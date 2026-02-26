@@ -28,7 +28,7 @@ public class UserService {
     private final PasswordEncoder passwordEncoder;
 
     public Page<UserListDto> getAllUsers(Pageable pageable) {
-        return userRepository.findAll(pageable).map(this::toListDto);
+        return userRepository.findByDisabledFalse(pageable).map(this::toListDto);
     }
 
     public UserDetailDto getUserById(Long id) {
@@ -69,8 +69,17 @@ public class UserService {
     }
 
     @Transactional
-    public void deleteUser(Long id) {
-        userRepository.delete(findOrThrow(id));
+    public void disableUser(Long id) {
+        var user = findOrThrow(id);
+        user.setDisabled(true);
+        userRepository.save(user);
+    }
+
+    @Transactional
+    public void enableUser(Long id) {
+        var user = findOrThrow(id);
+        user.setDisabled(true);
+        userRepository.save(user);
     }
 
     private User mapFormToEntity(UserFormDto form, User user, boolean requirePassword) {
@@ -167,10 +176,10 @@ public class UserService {
     }
 
     public long getUserCount() {
-        return userRepository.count();
+        return userRepository.countByDisabledFalse();
     }
 
     public long getUserCountByRole(Role role) {
-        return userRepository.countByRole(role);
+        return userRepository.countByRoleAndDisabledFalse(role);
     }
 }
