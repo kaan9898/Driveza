@@ -1,8 +1,8 @@
 package com.team3.driveza.service;
 
+import com.team3.driveza.Dto.Rental.RentalResponseDto;
 import com.team3.driveza.exception.ConflictException;
 import com.team3.driveza.exception.ResourceNotFoundException;
-import com.team3.driveza.Dto.Rental.RentalResponseDto;
 import com.team3.driveza.model.Rental;
 import com.team3.driveza.model.User;
 import com.team3.driveza.model.Vehicle;
@@ -13,7 +13,6 @@ import org.springframework.stereotype.Service;
 
 import java.time.ZonedDateTime;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -24,7 +23,7 @@ public class RentalService {
     private final UserService userService;
 
     // TODO: Use DTOs
-    public Rental rentVehicle(long vehicleId, long userId) throws RuntimeException {
+    public RentalResponseDto rentVehicle(long vehicleId, long userId) throws RuntimeException {
         User user = userService.findOrThrow(userId);
         Rental rental = new Rental();
         Vehicle vehicle = vehicleService.rentById(vehicleId);
@@ -32,10 +31,10 @@ public class RentalService {
         rental.setUser(user);
         rental.setStartTime(ZonedDateTime.now());
         rental.setStatus(RentalStatus.ACTIVE);
-        return rentalRepository.save(rental);
+        return mapToDto(rentalRepository.save(rental));
     }
 
-    public Rental returnVehicle(long rentalId, double latitude, double longitude) throws ConflictException {
+    public RentalResponseDto returnVehicle(long rentalId, double latitude, double longitude) throws ConflictException {
         Rental rental = findOrThrow(rentalId);
         if (rental.getStatus() != RentalStatus.ACTIVE) {
             throw new ConflictException("This rental can't be returned.");
@@ -43,15 +42,15 @@ public class RentalService {
         rental.setEndTime(ZonedDateTime.now());
         rental.setStatus(RentalStatus.COMPLETED);
         vehicleService.returnVehicle(rental.getVehicle(), latitude, longitude);
-        return rentalRepository.save(rental);
+        return mapToDto(rentalRepository.save(rental));
     }
 
-    public Rental getRentalById(long id) throws ResourceNotFoundException {
-        return findOrThrow(id);
+    public RentalResponseDto getRentalById(long id) throws ResourceNotFoundException {
+        return mapToDto(findOrThrow(id));
     }
 
-    public List<Rental> getRentalsByUser(long userId) {
-        return rentalRepository.findByUserId(userId);
+    public List<RentalResponseDto> getRentalsByUser(long userId) {
+        return mapToDtos(rentalRepository.findByUserId(userId));
     }
 
     public Rental findOrThrow(long id) throws ResourceNotFoundException {
@@ -59,8 +58,10 @@ public class RentalService {
                 .orElseThrow(() -> new ResourceNotFoundException("Rental not found. id=" + id));
     }
 
-    public Optional<Rental> getActiveRentalForUser(long userId){
-        return rentalRepository.findFirstByUserIdAndStatus(userId, RentalStatus.ACTIVE);
+    public RentalResponseDto getActiveRentalForUser(long userId) throws ResourceNotFoundException {
+        var rental = rentalRepository.findFirstByUserIdAndStatus(userId, RentalStatus.ACTIVE)
+                .orElseThrow(() -> new ResourceNotFoundException("Rental not found for user id=" + userId));
+        return mapToDto(rental);
     }
 
     public List<RentalResponseDto> mapToDtos(List<Rental> rentals) {
@@ -77,7 +78,7 @@ public class RentalService {
         dto.setId(rental.getId());
         dto.setStartDate(rental.getStartTime());
         dto.setEndDate(rental.getEndTime());
-        dto.setStatus(rental.getStatus() != null ? RentalResponseDto.Status.valueOf(rental.getStatus().name()) : null);
+        dto.setStatus(rental.getStatus() != null ? rental.getStatus().name() : null);
 
         if (rental.getVehicle() != null) {
             Vehicle vehicle = rental.getVehicle();
@@ -90,7 +91,7 @@ public class RentalService {
         }
 
         if (rental.getUser() != null) {
-            dto.setUserName(rental.getUser().getName());
+            dto.setUserName(rental.getUser().getEmail());
         }
 
         return dto;

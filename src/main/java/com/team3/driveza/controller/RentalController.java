@@ -3,7 +3,7 @@ package com.team3.driveza.controller;
 import com.team3.driveza.Dto.Rental.RentRequestDto;
 import com.team3.driveza.Dto.Rental.RentalResponseDto;
 import com.team3.driveza.Dto.Rental.ReturnRequestDto;
-import com.team3.driveza.model.Rental;
+import com.team3.driveza.exception.ResourceNotFoundException;
 import com.team3.driveza.service.RentalService;
 import com.team3.driveza.service.UserService;
 import jakarta.validation.Valid;
@@ -32,7 +32,7 @@ public class RentalController {
     // Display the current user rentals on a Thymeleaf page.
     @GetMapping("/rentals")
     public String listRentals(@RequestParam(defaultValue = "1") Long userId, Model model) {
-        List<RentalResponseDto> rentals = rentalService.mapToDtos(rentalService.getRentalsByUser(userId));
+        List<RentalResponseDto> rentals = rentalService.getRentalsByUser(userId);
         model.addAttribute("rentals", rentals);
         return "rentals/list";
     }
@@ -54,7 +54,7 @@ public class RentalController {
     // Render the detail page for a specific rental.
     @GetMapping("/rentals/{id}")
     public String rentalDetail(@PathVariable Long id, Model model) {
-        model.addAttribute("rental", rentalService.mapToDto(rentalService.getRentalById(id)));
+        model.addAttribute("rental", rentalService.getRentalById(id));
         return "rentals/detail";
     }
 
@@ -63,9 +63,9 @@ public class RentalController {
     public String returnVehicleForm(@PathVariable Long rentalId,
                                     @Valid @ModelAttribute ReturnRequestDto returnRequest,
                                     Principal principal) {
-        Rental rental = rentalService.getRentalById(rentalId);
-        if (rental.getUser() == null || principal == null ||
-                !principal.getName().equalsIgnoreCase(rental.getUser().getEmail())) {
+        var rental = rentalService.getRentalById(rentalId);
+        if (rental.getUserName() == null || principal == null ||
+                !principal.getName().equalsIgnoreCase(rental.getUserName())) {
             throw new AccessDeniedException("You can only return your own rental.");
         }
 
@@ -76,7 +76,7 @@ public class RentalController {
 
     // API endpoint: rent a vehicle via path parameters.
     @PostMapping("/api/rentals/rent/{vehicleId}/user/{userId}")
-    public ResponseEntity<Rental> rentVehicle(
+    public ResponseEntity<RentalResponseDto> rentVehicle(
             @PathVariable Long vehicleId,
             @PathVariable Long userId) {
         return ResponseEntity.ok(
@@ -90,8 +90,11 @@ public class RentalController {
     public String rentFromCard(@PathVariable Long vehicleId, Principal principal) {
         var user = userService.getUserByEmail(principal.getName());
 
-        if (rentalService.getActiveRentalForUser(user.getId()).isPresent()) {
+        try {
+            rentalService.getActiveRentalForUser(user.getId());
             return "redirect:/cars?alreadyRented";
+        } catch (ResourceNotFoundException e) {
+            // Isn't rented can move on
         }
         rentalService.rentVehicle(vehicleId, user.getId());
         return "redirect:/cars"; //just for testing will need to implement
@@ -100,7 +103,7 @@ public class RentalController {
 
     // API endpoint: return a vehicle by ID.
     @PutMapping("/api/rentals/return/{rentalId}")
-    public ResponseEntity<Rental> returnVehicle(
+    public ResponseEntity<RentalResponseDto> returnVehicle(
             @PathVariable Long rentalId,
             @RequestParam Double latitude,
             @RequestParam Double longitude) {
@@ -111,7 +114,7 @@ public class RentalController {
 
     // API endpoint: retrieve rentals for a user.
     @GetMapping("/api/rentals/user/{userId}")
-    public ResponseEntity<List<Rental>> getUserRentals(@PathVariable Long userId) {
+    public ResponseEntity<List<RentalResponseDto>> getUserRentals(@PathVariable Long userId) {
         return ResponseEntity.ok(
                 rentalService.getRentalsByUser(userId)
         );
