@@ -106,4 +106,9 @@ public class TicketService {
                 .closedAt(t.getClosedAt())
                 .build();
     }
+
+    @Transactional(readOnly = true)
+    public List<TicketResponseDto> getAllTickets(){
+        return ticketRepository.findAll().stream().map(this::toDto).toList();
+    }
 }

@@ -1,0 +1,185 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Driveza | Support</title>
+    <link rel="stylesheet" th:href="@{/css/driveza-app.css}">
+
+    <!-- CSRF -->
+    <meta name="_csrf" th:content="${_csrf.token}"/>
+    <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
+</head>
+
+<body>
+
+<div th:replace="header :: userHeader('/support')"></div>
+
+<main class="container">
+
+    <!-- Page Header -->
+    <section class="pageHead card pad">
+        <div>
+            <h1 class="pageTitle">Support Center</h1>
+            <p class="pageSub">Create and track your support tickets</p>
+        </div>
+    </section>
+
+    <!-- Create Ticket -->
+    <section class="card pad">
+
+        <h3>Create New Ticket</h3>
+
+        <div class="field">
+            <label class="label">Title</label>
+            <input class="input" id="title" placeholder="Enter ticket title">
+        </div>
+
+        <div class="field">
+            <label class="label">Description</label>
+            <textarea class="input" id="description" rows="4"
+                      placeholder="Describe your issue..."></textarea>
+        </div>
+
+        <button class="btn" onclick="createTicket()">Send Ticket</button>
+
+        <div id="createMsg" class="muted" style="margin-top:10px;"></div>
+
+        <hr style="margin:25px 0; opacity:.2;"/>
+
+        <!-- My Tickets -->
+        <h3>My Tickets</h3>
+
+        <button class="btn btn--ghost" onclick="loadMyTickets()">Refresh</button>
+
+        <div id="ticketList" style="margin-top:20px;"></div>
+
+    </section>
+
+</main>
+
+<script>
+
+    async function createTicket() {
+
+        const title = document.getElementById("title").value;
+        const description = document.getElementById("description").value;
+        const msg = document.getElementById("createMsg");
+
+        const csrfToken = document.querySelector("meta[name='_csrf']").getAttribute("content");
+        const csrfHeader = document.querySelector("meta[name='_csrf_header']").getAttribute("content");
+
+        msg.textContent = "Sending...";
+
+        const response = await fetch("/ticket", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                [csrfHeader]: csrfToken
+            },
+            body: JSON.stringify({
+                title: title,
+                description: description
+            })
+        });
+
+        if (!response.ok) {
+            const errorText = await response.text();
+            msg.textContent = "Failed: " + errorText;
+            return;
+        }
+
+        const data = await response.json();
+
+        msg.innerHTML = `
+        ✅ Ticket created successfully.<br>
+        <b>Token:</b> ${data.token}
+    `;
+
+        document.getElementById("title").value = "";
+        document.getElementById("description").value = "";
+
+        loadMyTickets();
+    }
+
+
+    async function loadMyTickets() {
+
+        const list = document.getElementById("ticketList");
+        list.innerHTML = "Loading...";
+
+        try {
+
+            const response = await fetch("/ticket/me");
+
+            if (!response.ok) {
+                list.innerHTML = "Failed to load tickets.";
+                return;
+            }
+
+            const tickets = await response.json();
+
+            if (tickets.length === 0) {
+                list.innerHTML = "<div class='muted'>No tickets found.</div>";
+                return;
+            }
+
+            list.innerHTML = tickets.map(t => `
+
+            <div class="card pad" style="margin-top:15px;">
+
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <div>
+                        <b>${t.title}</b>
+                        <div class="mutedSmall">Created: ${formatDate(t.createdAt)}</div>
+                    </div>
+
+                    <span class="badge ${t.status === 'OPEN' ? 'badge--ok' : 'badge--danger'}">
+                        ${t.status}
+                    </span>
+                </div>
+
+                <div style="margin-top:10px;">
+                    <b>Your message:</b>
+                    <div class="muted">${t.description}</div>
+                </div>
+
+                ${t.adminResponse ? `
+                    <div style="margin-top:10px;">
+                        <b>Admin response:</b>
+                        <div>${t.adminResponse}</div>
+                    </div>
+                ` : `
+                    <div class="mutedSmall" style="margin-top:10px;">
+                        Waiting for admin response...
+                    </div>
+                `}
+
+                <div class="mutedSmall" style="margin-top:10px;">
+                    Token: ${t.token}
+                </div>
+
+                ${t.closedAt ? `
+                    <div class="mutedSmall">
+                        Closed at: ${formatDate(t.closedAt)}
+                    </div>
+                ` : ""}
+
+            </div>
+
+        `).join("");
+
+        } catch (error) {
+            list.innerHTML = "Error: " + error;
+        }
+    }
+
+
+    function formatDate(dateString) {
+        if (!dateString) return "";
+        return new Date(dateString).toLocaleString();
+    }
+
+</script>
+
+</body>
+</html>

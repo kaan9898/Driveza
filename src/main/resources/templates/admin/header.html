@@ -46,10 +46,10 @@
             Admin
         </span>
 
-        <!-- Support button (user asked: near logout) -->
+
         <a class="btn btn--ghost"
-           th:href="@{/support}"
-           th:classappend="${currentPath == '/support'} ? 'btn--active'">
+           th:classappend="${currentPath == '/admin/support'} ? 'btn&#45;&#45;active'"
+           th:href="@{/admin/support}">
             Support
         </a>
 
