@@ -28,7 +28,7 @@ public class UserService {
     private final PasswordEncoder passwordEncoder;
 
     public Page<UserListDto> getAllUsers(Pageable pageable) {
-        return userRepository.findByDisabledFalse(pageable).map(this::toListDto);
+        return userRepository.findAll(pageable).map(this::toListDto);
     }
 
     public UserDetailDto getUserById(Long id) {
@@ -176,10 +176,10 @@ public class UserService {
     }
 
     public long getUserCount() {
-        return userRepository.countByDisabledFalse();
+        return userRepository.count();
     }
 
     public long getUserCountByRole(Role role) {
-        return userRepository.countByRoleAndDisabledFalse(role);
+        return userRepository.countByRole(role);
     }
 }
