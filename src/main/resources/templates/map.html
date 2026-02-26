@@ -12,12 +12,61 @@
         href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 
   <style>
+    .mapShell {
+      position: relative;
+      margin-top: 16px;
+    }
     #map {
       height: 550px;
       width: 100%;
       border-radius: 12px;
-      margin-top: 16px;
       overflow: hidden;
+    }
+
+    .mapShell--locked #map {
+      filter: grayscale(1) brightness(.85) saturate(.65);
+    }
+
+    .mapOverlay {
+      position: absolute;
+      inset: 0;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 18px;
+      background: rgba(15, 23, 42, 0.35);
+      backdrop-filter: blur(2px);
+      -webkit-backdrop-filter: blur(2px);
+      z-index: 500;
+    }
+
+    .mapOverlay__card {
+      width: min(560px, 100%);
+      background: rgba(255, 255, 255, 0.94);
+      border: 1px solid rgba(15, 23, 42, 0.12);
+      border-radius: 14px;
+      padding: 16px 16px 14px;
+      box-shadow: 0 18px 40px rgba(15, 23, 42, 0.18);
+    }
+
+    .mapOverlay__title {
+      margin: 0 0 6px;
+      font-size: 16px;
+    }
+
+    .mapOverlay__sub {
+      margin: 0 0 12px;
+      font-size: 13px;
+      opacity: .75;
+    }
+
+    .radiusSelect {
+      border: 1px solid rgba(15, 23, 42, 0.18);
+      background: #fff;
+      border-radius: 999px;
+      padding: 8px 12px;
+      font-size: 13px;
     }
     .mapActions{
       display:flex;
@@ -57,10 +106,23 @@
 
     <div class="mapActions">
       <button class="btn" type="button" id="btnLocate">Use my location</button>
+      <button class="btn btn--ghost" type="button" id="btnManual">Manual location</button>
+
+      <label class="pill" for="radiusSelect">
+        Radius:
+        <select id="radiusSelect" class="radiusSelect">
+          <option value="1">1 km</option>
+          <option value="2">2 km</option>
+          <option value="5" selected>5 km</option>
+          <option value="10">10 km</option>
+          <option value="20">20 km</option>
+          <option value="50">50 km</option>
+        </select>
+      </label>
       <a class="btn btn--ghost" th:href="@{/map}">Reset view</a>
 
       <span class="pill">
-        Vehicles on map:
+        Vehicles within selected range:
         <b th:text="${vehicles != null ? #lists.size(vehicles) : 0}">0</b>
       </span>
 
@@ -95,9 +157,9 @@
       </div>
     </div>
 
-    <div th:if="${vehicles == null or #lists.isEmpty(vehicles)}"
+    <div th:if="${hasLocation and (vehicles == null or #lists.isEmpty(vehicles))}"
          class="alert alert--info" style="margin-top:12px;">
-      No vehicles available at the moment.
+      No vehicles found within the selected radius.
     </div>
 
     <!-- ✅ Hidden vehicle data rendered safely -->
@@ -125,7 +187,32 @@
          th:data-lat="${returnSuccessLat}"
          th:data-lon="${returnSuccessLon}"></div>
 
-    <div id="map"></div>
+    <div id="mapPageState"
+         th:data-has-location="${hasLocation}"
+         th:data-lat="${selectedLat}"
+         th:data-lon="${selectedLon}"
+         th:data-radius="${selectedRadius}"
+         th:data-return-flow="${returningRental != null}"></div>
+
+    <div id="mapShell"
+         class="mapShell"
+         th:classappend="${(!hasLocation and returningRental == null and !returnSuccess) ? ' mapShell--locked' : ''}">
+
+      <div id="mapOverlay"
+           class="mapOverlay"
+           th:if="${!hasLocation and returningRental == null and !returnSuccess}">
+        <div class="mapOverlay__card">
+          <h3 class="mapOverlay__title">Choose a location to see nearby cars</h3>
+          <p class="mapOverlay__sub">Use your current location or pick a point on the map. Default radius is 5 km.</p>
+          <div class="mapActions" style="margin-top:0;">
+            <button class="btn" type="button" id="btnOverlayLocate">Use my location</button>
+            <button class="btn btn--ghost" type="button" id="btnOverlayManual">Manual location</button>
+          </div>
+        </div>
+      </div>
+
+      <div id="map"></div>
+    </div>
 
   </section>
 
@@ -139,6 +226,13 @@
   // Default center (Riga)
   const defaultCenter = [56.9496, 24.1052];
   const defaultZoom = 12;
+
+  const stateEl = document.getElementById("mapPageState");
+  const hasLocation = (stateEl?.dataset.hasLocation === "true");
+  const returnFlow = (stateEl?.dataset.returnFlow === "true");
+  const stateLat = stateEl?.dataset.lat ? parseFloat(stateEl.dataset.lat) : null;
+  const stateLon = stateEl?.dataset.lon ? parseFloat(stateEl.dataset.lon) : null;
+  const stateRadius = stateEl?.dataset.radius ? parseFloat(stateEl.dataset.radius) : 5;
 
   const map = L.map('map').setView(defaultCenter, defaultZoom);
 
@@ -172,14 +266,67 @@
     bounds.push([lat, lon]);
   });
 
-  // Fit to markers if any
-  if (bounds.length > 0) {
-    map.fitBounds(bounds, { padding: [30, 30] });
+  // Show the selected/search location so users can see where they're rendering around.
+  let selectedPoint = null;
+  let radiusCircle = null;
+  if (hasLocation && Number.isFinite(stateLat) && Number.isFinite(stateLon)) {
+    selectedPoint = [stateLat, stateLon];
+    L.circleMarker(selectedPoint, {
+      radius: 8,
+      weight: 2,
+      color: "#111827",
+      fillColor: "#60a5fa",
+      fillOpacity: 0.65
+    }).addTo(markersLayer).bindPopup("Search location");
+
+    // Visualize the selected radius so it’s obvious when 1/2/5/10 changes.
+    const rKm = Number.isFinite(stateRadius) ? stateRadius : 5;
+    radiusCircle = L.circle(selectedPoint, {
+      radius: Math.max(0.1, rKm) * 1000,
+      color: "#0891b2",
+      weight: 2,
+      fillColor: "#22d3ee",
+      fillOpacity: 0.10
+    }).addTo(markersLayer);
+  }
+
+  // Fit to markers if any (include selected location in the bounds so it stays visible).
+  if (bounds.length > 0 || radiusCircle) {
+    const b = bounds.length > 0 ? L.latLngBounds(bounds) : null;
+    const union = b ?? radiusCircle.getBounds();
+    if (selectedPoint) union.extend(selectedPoint);
+    if (radiusCircle) union.extend(radiusCircle.getBounds());
+    map.fitBounds(union, { padding: [30, 30], maxZoom: 14 });
+  } else if (selectedPoint) {
+    map.setView(selectedPoint, 14);
   }
 
   // ✅ Locate button
+  // Radius dropdown: reload server-rendered map using /map params.
+  const radiusSelect = document.getElementById("radiusSelect");
+  if (radiusSelect) {
+    radiusSelect.value = String(Number.isFinite(stateRadius) ? Math.trunc(stateRadius) : 5);
+    radiusSelect.addEventListener("change", () => {
+      const nextRadius = parseInt(radiusSelect.value, 10);
+      if (!Number.isFinite(nextRadius) || nextRadius <= 0) return;
+      if (!Number.isFinite(stateLat) || !Number.isFinite(stateLon)) return;
+      window.location.assign(`/map?lat=${encodeURIComponent(stateLat)}&lon=${encodeURIComponent(stateLon)}&radius=${encodeURIComponent(nextRadius)}`);
+    });
+  }
+
+  // Location + manual selection flow (SSR redirect using /map parameters)
   const statusEl = document.getElementById("locationStatus");
-  document.getElementById("btnLocate").addEventListener("click", () => {
+  if (statusEl && selectedPoint) {
+    const r = Number.isFinite(stateRadius) ? Math.trunc(stateRadius) : 5;
+    statusEl.textContent = `Showing cars near ${stateLat.toFixed(5)}, ${stateLon.toFixed(5)} (radius ${r} km).`;
+  }
+
+  function goToLocation(lat, lon, radiusKm) {
+    const r = Number.isFinite(radiusKm) ? radiusKm : 5;
+    window.location.assign(`/map?lat=${encodeURIComponent(lat)}&lon=${encodeURIComponent(lon)}&radius=${encodeURIComponent(r)}`);
+  }
+
+  function locateCenterOnly() {
     if (!navigator.geolocation) {
       statusEl.textContent = "Geolocation not supported in this browser.";
       return;
@@ -207,6 +354,84 @@
             },
             { enableHighAccuracy: true, timeout: 8000 }
     );
+  }
+
+  function locateAndRender() {
+    if (!navigator.geolocation) {
+      statusEl.textContent = "Geolocation not supported in this browser.";
+      return;
+    }
+    statusEl.textContent = "Detecting your location...";
+
+    navigator.geolocation.getCurrentPosition(
+            (pos) => {
+              const lat = pos.coords.latitude;
+              const lon = pos.coords.longitude;
+              // UX requirement: render cars around user location with default 5km radius.
+              goToLocation(lat, lon, 5);
+            },
+            (err) => {
+              statusEl.textContent = "Location permission denied or failed.";
+              console.error(err);
+            },
+            { enableHighAccuracy: true, timeout: 8000 }
+    );
+  }
+
+  const btnLocate = document.getElementById("btnLocate");
+  if (btnLocate) {
+    btnLocate.addEventListener("click", returnFlow ? locateCenterOnly : locateAndRender);
+  }
+  const btnOverlayLocate = document.getElementById("btnOverlayLocate");
+  if (btnOverlayLocate) {
+    btnOverlayLocate.addEventListener("click", locateAndRender);
+  }
+
+  let manualPickEnabled = false;
+  let manualMarker;
+
+  function enableManualPick() {
+    manualPickEnabled = true;
+    statusEl.textContent = "Click on the map to choose a location.";
+    map.getContainer().style.cursor = "crosshair";
+
+    const overlay = document.getElementById("mapOverlay");
+    if (overlay) overlay.style.display = "none";
+    const shell = document.getElementById("mapShell");
+    if (shell) shell.classList.remove("mapShell--locked");
+  }
+
+  const btnManual = document.getElementById("btnManual");
+  if (btnManual && !returnFlow) {
+    btnManual.addEventListener("click", enableManualPick);
+  }
+  const btnOverlayManual = document.getElementById("btnOverlayManual");
+  if (btnOverlayManual) {
+    btnOverlayManual.addEventListener("click", enableManualPick);
+  }
+
+  map.on("click", (event) => {
+    if (returnFlow) return;
+    if (!manualPickEnabled) return;
+
+    const lat = event.latlng.lat;
+    const lon = event.latlng.lng;
+    const nextRadius = radiusSelect ? parseInt(radiusSelect.value, 10) : 5;
+
+    if (manualMarker) manualMarker.remove();
+    manualMarker = L.marker([lat, lon], {
+      icon: L.divIcon({
+        className: "manual-pin",
+        html: "<div style=\"font-size:24px; line-height:24px;\">\\u{1F4CD}</div>",
+        iconSize: [24, 24],
+        iconAnchor: [12, 24]
+      })
+    }).addTo(map).bindPopup("Selected location").openPopup();
+
+    map.setView([lat, lon], 14);
+    window.setTimeout(() => {
+      goToLocation(lat, lon, Number.isFinite(nextRadius) ? nextRadius : 5);
+    }, 200);
   });
 
   const returnFlowData = document.getElementById("returnFlowData");
