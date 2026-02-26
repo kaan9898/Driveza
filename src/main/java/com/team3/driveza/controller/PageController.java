@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.security.Principal;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -114,12 +115,22 @@ public class PageController {
                       Model model,
                       Principal principal) {
 
-        List<VehicleUserResponseDto> vehicleList = vehicleService.getVehicles(null, lat, lon, radius, null, PageRequest.ofSize(300)).toList();
+        boolean hasLocation = lat != null && lon != null;
+        Double effectiveRadius = normalizeRadiusKm(radius);
+
+        // UX requirement: do not render "all vehicles" when user hasn't chosen a location yet.
+        List<VehicleUserResponseDto> vehicleList = hasLocation
+                ? vehicleService.getVehicles(null, lat, lon, effectiveRadius, null, PageRequest.ofSize(300)).toList()
+                : Collections.emptyList();
 
         model.addAttribute("vehicles", vehicleList);
+        model.addAttribute("hasLocation", hasLocation);
+        model.addAttribute("selectedLat", lat);
+        model.addAttribute("selectedLon", lon);
+        model.addAttribute("selectedRadius", effectiveRadius);
         model.addAttribute("lat", lat);
         model.addAttribute("lon", lon);
-        model.addAttribute("radius", radius);
+        model.addAttribute("radius", effectiveRadius);
 
         // returning ui shows if returningRental is set
         // check whether the user email and status matches
@@ -141,6 +152,15 @@ public class PageController {
         model.addAttribute("returnSuccessLon", returnLon);
 
         return "map";
+    }
+
+    private Double normalizeRadiusKm(Double radiusKm) {
+        // Keep radius to UX options; default to 5km.
+        if (radiusKm == null) return 5.0;
+        return switch (radiusKm.intValue()) {
+            case 1, 2, 5, 10, 20, 50 -> (double) radiusKm.intValue();
+            default -> 5.0;
+        };
     }
 
     @GetMapping("/account/change-password")
