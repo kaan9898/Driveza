@@ -30,11 +30,12 @@ public class AdminVehicleController {
             page = 0;
         }
         var vehiclePage = vehicleService.getAllVehicles(PageRequest.of(page, 10));
+        var currentPage=vehiclePage.getNumber();
         model.addAttribute("vehicles", vehiclePage);
-        model.addAttribute("currentPage", vehiclePage.getNumber());
+        model.addAttribute("currentPage", currentPage);
         model.addAttribute("totalPages", Math.max(1, vehiclePage.getTotalPages()));
-        model.addAttribute("prevHref", vehiclePage.hasPrevious() ? buildListHref(vehiclePage.getNumber() - 1) : null);
-        model.addAttribute("nextHref", vehiclePage.hasNext() ? buildListHref(vehiclePage.getNumber() + 1) : null);
+        model.addAttribute("prevHref", vehiclePage.hasPrevious() ? buildListHref(currentPage - 1) : null);
+        model.addAttribute("nextHref", vehiclePage.hasNext() ? buildListHref(currentPage + 1) : null);
         return "admin/vehicles/list";
     }
 

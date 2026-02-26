@@ -7,6 +7,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.util.UriComponentsBuilder;
 
 /**
  * User account management pages supported by Thymeleaf views.
@@ -31,11 +32,21 @@ public class UserController {
         if (page != 0 && users.isEmpty()) {
             return "redirect:/users";
         }
+        var currentPage = users.getNumber();
         model.addAttribute("users", users);
         model.addAttribute("userCount", userService.getUserCount());
+        model.addAttribute("prevHref", users.hasPrevious() ? buildListHref(currentPage - 1) : null);
+        model.addAttribute("nextHref", users.hasNext() ? buildListHref(currentPage + 1) : null);
         model.addAttribute("totalPages", users.getTotalPages());
-        model.addAttribute("currentPage", users.getNumber());
+        model.addAttribute("currentPage", currentPage);
         return "users/list";
+    }
+
+    private String buildListHref(int page) {
+        return UriComponentsBuilder.fromPath("/users")
+                .queryParam("page", page)
+                .build()
+                .toUriString();
     }
 
     // Render an empty form for creating a user.
