@@ -79,6 +79,7 @@ public class TicketService {
                 .orElseThrow(() -> new TicketNotFoundException(token));
 
         ticket.setAdminResponse(dto.getAdminResponse());
+        ticket.setStatus(TicketStatus.CLOSED);
         return toDto(ticketRepository.save(ticket));
     }
 
