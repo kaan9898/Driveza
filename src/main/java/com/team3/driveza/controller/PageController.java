@@ -4,8 +4,6 @@ package com.team3.driveza.controller;
 import com.team3.driveza.Dto.Rental.RentalResponseDto;
 import com.team3.driveza.Dto.Vehicle.VehicleUserResponseDto;
 import com.team3.driveza.exception.ResourceNotFoundException;
-import com.team3.driveza.model.Rental;
-import com.team3.driveza.model.enums.RentalStatus;
 import com.team3.driveza.service.RentalService;
 import com.team3.driveza.service.UserService;
 import com.team3.driveza.service.VehicleService;
@@ -74,11 +72,16 @@ public class PageController {
         var user = userService.getUserByEmail(principal.getName());
         model.addAttribute("userId", user.getId());
         // active rental
-        model.addAttribute("activeRental",
-                rentalService.getActiveRentalForUser(user.getId())
-                        .map(rentalService::mapToDto)
-                        .orElse(null));
 
+        RentalResponseDto rental;
+        try {
+            rental = rentalService.getActiveRentalForUser(user.getId());
+        } catch (ResourceNotFoundException e) {
+            // Show an error message?
+            rental = null;
+        }
+
+        model.addAttribute("activeRental", rental);
 
         return "cars";
     }
@@ -118,15 +121,16 @@ public class PageController {
         model.addAttribute("lon", lon);
         model.addAttribute("radius", radius);
 
+        // returning ui shows if returningRental is set
+        // check whether the user email and status matches
         RentalResponseDto returningRental = null;
         if (returnRentalId != null && principal != null) {
             try {
-                Rental rental = rentalService.getRentalById(returnRentalId);
-                if (rental.getUser() != null
-                        && rental.getStatus() == RentalStatus.ACTIVE
-                        && principal.getName().equalsIgnoreCase(rental.getUser().getEmail())) {
-                    returningRental = rentalService.mapToDto(rental);
-                }
+                var user = userService.getUserByEmail(principal.getName());
+                returningRental = rentalService.getActiveRentalForUser(user.getId());
+                // check whether active rental matches returning one to match previous logic.
+                // should pass since we only support one rental for now
+                returningRental = returningRental.getId().equals(returnRentalId) ? returningRental : null;
             } catch (ResourceNotFoundException ignored) {
             }
         }
@@ -172,7 +176,7 @@ public class PageController {
 
 
     @GetMapping("/support")
-    public String supportPage(){
+    public String supportPage() {
         return "support";
     }
 

@@ -6,10 +6,6 @@ import java.time.ZonedDateTime;
 
 @Data
 public class RentalResponseDto {
-    public enum Status {
-        ACTIVE, COMPLETED
-    }
-
     private Long id;
     private Long vehicleId;
     private String vehicleModel;
@@ -17,6 +13,6 @@ public class RentalResponseDto {
     private String userName;
     private ZonedDateTime startDate;
     private ZonedDateTime endDate;
-    private Status status;
+    private String status;
     private double pricePerMin;
 }
