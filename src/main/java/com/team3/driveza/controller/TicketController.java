@@ -19,7 +19,7 @@ public class TicketController {
         this.ticketService = ticketService;
     }
 
-    @PostMapping
+    @PostMapping("/create")
     public TicketResponseDto create(@RequestBody CreateTicketRequestDto dto, Principal principal) {
         String name = (principal != null) ? principal.getName() : "anonymous";
         return ticketService.createTicket(name, dto);
