@@ -94,6 +94,9 @@ public class VehicleService {
 
     public Page<VehicleUserResponseDto> getVehicles(String q, Double lat, Double lon, Double radiusKm, String sortString, PageRequest pageRequest) {
         boolean hasText = q != null && !q.isBlank();
+        if (hasText) {
+            q = q.trim();
+        }
         boolean hasLocation = lat != null && lon != null && radiusKm != null;
 
         sortString = sortString != null ? sortString : "";
@@ -112,7 +115,7 @@ public class VehicleService {
         if (hasLocation) {
             Page<VehicleQuery> vehicles;
             if (hasText) {
-                vehicles = vehicleRepository.findAllWithinRadiusAndName(lat, lon, radiusKm, VehicleStatus.AVAILABLE.name(), q.trim(), pageRequest);
+                vehicles = vehicleRepository.findAllWithinRadiusAndName(lat, lon, radiusKm, VehicleStatus.AVAILABLE.name(), q, pageRequest);
             } else {
                 vehicles = vehicleRepository.findAllWithinRadius(lat, lon, radiusKm, VehicleStatus.AVAILABLE.name(), pageRequest);
             }
@@ -120,7 +123,7 @@ public class VehicleService {
         } else {
             Page<Vehicle> vehicles;
             if (hasText) {
-                vehicles = vehicleRepository.searchAvailable(q.trim(), pageRequest);
+                vehicles = vehicleRepository.searchAvailable(q, pageRequest);
             } else {
                 vehicles = vehicleRepository.findAllByStatus(VehicleStatus.AVAILABLE, pageRequest);
             }
