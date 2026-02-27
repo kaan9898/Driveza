@@ -28,7 +28,7 @@ public class UserController {
         if (page == null || page < 0) {
             page = 0;
         }
-        var users = userService.getAllUsers(PageRequest.of(page, 20));
+        var users = userService.getAllUsers(PageRequest.of(page, 10));
         if (page != 0 && users.isEmpty()) {
             return "redirect:/users";
         }
