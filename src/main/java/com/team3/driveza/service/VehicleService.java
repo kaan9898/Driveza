@@ -39,20 +39,20 @@ public class VehicleService {
         return toAdminResponseDto(findOrThrow(id));
     }
 
-    public void createVehicle(VehicleCreateDto newVehicle) throws RuntimeException {
-        vehicleRepository.save(Vehicle.builder()
+    public VehicleAdminResponseDto createVehicle(VehicleCreateDto newVehicle) throws RuntimeException {
+        return toAdminResponseDto(vehicleRepository.save(Vehicle.builder()
                 .model(vehicleModelService.findOrThrow(newVehicle.getModelId()))
                 .longitude(newVehicle.getLongitude())
                 .latitude(newVehicle.getLatitude())
                 .pricePerMin(newVehicle.getPricePerMin())
                 .type(newVehicle.getType())
                 .status(newVehicle.getStatus())
-                .build());
+                .build()));
     }
 
-    public void updateVehicle(long id, VehicleCreateDto newVehicle) throws ResourceNotFoundException {
+    public VehicleAdminResponseDto updateVehicle(long id, VehicleCreateDto newVehicle) throws ResourceNotFoundException {
         findOrThrow(id);
-        vehicleRepository.save(Vehicle.builder()
+        return toAdminResponseDto(vehicleRepository.save(Vehicle.builder()
                 .id(id)
                 .model(vehicleModelService.findOrThrow(newVehicle.getModelId()))
                 .longitude(newVehicle.getLongitude())
@@ -60,7 +60,7 @@ public class VehicleService {
                 .pricePerMin(newVehicle.getPricePerMin())
                 .type(newVehicle.getType())
                 .status(newVehicle.getStatus())
-                .build());
+                .build()));
     }
 
     public Vehicle rentById(long id) throws ConflictException {
